@@ -5,7 +5,7 @@
  *   – Alternating “you vs. them” bubbles with subtle slide‑in animation
  *   – Automatic word‑wrap & width‑clamp so long lines never overflow
  *   – Layout engine that stacks messages vertically with uniform gaps
- *   – Pure SVG→ renders everywhere GitHub markdown is supported
+ *   – Pure SVG → renders everywhere GitHub markdown is supported
  *
  * Add/replace the long “src: url() …” line for the Inter font where noted.
  * ---------------------------------------------------------------------- */
@@ -13,7 +13,7 @@
 /* eslint-disable no-multi-str */
 
 // ──────────────────────────────────────────────────────────────────────────
-//  📐Layout constants
+//  📐 Layout constants
 // ──────────────────────────────────────────────────────────────────────────
 const SVG_WIDTH                = 550;                  // px – fixed width frame
 const MIN_BUBBLE_WIDTH         = 120;                  // px – don’t get skinnier
@@ -32,14 +32,10 @@ const MAX_CHARS = Math.floor((MAX_BUBBLE_PX - PADDING_X * 2) / AVG_CHAR_WIDTH);
 // ──────────────────────────────────────────────────────────────────────────
 //  🛠️ Utility helpers
 // ──────────────────────────────────────────────────────────────────────────
-/**
- * Hard‑wrap a paragraph so no line exceeds MAX_CHARS (word‑preserving).
- * Returns an array of wrapped lines.
- */
 function wrapLines(paragraph) {
   const words     = paragraph.split(/\s+/);
   const outLines  = [];
-  let   lineBuf   = "";
+  let   lineBuf   = '';
 
   for (const w of words) {
     const probe = lineBuf ? `${lineBuf} ${w}` : w;
@@ -54,19 +50,13 @@ function wrapLines(paragraph) {
   return outLines;
 }
 
-/**
- * Given raw text (may include manual \n) compute wrapped lines & bubble dims.
- */
 function calculateTextLayout(raw) {
-  const lines = raw
-    .split(/\n/)   // respect manual breaks first
-    .map(wrapLines)
-    .flat();
+  const lines = raw.split(/\n/).map(wrapLines).flat();
 
-  const maxLineWidthChars = Math.max(...lines.map(l => l.length));
-  const bubbleWidth = Math.min(
+  const maxLineChars = Math.max(...lines.map(l => l.length));
+  const bubbleWidth  = Math.min(
     MAX_BUBBLE_PX,
-    Math.max(MIN_BUBBLE_WIDTH, maxLineWidthChars * AVG_CHAR_WIDTH + PADDING_X * 2)
+    Math.max(MIN_BUBBLE_WIDTH, maxLineChars * AVG_CHAR_WIDTH + PADDING_X * 2)
   );
   const bubbleHeight = lines.length * LINE_HEIGHT + PADDING_Y * 2;
 
@@ -74,36 +64,29 @@ function calculateTextLayout(raw) {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-//  🎨 SVG element builders
+//  🎨 SVG builders
 // ──────────────────────────────────────────────────────────────────────────
-function createMessageElement(message, x, y, delay) {
-  const {
-    lines,
-    bubbleWidth,
-    bubbleHeight,
-  } = calculateTextLayout(message.text);
+function createMessageElement(msg, x, y, delay) {
+  const { lines, bubbleWidth, bubbleHeight } = calculateTextLayout(msg.text);
 
-  const bubbleClass = message.isSelf ? "bubble--self"   : "bubble--other";
-  const textClass   = message.isSelf ? "text--self"     : "text--other";
-  const textAnchor  = message.isSelf ? "end"            : "start";
-  const tailSide    = message.isSelf ? "right"          : "left";
+  const bubbleClass = msg.isSelf ? 'bubble--self'  : 'bubble--other';
+  const textClass   = msg.isSelf ? 'text--self'    : 'text--other';
+  const textAnchor  = msg.isSelf ? 'end'           : 'start';
+  const tailSide    = msg.isSelf ? 'right'         : 'left';
 
-  // Tail geometry: a tiny right‑angled triangle tucked under the bubble
-  const tail = tailSide === "right"
-    ? `M ${bubbleWidth} ${bubbleHeight - 12} l  10 12 h -10 Z`
+  const tailPath = tailSide === 'right'
+    ? `M ${bubbleWidth} ${bubbleHeight - 12} l 10 12 h -10 Z`
     : `M 0 ${bubbleHeight - 12} l -10 12 v -12 Z`;
 
-  // Build <text> with tspans for each line
-  const tspanLines = lines.map((l, idx) =>
-    `      <tspan x="${message.isSelf ? bubbleWidth - PADDING_X : PADDING_X}" dy="${idx === 0 ? 0 : LINE_HEIGHT}">${l}</tspan>`
-  ).join("\n");
+  const tspans = lines.map((l, i) =>
+    `      <tspan x="${msg.isSelf ? bubbleWidth - PADDING_X : PADDING_X}" dy="${i === 0 ? 0 : LINE_HEIGHT}">${l}</tspan>`).join('\n');
 
   return `
   <g class="message-bubble ${bubbleClass}" style="--tx:${x}px; --ty:${y}px; animation-delay:${delay}s">
     <path class="bubble-rect" d="M 0 0 h ${bubbleWidth} a ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} 0 0 1 ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} v ${bubbleHeight - BUBBLE_RADIUS * 2} a ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} 0 0 1 -${BUBBLE_RADIUS} ${BUBBLE_RADIUS} h -${bubbleWidth - BUBBLE_RADIUS * 2} a ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} 0 0 1 -${BUBBLE_RADIUS} -${BUBBLE_RADIUS} v -${bubbleHeight - BUBBLE_RADIUS * 2} a ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} 0 0 1 ${BUBBLE_RADIUS} -${BUBBLE_RADIUS} Z"/>
-    <path class="bubble-tail" d="${tail}"/>
+    <path class="bubble-tail" d="${tailPath}"/>
     <text class="${textClass}" text-anchor="${textAnchor}" y="${PADDING_Y + 15}">
-${tspanLines}
+${tspans}
     </text>
   </g>`;
 }
@@ -111,47 +94,38 @@ ${tspanLines}
 function createTypingIndicator(x, y, delay) {
   return `
   <g class="typing-indicator" style="--tx:${x}px; --ty:${y}px; animation-delay:${delay}s">
-    <circle cx="4"  cy="4"  r="4"/>
-    <circle cx="20" cy="4"  r="4"/>
-    <circle cx="36" cy="4"  r="4"/>
+    <circle cx="4"  cy="4" r="4" />
+    <circle cx="20" cy="4" r="4" />
+    <circle cx="36" cy="4" r="4" />
   </g>`;
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-//  🧩 Public API — generateSvg(messages)
+//  🧩 generateSvg — public API
 // ──────────────────────────────────────────────────────────────────────────
-/**
- * @param {Array<{ text:string; isSelf:boolean; typing?:boolean; }>} messages
- * @returns {string} Complete <svg> markup.
- */
 function generateSvg(messages) {
-  let cursorY   = 0;
-  let svgBody  = "";
+  let yCursor = 0;
+  let body    = '';
 
-  messages.forEach((msg, idx) => {
-    const delay = idx * 0.3; // stagger reveals for fun
+  messages.forEach((m, idx) => {
+    const delay = idx * 0.3;
 
-    if (msg.typing) {
-      const x = msg.isSelf ? SVG_WIDTH - 64 : 0;
-      svgBody += createTypingIndicator(x, cursorY, delay);
-      cursorY += 20 + MESSAGE_GAP;
+    if (m.typing) {
+      const x = m.isSelf ? SVG_WIDTH - 64 : 0;
+      body   += createTypingIndicator(x, yCursor, delay);
+      yCursor += 20 + MESSAGE_GAP;
       return;
     }
 
-    const {
-      bubbleWidth,
-      bubbleHeight,
-    } = calculateTextLayout(msg.text);
-
-    const x = msg.isSelf ? SVG_WIDTH - bubbleWidth : 0;
-    svgBody += createMessageElement(msg, x, cursorY, delay);
-
-    cursorY += bubbleHeight + MESSAGE_GAP;
+    const { bubbleWidth, bubbleHeight } = calculateTextLayout(m.text);
+    const x = m.isSelf ? SVG_WIDTH - bubbleWidth : 0;
+    body   += createMessageElement(m, x, yCursor, delay);
+    yCursor += bubbleHeight + MESSAGE_GAP;
   });
 
-  const svgHeight = cursorY; // fit‑to‑content
+  const svgHeight = yCursor || 40;
 
-  return `<svg width="${SVG_WIDTH}" height="${svgHeight}" viewBox="0 0 ${SVG_WIDTH} ${svgHeight}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+  return `<svg width="${SVG_WIDTH}" height="${svgHeight}" viewBox="0 0 ${SVG_WIDTH} ${svgHeight}" xmlns="http://www.w3.org/2000/svg" role="img" fill="none">
   <style>
     @font-face {
       font-family: 'Inter';
@@ -163,14 +137,14 @@ function generateSvg(messages) {
     }
 
     text {
-      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
       font-size: 14px;
       line-height: ${LINE_HEIGHT}px;
       white-space: pre;
       dominant-baseline: hanging;
     }
 
-    /* *****  Bubble base  ************************************************* */
+    /* *****  Bubble base *************************************************** */
     .message-bubble {
       transform: translate(var(--tx), calc(var(--ty) + 10px));
       opacity: 0;
@@ -178,30 +152,17 @@ function generateSvg(messages) {
     }
 
     @keyframes msg-reveal {
-      to {
-        transform: translate(var(--tx), var(--ty));
-        opacity: 1;
-      }
+      to { transform: translate(var(--tx), var(--ty)); opacity: 1; }
     }
 
-    .bubble-rect {
-      fill: var(--bubble-fill, #000000);
-    }
-    .bubble-tail {
-      fill: var(--bubble-fill, #000000);
-    }
+    .bubble-rect, .bubble-tail { fill: var(--bubble-fill, #000); }
+    .bubble--self  { --bubble-fill: #0d6efd; }
+    .bubble--other { --bubble-fill: #2b2b2b; }
 
-    /* ***** Self vs Other colours  **************************************** */
-    .bubble--self   .bubble-rect,
-    .bubble--self   .bubble-tail { --bubble-fill: #0d6efd; }
+    .text--self  { fill: #fff; }
+    .text--other { fill: #fff; }
 
-    .bubble--other  .bubble-rect,
-    .bubble--other  .bubble-tail { --bubble-fill: #2b2b2b; }
-
-    .text--self   { fill: #ffffff; }
-    .text--other  { fill: #ffffff; }
-
-    /* ***** Typing indicator  ********************************************* */
+    /* *****  Typing indicator ********************************************* */
     .typing-indicator {
       transform: translate(var(--tx), calc(var(--ty) + 10px));
       opacity: 0;
@@ -211,20 +172,22 @@ function generateSvg(messages) {
       fill: #2b2b2b;
       animation: blink 1s ease-in-out infinite;
     }
-    .typing-indicator circle:nth-child(2) { animation-delay: 0.15s; }
-    .typing-indicator circle:nth-child(3) { animation-delay: 0.30s; }
+    .typing-indicator circle:nth-child(2){ animation-delay: 0.15s; }
+    .typing-indicator circle:nth-child(3){ animation-delay: 0.30s; }
 
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0.2; }
-      40%           { opacity: 1;   }
-    }
+    @keyframes blink { 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
   </style>
-
-${svgBody}
+${body}
 </svg>`;
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-//  🌍 Module export (CommonJS & ESM friendly)
+//  🌍 Exports (ESM & CJS compatible)
 // ──────────────────────────────────────────────────────────────────────────
-export { generateSvg, generateSvg as generateSVG };
+export { generateSvg };
+export const generateSVG = generateSvg; // alias for legacy import
+
+// Allow CommonJS "require" if needed
+if (typeof module !== 'undefined') {
+  module.exports = { generateSvg, generateSVG: generateSvg };
+}
