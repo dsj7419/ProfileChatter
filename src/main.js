@@ -9,7 +9,6 @@ import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { generateSVG } from './svgGenerator.js'
-import { getDynamicData } from './dataFetcher.js'
 
 // Get directory name in ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -25,11 +24,8 @@ async function main() {
     const chatDataRaw = await fs.readFile(dataPath, 'utf8')
     const chatData = JSON.parse(chatDataRaw)
     
-    // Fetch dynamic data
-    const dynamicData = await getDynamicData()
-    
-    // Generate SVG string from chat data with dynamic data
-    const svgString = generateSVG(chatData, dynamicData)
+    // Generate SVG string from chat data
+    const svgString = generateSVG(chatData)
     
     // Ensure dist directory exists
     await fs.mkdir(distDir, { recursive: true })
