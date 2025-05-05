@@ -2,7 +2,7 @@
 
 A dynamic SVG chat visualization generator for your GitHub profile README or other web pages. Create an interactive, auto-updating chat bubble visualization that shows real-time information like current date, weather, and GitHub stats.
 
-![ProfileChatter SVG](https://raw.githubusercontent.com/YOUR_USERNAME/ProfileChatter/main/dist/profile-chat.svg?ts=1746421476)
+![ProfileChatter SVG](https://raw.githubusercontent.com/YOUR_USERNAME/ProfileChatter/main/dist/profile-chat.svg?ts=1746423231)
 
 ## How it Works
 
