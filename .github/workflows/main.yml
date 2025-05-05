@@ -1,5 +1,3 @@
-# File: .github/workflows/main.yml
-
 name: ProfileChatter Build
 
 on:
@@ -27,37 +25,44 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          # Use a version compatible with your dependencies (Node 16 or higher recommended for modern JS)
-          node-version: '16.x' 
-          # Optional: Cache npm dependencies for faster builds
-          cache: 'npm' 
+          node-version: '16.x'
+          cache: 'npm'
           
       # Step 3: Install dependencies using the lock file for consistency
       - name: Install dependencies
         run: npm ci
         
-      # Step 4: Run linter (optional but good practice)
+      # Step 4: Run linter
       - name: Lint
         run: npm run lint
         
-      # Step 5: Execute the script to fetch data and generate the SVG
+      # Step 5: Generate the SVG with dynamic data
       - name: Generate SVG
+        id: generate
         run: node src/main.js
         env:
-          # Pass secrets needed by dataFetcher.js as environment variables
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           LOCATION_KEY: ${{ secrets.LOCATION_KEY }}
       
-      # Step 6: Commit the generated SVG file back to the repository
+      # Step 6: Get current timestamp for cache busting
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "ts=$(date +%s)" >> $GITHUB_OUTPUT
+      
+      # Step 7: Update README timestamp
+      - name: Update README timestamp
+        run: |
+          TIMESTAMP="${{ steps.timestamp.outputs.ts }}"
+          sed -i "s|profile-chat.svg?ts=[0-9]*|profile-chat.svg?ts=$TIMESTAMP|g" README.md
+          # Fallback if the timestamp parameter doesn't exist yet
+          sed -i "s|profile-chat.svg)|profile-chat.svg?ts=$TIMESTAMP)|g" README.md
+      
+      # Step 8: Commit and push both SVG and README
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
-          # Specify the file to add/commit (relative to repository root)
-          add: 'dist/profile-chat.svg'
-          # Commit message
-          message: 'Auto-update profile chat SVG'
-          # Author details for the commit
+          add: 'dist/profile-chat.svg README.md'
+          message: 'Auto-update profile chat SVG [skip ci] - ${{ steps.timestamp.outputs.ts }}'
           author_name: 'ProfileChatter Bot'
-          author_email: 'dsj7419@gmail.com'
-          # Ensure the action pushes the commit
-          push: true 
+          author_email: 'bot@profilechatter.example.com'
+          push: true

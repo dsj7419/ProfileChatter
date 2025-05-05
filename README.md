@@ -2,7 +2,7 @@
 
 A dynamic SVG chat visualization generator for your GitHub profile README or other web pages. Create an interactive, auto-updating chat bubble visualization that shows real-time information like current date, weather, and GitHub stats.
 
-![ProfileChatter SVG](https://raw.githubusercontent.com/YOUR_USERNAME/ProfileChatter/main/dist/profile-chat.svg)
+![ProfileChatter SVG](https://raw.githubusercontent.com/YOUR_USERNAME/ProfileChatter/main/dist/profile-chat.svg?ts=0)
 
 ## How it Works
 
@@ -28,7 +28,7 @@ The system fetches current information (date, weather, GitHub stats) and injects
 
 Edit the messages in `data/chatData.json` to personalize the conversation. The following placeholders are available:
 
-```markup
+```markdown
 {name} - Your name
 {profession} - Your job title
 {location} - Your city/location
@@ -72,7 +72,7 @@ npm run lint
 
 Contributions are welcome! Feel free to open issues or submit pull requests to improve ProfileChatter.
 
-This project is based on the [ProfileChatter](https://github.com/YOUR_USERNAME/ProfileChatter) repository.
+This project is based on the [ProfileChatter](https://github.com/dsj7419/ProfileChatter) repository.
 
 ## License
 

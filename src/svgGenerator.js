@@ -7,7 +7,7 @@
 
 // Constants for SVG dimensions and styling
 const SVG_WIDTH = 550
-const AVG_CHAR_WIDTH = 9.5 // Approximate average character width for the font
+const AVG_CHAR_WIDTH = 9.2 // Adjusted for more accurate width calculation
 const LINE_HEIGHT = 22 // Line height for text
 const PADDING_X = 15 // Horizontal padding inside bubbles
 const PADDING_Y = 10 // Vertical padding inside bubbles
@@ -19,10 +19,11 @@ const TYPING_INDICATOR_WIDTH = 70 // Width of typing indicator bubble
 const TAIL_WIDTH = 10 // Width of the bubble tail
 const TAIL_HEIGHT = 8 // Height of the bubble tail
 
-// Animation timing constants
-const ANIMATION_BASE_DELAY = 0.5 // Base delay between elements in seconds
-const TYPING_DURATION = 1.5 // Duration of typing indicator animation in seconds
+// Animation timing constants - Increased for better visual experience
+const ANIMATION_BASE_DELAY = 1.0 // Increased from 0.5 to 1.0 seconds
+const TYPING_DURATION = 2.0 // Increased from 1.5 to 2.0 seconds
 const MESSAGE_REVEAL_DURATION = 0.3 // Duration of message reveal animation in seconds
+const POST_TYPING_DELAY = 0.5 // New delay after typing indicator before message appears
 
 /**
  * Calculates dimensions for text based on content
@@ -142,14 +143,14 @@ function createSVGHeader(width, height, typingIndicatorDelay) {
       30% { opacity: 1; }
     }
     
-    /* Dark mode styles */
+    /* Dark mode styles - Updated to keep blue for sender bubbles */
     @media (prefers-color-scheme: dark) {
       .bubble {
         fill: #262629;
       }
       
       .bubble-me {
-        fill: #30d158;
+        fill: #007aff;
       }
       
       text {
@@ -263,75 +264,85 @@ export function generateSVG(chatData, dynamicData = {}) {
     }
   })
   
-  // Initialize animation delay tracker
-  let currentDelay = 0
+  // First process: Calculate the real heights needed for all elements
+  // This is done separately to ensure correct totalHeight calculation
+  const calculatedElements = []
+  let accumulatedHeight = 20 // Start with top padding
   
-  // Calculate dynamic heights and positions
-  let totalHeight = 20 // Initial top padding
+  // Add initial typing indicator
+  calculatedElements.push({
+    type: 'typing',
+    yPos: accumulatedHeight,
+    height: MIN_BUBBLE_HEIGHT
+  })
+  accumulatedHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
   
-  // Add space for initial typing indicator
-  totalHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
-  
-  const messagePositions = [] // Store calculated positions and sizes
-  
-  // First pass: calculate dimensions for each message
-  chatData.forEach((message) => {
+  // Process each message to calculate heights and additional typing indicators
+  for (let i = 0; i < chatData.length; i++) {
+    const message = chatData[i]
     const dimensions = calculateTextDimensions(message.text)
     
-    // Store calculated dimensions and position
-    messagePositions.push({
-      yPos: totalHeight,
-      bubbleWidth: dimensions.width,
-      bubbleHeight: dimensions.height,
-      lines: dimensions.lines,
-      lineCount: dimensions.lineCount
+    calculatedElements.push({
+      type: 'message',
+      yPos: accumulatedHeight,
+      ...dimensions,
+      message: message
     })
+    accumulatedHeight += dimensions.height + MESSAGE_MARGIN_BOTTOM
     
-    // Update total height for next message
-    totalHeight += dimensions.height + MESSAGE_MARGIN_BOTTOM
-  })
+    // Check if we need a typing indicator after this message
+    if (i < chatData.length - 1 && 
+        chatData[i + 1].sender === "visitor" && 
+        message.sender === "me") {
+      
+      calculatedElements.push({
+        type: 'typing',
+        yPos: accumulatedHeight,
+        height: MIN_BUBBLE_HEIGHT
+      })
+      accumulatedHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
+    }
+  }
   
-  // Add bottom padding
-  totalHeight += 10
+  // Final height with bottom padding
+  const totalHeight = accumulatedHeight + 10
+  
+  // Initialize animation delay tracker
+  let currentDelay = 0
   
   // Calculate initial typing indicator delay
   const typingIndicatorDelay = ANIMATION_BASE_DELAY
   
-  // Update current delay after typing indicator completes
-  currentDelay = typingIndicatorDelay + TYPING_DURATION
-  
   // Start building the SVG structure
   let svgString = createSVGHeader(SVG_WIDTH, totalHeight, typingIndicatorDelay)
   
-  // Add initial typing indicator
-  svgString += createTypingIndicator(typingIndicatorDelay, 20)
+  // Second process: Generate the actual SVG elements based on calculated positions
+  currentDelay = typingIndicatorDelay
   
-  // Generate elements for each message
-  chatData.forEach((message, index) => {
-    // Calculate the delay for this message
-    const messageDelay = currentDelay + ANIMATION_BASE_DELAY
+  for (let i = 0; i < calculatedElements.length; i++) {
+    const element = calculatedElements[i]
     
-    // Add the message element
-    svgString += createMessageElement(message, messagePositions[index], messageDelay)
-    
-    // Update current delay for the next message
-    currentDelay = messageDelay + MESSAGE_REVEAL_DURATION
-    
-    // Add typing indicator before next visitor message if needed
-    if (index < chatData.length - 1 && 
-        chatData[index + 1].sender === "visitor" && 
-        message.sender === "me") { // Only add typing indicator when sender changes from 'me' to 'visitor'
-      
-      const typingDelay = currentDelay + ANIMATION_BASE_DELAY
-      const nextYPos = messagePositions[index].yPos + messagePositions[index].bubbleHeight + MESSAGE_MARGIN_BOTTOM
-      
-      svgString += createTypingIndicator(typingDelay, nextYPos)
-      
-      // Adjust total height and update current delay
-      totalHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
-      currentDelay = typingDelay + TYPING_DURATION
+    if (element.type === 'typing') {
+      // Add typing indicator and update delay
+      svgString += createTypingIndicator(currentDelay, element.yPos)
+      currentDelay += TYPING_DURATION + POST_TYPING_DELAY
+    } else if (element.type === 'message') {
+      // Add message element and update delay
+      const messageDelay = currentDelay + ANIMATION_BASE_DELAY
+      svgString += createMessageElement(
+        element.message,
+        {
+          yPos: element.yPos,
+          bubbleWidth: element.width,
+          bubbleHeight: element.height,
+          lines: element.lines,
+          lineCount: element.lineCount
+        },
+        messageDelay
+      )
+      currentDelay = messageDelay + MESSAGE_REVEAL_DURATION
     }
-  })
+  }
   
   // Close SVG element
   svgString += `</svg>`
