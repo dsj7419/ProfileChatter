@@ -19,11 +19,11 @@ const TYPING_INDICATOR_WIDTH = 70 // Width of typing indicator bubble
 const TAIL_WIDTH = 10 // Width of the bubble tail
 const TAIL_HEIGHT = 8 // Height of the bubble tail
 
-// Animation timing constants - Increased for better visual experience
-const ANIMATION_BASE_DELAY = 1.0 // Increased from 0.5 to 1.0 seconds
-const TYPING_DURATION = 2.0 // Increased from 1.5 to 2.0 seconds
+// Animation timing constants
+const ANIMATION_BASE_DELAY = 1.0 // Base delay between elements in seconds
+const TYPING_DURATION = 2.0 // Duration of typing indicator animation in seconds
 const MESSAGE_REVEAL_DURATION = 0.3 // Duration of message reveal animation in seconds
-const POST_TYPING_DELAY = 0.5 // New delay after typing indicator before message appears
+const POST_TYPING_DELAY = 0.5 // Delay after typing indicator before message appears
 
 /**
  * Calculates dimensions for text based on content
@@ -57,10 +57,9 @@ function calculateTextDimensions(text) {
  * Creates the SVG header and style block
  * @param {number} width - SVG width
  * @param {number} height - SVG height
- * @param {number} typingIndicatorDelay - Delay before typing indicator appears
  * @returns {string} - SVG header string
  */
-function createSVGHeader(width, height, typingIndicatorDelay) {
+function createSVGHeader(width, height) {
   return `<svg 
     width="${width}" 
     height="${height}" 
@@ -115,21 +114,13 @@ function createSVGHeader(width, height, typingIndicatorDelay) {
     /* Typing indicator styling */
     .typing-indicator {
       opacity: 0;
-      animation: fade-in-out ${TYPING_DURATION}s ${typingIndicatorDelay}s forwards;
+      animation: fade-in-out ${TYPING_DURATION}s forwards;
     }
     
     .typing-indicator circle {
       opacity: 0.3;
-      animation: typing-dot 1.2s ${typingIndicatorDelay}s forwards;
-      animation-iteration-count: ${Math.ceil(TYPING_DURATION / 1.2)};
-    }
-    
-    .typing-indicator circle:nth-child(2) {
-      animation-delay: ${typingIndicatorDelay + 0.2}s;
-    }
-    
-    .typing-indicator circle:nth-child(3) {
-      animation-delay: ${typingIndicatorDelay + 0.4}s;
+      animation: typing-dot 1.2s forwards;
+      animation-iteration-count: 1;
     }
     
     @keyframes fade-in-out {
@@ -143,7 +134,7 @@ function createSVGHeader(width, height, typingIndicatorDelay) {
       30% { opacity: 1; }
     }
     
-    /* Dark mode styles - Updated to keep blue for sender bubbles */
+    /* Dark mode styles - Set me bubbles to blue in dark mode too */
     @media (prefers-color-scheme: dark) {
       .bubble {
         fill: #262629;
@@ -171,12 +162,14 @@ function createSVGHeader(width, height, typingIndicatorDelay) {
  * @returns {string} - SVG string for typing indicator
  */
 function createTypingIndicator(delay, yPos) {
+  const iterationCount = Math.ceil(TYPING_DURATION / 1.2)
+  
   return `
   <g class="typing-indicator bubble" transform="translate(10, ${yPos})" style="animation: fade-in-out ${TYPING_DURATION}s ${delay}s forwards;">
     <rect width="${TYPING_INDICATOR_WIDTH}" height="${MIN_BUBBLE_HEIGHT}" rx="18" />
-    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay}s forwards; animation-iteration-count: ${Math.ceil(TYPING_DURATION / 1.2)};" />
-    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay + 0.2}s forwards; animation-iteration-count: ${Math.ceil(TYPING_DURATION / 1.2)};" />
-    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay + 0.4}s forwards; animation-iteration-count: ${Math.ceil(TYPING_DURATION / 1.2)};" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay}s forwards; animation-iteration-count: ${iterationCount};" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay + 0.2}s forwards; animation-iteration-count: ${iterationCount};" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s ${delay + 0.4}s forwards; animation-iteration-count: ${iterationCount};" />
   </g>
   `
 }
@@ -189,7 +182,7 @@ function createTypingIndicator(delay, yPos) {
  * @returns {string} - SVG string for message bubble
  */
 function createMessageElement(message, positionInfo, delay) {
-  const { yPos, bubbleWidth, bubbleHeight, lines, lineCount } = positionInfo
+  const { yPos, width: bubbleWidth, height: bubbleHeight, lines, lineCount } = positionInfo
   
   // Determine position and classes based on sender
   const isSender = message.sender === "me"
@@ -264,82 +257,83 @@ export function generateSVG(chatData, dynamicData = {}) {
     }
   })
   
-  // First process: Calculate the real heights needed for all elements
-  // This is done separately to ensure correct totalHeight calculation
-  const calculatedElements = []
-  let accumulatedHeight = 20 // Start with top padding
+  // PASS 1: Calculate positions and dimensions of all elements
+  const elementsToRender = []
+  let currentY = 20 // Initial top padding
   
   // Add initial typing indicator
-  calculatedElements.push({
+  elementsToRender.push({
     type: 'typing',
-    yPos: accumulatedHeight,
-    height: MIN_BUBBLE_HEIGHT
+    yPos: currentY,
+    height: MIN_BUBBLE_HEIGHT,
+    delay: ANIMATION_BASE_DELAY
   })
-  accumulatedHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
   
-  // Process each message to calculate heights and additional typing indicators
+  // Update Y position after the typing indicator
+  currentY += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
+  
+  // Process each message
   for (let i = 0; i < chatData.length; i++) {
     const message = chatData[i]
     const dimensions = calculateTextDimensions(message.text)
     
-    calculatedElements.push({
+    // Add message element details
+    elementsToRender.push({
       type: 'message',
-      yPos: accumulatedHeight,
-      ...dimensions,
-      message: message
+      yPos: currentY,
+      message: message,
+      ...dimensions
     })
-    accumulatedHeight += dimensions.height + MESSAGE_MARGIN_BOTTOM
+    
+    // Update Y position after the message
+    currentY += dimensions.height + MESSAGE_MARGIN_BOTTOM
     
     // Check if we need a typing indicator after this message
+    // Only add if sender changes from 'me' to 'visitor'
     if (i < chatData.length - 1 && 
         chatData[i + 1].sender === "visitor" && 
         message.sender === "me") {
       
-      calculatedElements.push({
+      elementsToRender.push({
         type: 'typing',
-        yPos: accumulatedHeight,
+        yPos: currentY,
         height: MIN_BUBBLE_HEIGHT
       })
-      accumulatedHeight += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
+      
+      // Update Y position after the typing indicator
+      currentY += MIN_BUBBLE_HEIGHT + MESSAGE_MARGIN_BOTTOM
     }
   }
   
-  // Final height with bottom padding
-  const totalHeight = accumulatedHeight + 10
+  // Calculate final SVG height with bottom padding
+  const totalHeight = currentY + 10
   
-  // Initialize animation delay tracker
-  let currentDelay = 0
+  // PASS 2: Generate SVG content with calculated positions
+  let svgString = createSVGHeader(SVG_WIDTH, totalHeight)
+  let currentDelay = ANIMATION_BASE_DELAY
   
-  // Calculate initial typing indicator delay
-  const typingIndicatorDelay = ANIMATION_BASE_DELAY
-  
-  // Start building the SVG structure
-  let svgString = createSVGHeader(SVG_WIDTH, totalHeight, typingIndicatorDelay)
-  
-  // Second process: Generate the actual SVG elements based on calculated positions
-  currentDelay = typingIndicatorDelay
-  
-  for (let i = 0; i < calculatedElements.length; i++) {
-    const element = calculatedElements[i]
+  // Process each element to generate SVG
+  for (let i = 0; i < elementsToRender.length; i++) {
+    const element = elementsToRender[i]
     
     if (element.type === 'typing') {
-      // Add typing indicator and update delay
+      // Add typing indicator with current delay
       svgString += createTypingIndicator(currentDelay, element.yPos)
+      
+      // Update delay after typing indicator
       currentDelay += TYPING_DURATION + POST_TYPING_DELAY
     } else if (element.type === 'message') {
-      // Add message element and update delay
+      // Calculate message delay
       const messageDelay = currentDelay + ANIMATION_BASE_DELAY
+      
+      // Add message element with calculated delay
       svgString += createMessageElement(
-        element.message,
-        {
-          yPos: element.yPos,
-          bubbleWidth: element.width,
-          bubbleHeight: element.height,
-          lines: element.lines,
-          lineCount: element.lineCount
-        },
+        element.message, 
+        element, 
         messageDelay
       )
+      
+      // Update delay after message
       currentDelay = messageDelay + MESSAGE_REVEAL_DURATION
     }
   }

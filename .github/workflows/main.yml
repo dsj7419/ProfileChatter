@@ -5,38 +5,85 @@ on:
   schedule:
     - cron: '0 */6 * * *'
   
+  # Run on pushes to main branch when relevant files change
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'data/**'
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'package-lock.json'
+  
+  # Run when pull requests are created/updated
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'data/**'
+  
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug logging'
+        required: false
+        default: 'false'
 
 # Permissions required for the workflow to commit back to the repository
 permissions:
-  contents: write 
+  contents: write
+
+# Environment variables available to all jobs and steps
+env:
+  NODE_VERSION: '16.x'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
-      # Step 1: Check out the repository code
+      # Step 1: Check out the repository code with full history for better commit messages
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
-      # Step 2: Set up Node.js environment
+      # Step 2: Set up Node.js environment with optimized caching
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: package-lock.json
+      
+      # Step 3: Validate secrets are available (will show in logs whether they exist, not their values)
+      - name: Validate secrets
+        id: validate-secrets
+        run: |
+          if [ -n "${{ secrets.WEATHER_API_KEY }}" ]; then
+            echo "✅ WEATHER_API_KEY is set"
+          else
+            echo "❌ WEATHER_API_KEY is missing"
+            echo "warning_count=1" >> $GITHUB_OUTPUT
+          fi
           
-      # Step 3: Install dependencies using the lock file for consistency
+          if [ -n "${{ secrets.LOCATION_KEY }}" ]; then
+            echo "✅ LOCATION_KEY is set"
+          else
+            echo "❌ LOCATION_KEY is missing"
+            echo "warning_count=1" >> $GITHUB_OUTPUT 
+          fi
+      
+      # Step 4: Install dependencies using the lock file for consistency
       - name: Install dependencies
         run: npm ci
-        
-      # Step 4: Run linter
+      
+      # Step 5: Run linter to ensure code quality
       - name: Lint
         run: npm run lint
-        
-      # Step 5: Generate the SVG with dynamic data
+      
+      # Step 6: Generate the SVG with dynamic data
       - name: Generate SVG
         id: generate
         run: node src/main.js
@@ -44,12 +91,12 @@ jobs:
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           LOCATION_KEY: ${{ secrets.LOCATION_KEY }}
       
-      # Step 6: Get current timestamp for cache busting
+      # Step 7: Get current timestamp for cache busting
       - name: Get current timestamp
         id: timestamp
         run: echo "ts=$(date +%s)" >> $GITHUB_OUTPUT
       
-      # Step 7: Update README timestamp
+      # Step 8: Update README timestamp
       - name: Update README timestamp
         run: |
           TIMESTAMP="${{ steps.timestamp.outputs.ts }}"
@@ -57,8 +104,21 @@ jobs:
           # Fallback if the timestamp parameter doesn't exist yet
           sed -i "s|profile-chat.svg)|profile-chat.svg?ts=$TIMESTAMP)|g" README.md
       
-      # Step 8: Commit and push both SVG and README
+      # Step 9: Check if there are any changes to commit
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected, will commit and push"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected, will skip commit"
+          fi
+      
+      # Step 10: Commit and push changes only if changes were detected
       - name: Commit and push changes
+        if: steps.check-changes.outputs.changes == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'dist/profile-chat.svg README.md'
@@ -66,3 +126,16 @@ jobs:
           author_name: 'ProfileChatter Bot'
           author_email: 'bot@profilechatter.example.com'
           push: true
+      
+      # Step 11: Post-build status notification
+      - name: Post build status
+        run: |
+          if [[ "${{ steps.check-changes.outputs.changes }}" == "true" ]]; then
+            echo "✅ Build complete - SVG and README updated!"
+          else  
+            echo "ℹ️ Build complete - No changes needed at this time."
+          fi
+          
+          if [[ -n "${{ steps.validate-secrets.outputs.warning_count }}" ]]; then
+            echo "⚠️ Warning: Some secrets may be missing. Check the logs."
+          fi
