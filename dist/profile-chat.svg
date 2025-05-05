@@ -1,7 +1,7 @@
 <svg 
     width="550" 
-    height="386" 
-    viewBox="0 0 550 386"
+    height="490" 
+    viewBox="0 0 550 490"
     fill="none"
     xmlns="http://www.w3.org/2000/svg">
   
@@ -52,21 +52,21 @@
     /* Typing indicator styling */
     .typing-indicator {
       opacity: 0;
-      animation: fade-in-out 1.5s 0.5s forwards;
+      animation: fade-in-out 2s 1s forwards;
     }
     
     .typing-indicator circle {
       opacity: 0.3;
-      animation: typing-dot 1.2s 0.5s forwards;
+      animation: typing-dot 1.2s 1s forwards;
       animation-iteration-count: 2;
     }
     
     .typing-indicator circle:nth-child(2) {
-      animation-delay: 0.7s;
+      animation-delay: 1.2s;
     }
     
     .typing-indicator circle:nth-child(3) {
-      animation-delay: 0.9s;
+      animation-delay: 1.4s;
     }
     
     @keyframes fade-in-out {
@@ -80,14 +80,14 @@
       30% { opacity: 1; }
     }
     
-    /* Dark mode styles */
+    /* Dark mode styles - Updated to keep blue for sender bubbles */
     @media (prefers-color-scheme: dark) {
       .bubble {
         fill: #262629;
       }
       
       .bubble-me {
-        fill: #30d158;
+        fill: #007aff;
       }
       
       text {
@@ -99,32 +99,32 @@
       }
     }
   </style>
-  <g class="typing-indicator bubble" transform="translate(10, 20)" style="animation: fade-in-out 1.5s 0.5s forwards;">
+  <g class="typing-indicator bubble" transform="translate(10, 20)" style="animation: fade-in-out 2s 1s forwards;">
     <rect width="70" height="42" rx="18" />
-    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.5s forwards; animation-iteration-count: 2;" />
-    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.7s forwards; animation-iteration-count: 2;" />
-    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.9s forwards; animation-iteration-count: 2;" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 1s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 1.2s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 1.4s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble-me" id="msg-1" transform="translate(-136, 72)" style="animation-delay: 2.5s;">
-    <rect width="676" height="42" rx="18" />
+  <g class="message-bubble bubble-me" id="msg-1" transform="translate(-115.59999999999991, 72)" style="animation-delay: 4.5s;">
+    <rect width="655.5999999999999" height="42" rx="18" />
     <text class="text-me" x="15" y="28">
   Hey there! I'm Dan Johnson, a Software Developer based in San Diego.
     </text>
   
-    <path class="bubble-me" d="M676,34 L686,42 L676,42 Z" />
+    <path class="bubble-me" d="M655.5999999999999,34 L665.5999999999999,42 L655.5999999999999,42 Z" />
     
   </g>
   
-  <g class="typing-indicator bubble" transform="translate(10, 124)" style="animation: fade-in-out 1.5s 3.3s forwards;">
+  <g class="typing-indicator bubble" transform="translate(10, 124)" style="animation: fade-in-out 2s 4.8s forwards;">
     <rect width="70" height="42" rx="18" />
-    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.3s forwards; animation-iteration-count: 2;" />
-    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.5s forwards; animation-iteration-count: 2;" />
-    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.6999999999999997s forwards; animation-iteration-count: 2;" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 4.8s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 5s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 5.2s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble" id="msg-2" transform="translate(10, 124)" style="animation-delay: 5.3s;">
-    <rect width="476.5" height="42" rx="18" />
+  <g class="message-bubble bubble" id="msg-2" transform="translate(10, 176)" style="animation-delay: 8.3s;">
+    <rect width="462.4" height="42" rx="18" />
     <text class="" x="15" y="28">
   Nice to meet you! Today is Monday, May 5, 2025.
     </text>
@@ -133,25 +133,25 @@
     
   </g>
   
-  <g class="message-bubble bubble-me" id="msg-3" transform="translate(-12.5, 176)" style="animation-delay: 6.1s;">
-    <rect width="552.5" height="64" rx="18" />
+  <g class="message-bubble bubble-me" id="msg-3" transform="translate(4, 228)" style="animation-delay: 9.600000000000001s;">
+    <rect width="536" height="64" rx="18" />
     <text class="text-me" x="15" y="28">
   <tspan x="15" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="15" dy="22">Currently, the weather here is 60°F (16°C) with Cloudy.</tspan>
     </text>
   
-    <path class="bubble-me" d="M552.5,56 L562.5,64 L552.5,64 Z" />
+    <path class="bubble-me" d="M536,56 L546,64 L536,64 Z" />
     
   </g>
   
-  <g class="typing-indicator bubble" transform="translate(10, 250)" style="animation: fade-in-out 1.5s 6.8999999999999995s forwards;">
+  <g class="typing-indicator bubble" transform="translate(10, 302)" style="animation: fade-in-out 2s 9.900000000000002s forwards;">
     <rect width="70" height="42" rx="18" />
-    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 6.8999999999999995s forwards; animation-iteration-count: 2;" />
-    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 7.1s forwards; animation-iteration-count: 2;" />
-    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 7.3s forwards; animation-iteration-count: 2;" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 9.900000000000002s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 10.100000000000001s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 10.300000000000002s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble" id="msg-4" transform="translate(10, 250)" style="animation-delay: 8.899999999999999s;">
-    <rect width="657" height="42" rx="18" />
+  <g class="message-bubble bubble" id="msg-4" transform="translate(10, 354)" style="animation-delay: 13.400000000000002s;">
+    <rect width="637.1999999999999" height="42" rx="18" />
     <text class="" x="15" y="28">
   That sounds interesting! What kind of projects are you working on?
     </text>
@@ -160,13 +160,13 @@
     
   </g>
   
-  <g class="message-bubble bubble-me" id="msg-5" transform="translate(-544.5, 302)" style="animation-delay: 9.7s;">
-    <rect width="1084.5" height="64" rx="18" />
+  <g class="message-bubble bubble-me" id="msg-5" transform="translate(-511.1999999999998, 406)" style="animation-delay: 14.700000000000003s;">
+    <rect width="1051.1999999999998" height="64" rx="18" />
     <text class="text-me" x="15" y="28">
   <tspan x="15" dy="0">I'm currently focused on ProfileChatter SVG Generator. I have 41 public repositories and 0 followers on GitHub.</tspan><tspan x="15" dy="22">Feel free to reach out if you want to collaborate! ☁️</tspan>
     </text>
   
-    <path class="bubble-me" d="M1084.5,56 L1094.5,64 L1084.5,64 Z" />
+    <path class="bubble-me" d="M1051.1999999999998,56 L1061.1999999999998,64 L1051.1999999999998,64 Z" />
     
   </g>
   </svg>
