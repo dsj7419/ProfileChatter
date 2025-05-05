@@ -43,8 +43,9 @@ jspm_packages/
 .env.local
 
 # Build / output directories
-dist
-out
+dist/*
+!dist/profile-chat.svg
+out/
 
 # Coverage directory used by tools like istanbul
 coverage
