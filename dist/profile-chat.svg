@@ -98,16 +98,16 @@
     <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 1.4s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble-me" id="msg-1" transform="translate(-115.59999999999991, 72)" style="animation-delay: 4.5s;">
-    <rect width="655.5999999999999" height="42" rx="18" />
-    <text class="text-me" x="15" y="28">
-  Hey there! I'm Dan Johnson, a Software Developer based in San Diego.
-    </text>
-  
-    <path class="bubble-me" d="M655.5999999999999,34 L665.5999999999999,42 L655.5999999999999,42 Z" />
+    <g class="message-bubble bubble-me" id="msg-1" transform="translate(-115.59999999999991, 72)" style="animation-delay: 4.5s;">
+      <rect width="655.5999999999999" height="42" rx="18" />
+      <text class="text-me" x="640.5999999999999" y="28" text-anchor="end">
+    Hey there! I'm Dan Johnson, a Software Developer based in San Diego.
+      </text>
     
-  </g>
-  
+      <path class="bubble-me" d="M655.5999999999999,34 L665.5999999999999,42 L655.5999999999999,42 Z" />
+      
+    </g>
+    
   <g class="typing-indicator bubble" transform="translate(10, 124)" style="animation: fade-in-out 2s 4.8s forwards;">
     <rect width="70" height="42" rx="18" />
     <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 4.8s forwards; animation-iteration-count: 2;" />
@@ -115,26 +115,26 @@
     <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 5.2s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble" id="msg-2" transform="translate(10, 176)" style="animation-delay: 8.3s;">
-    <rect width="462.4" height="42" rx="18" />
-    <text class="" x="15" y="28">
-  Nice to meet you! Today is Monday, May 5, 2025.
-    </text>
-  
-    <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+    <g class="message-bubble bubble" id="msg-2" transform="translate(10, 176)" style="animation-delay: 8.3s;">
+      <rect width="462.4" height="42" rx="18" />
+      <text class="" x="15" y="28" text-anchor="start">
+    Nice to meet you! Today is Monday, May 5, 2025.
+      </text>
     
-  </g>
-  
-  <g class="message-bubble bubble-me" id="msg-3" transform="translate(4, 228)" style="animation-delay: 9.600000000000001s;">
-    <rect width="536" height="64" rx="18" />
-    <text class="text-me" x="15" y="28">
-  <tspan x="15" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="15" dy="22">Currently, the weather here is 59°F (15°C) with Cloudy.</tspan>
-    </text>
-  
-    <path class="bubble-me" d="M536,56 L546,64 L536,64 Z" />
+      <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+      
+    </g>
     
-  </g>
-  
+    <g class="message-bubble bubble-me" id="msg-3" transform="translate(4, 228)" style="animation-delay: 9.600000000000001s;">
+      <rect width="536" height="64" rx="18" />
+      <text class="text-me" x="521" y="28" text-anchor="end">
+    <tspan x="521" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="521" dy="22">Currently, the weather here is 59°F (15°C) with Cloudy.</tspan>
+      </text>
+    
+      <path class="bubble-me" d="M536,56 L546,64 L536,64 Z" />
+      
+    </g>
+    
   <g class="typing-indicator bubble" transform="translate(10, 302)" style="animation: fade-in-out 2s 9.900000000000002s forwards;">
     <rect width="70" height="42" rx="18" />
     <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 9.900000000000002s forwards; animation-iteration-count: 2;" />
@@ -142,23 +142,23 @@
     <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 10.300000000000002s forwards; animation-iteration-count: 2;" />
   </g>
   
-  <g class="message-bubble bubble" id="msg-4" transform="translate(10, 354)" style="animation-delay: 13.400000000000002s;">
-    <rect width="637.1999999999999" height="42" rx="18" />
-    <text class="" x="15" y="28">
-  That sounds interesting! What kind of projects are you working on?
-    </text>
-  
-    <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+    <g class="message-bubble bubble" id="msg-4" transform="translate(10, 354)" style="animation-delay: 13.400000000000002s;">
+      <rect width="637.1999999999999" height="42" rx="18" />
+      <text class="" x="15" y="28" text-anchor="start">
+    That sounds interesting! What kind of projects are you working on?
+      </text>
     
-  </g>
-  
-  <g class="message-bubble bubble-me" id="msg-5" transform="translate(-511.1999999999998, 406)" style="animation-delay: 14.700000000000003s;">
-    <rect width="1051.1999999999998" height="64" rx="18" />
-    <text class="text-me" x="15" y="28">
-  <tspan x="15" dy="0">I'm currently focused on ProfileChatter SVG Generator. I have 41 public repositories and 0 followers on GitHub.</tspan><tspan x="15" dy="22">Feel free to reach out if you want to collaborate! ☁️</tspan>
-    </text>
-  
-    <path class="bubble-me" d="M1051.1999999999998,56 L1061.1999999999998,64 L1051.1999999999998,64 Z" />
+      <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+      
+    </g>
     
-  </g>
-  </svg>
+    <g class="message-bubble bubble-me" id="msg-5" transform="translate(-511.1999999999998, 406)" style="animation-delay: 14.700000000000003s;">
+      <rect width="1051.1999999999998" height="64" rx="18" />
+      <text class="text-me" x="1036.1999999999998" y="28" text-anchor="end">
+    <tspan x="1036.1999999999998" dy="0">I'm currently focused on ProfileChatter SVG Generator. I have 41 public repositories and 0 followers on GitHub.</tspan><tspan x="1036.1999999999998" dy="22">Feel free to reach out if you want to collaborate! ☁️</tspan>
+      </text>
+    
+      <path class="bubble-me" d="M1051.1999999999998,56 L1061.1999999999998,64 L1051.1999999999998,64 Z" />
+      
+    </g>
+    </svg>
