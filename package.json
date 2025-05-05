@@ -1,0 +1,29 @@
+{
+    "name": "profilechatter",
+    "version": "1.0.0",
+    "description": "ProfileChatter - SVG chat visualization generator",
+    "main": "src/main.js",
+    "type": "module",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "lint": "eslint .",
+      "format": "prettier --write ."
+    },
+    "keywords": [
+      "svg",
+      "chat",
+      "visualization"
+    ],
+    "author": "",
+    "license": "Unlicense",
+    "dependencies": {
+      "axios": "^1.6.0",
+      "date-fns": "^2.30.0",
+      "js-quantities": "^1.7.6"
+    },
+    "devDependencies": {
+      "eslint": "^8.55.0",
+      "prettier": "^3.1.0",
+      "eslint-config-prettier": "^9.1.0"
+    }
+  }

@@ -1,0 +1,42 @@
+name: ProfileChatter Build
+
+on:
+  # Run every 6 hours to keep dynamic content updated
+  schedule:
+    - cron: '0 */6 * * *'
+  
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Lint
+        run: npm run lint
+        
+      - name: Generate SVG
+        run: node src/main.js
+        env:
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          LOCATION_KEY: ${{ secrets.LOCATION_KEY }}
+      
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'dist/profile-chat.svg'
+          message: 'Auto-update profile chat SVG'
+          author_name: 'ProfileChatter Bot'
+          author_email: 'bot@profilechatter.example.com'
