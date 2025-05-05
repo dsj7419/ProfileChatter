@@ -52,21 +52,13 @@
     /* Typing indicator styling */
     .typing-indicator {
       opacity: 0;
-      animation: fade-in-out 2s 1s forwards;
+      animation: fade-in-out 2s forwards;
     }
     
     .typing-indicator circle {
       opacity: 0.3;
-      animation: typing-dot 1.2s 1s forwards;
-      animation-iteration-count: 2;
-    }
-    
-    .typing-indicator circle:nth-child(2) {
-      animation-delay: 1.2s;
-    }
-    
-    .typing-indicator circle:nth-child(3) {
-      animation-delay: 1.4s;
+      animation: typing-dot 1.2s forwards;
+      animation-iteration-count: 1;
     }
     
     @keyframes fade-in-out {
@@ -80,7 +72,7 @@
       30% { opacity: 1; }
     }
     
-    /* Dark mode styles - Updated to keep blue for sender bubbles */
+    /* Dark mode styles - Set me bubbles to blue in dark mode too */
     @media (prefers-color-scheme: dark) {
       .bubble {
         fill: #262629;
@@ -136,7 +128,7 @@
   <g class="message-bubble bubble-me" id="msg-3" transform="translate(4, 228)" style="animation-delay: 9.600000000000001s;">
     <rect width="536" height="64" rx="18" />
     <text class="text-me" x="15" y="28">
-  <tspan x="15" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="15" dy="22">Currently, the weather here is 60°F (16°C) with Cloudy.</tspan>
+  <tspan x="15" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="15" dy="22">Currently, the weather here is 59°F (15°C) with Cloudy.</tspan>
     </text>
   
     <path class="bubble-me" d="M536,56 L546,64 L536,64 Z" />
