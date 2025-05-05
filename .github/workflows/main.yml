@@ -1,3 +1,5 @@
+# File: .github/workflows/main.yml
+
 name: ProfileChatter Build
 
 on:
@@ -8,35 +10,54 @@ on:
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
 
+# Permissions required for the workflow to commit back to the repository
+permissions:
+  contents: write 
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the repository code
       - name: Checkout repository
         uses: actions/checkout@v3
       
+      # Step 2: Set up Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          # Use a version compatible with your dependencies (Node 16 or higher recommended for modern JS)
+          node-version: '16.x' 
+          # Optional: Cache npm dependencies for faster builds
+          cache: 'npm' 
           
+      # Step 3: Install dependencies using the lock file for consistency
       - name: Install dependencies
         run: npm ci
         
+      # Step 4: Run linter (optional but good practice)
       - name: Lint
         run: npm run lint
         
+      # Step 5: Execute the script to fetch data and generate the SVG
       - name: Generate SVG
         run: node src/main.js
         env:
+          # Pass secrets needed by dataFetcher.js as environment variables
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           LOCATION_KEY: ${{ secrets.LOCATION_KEY }}
       
+      # Step 6: Commit the generated SVG file back to the repository
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
+          # Specify the file to add/commit (relative to repository root)
           add: 'dist/profile-chat.svg'
+          # Commit message
           message: 'Auto-update profile chat SVG'
+          # Author details for the commit
           author_name: 'ProfileChatter Bot'
-          author_email: 'bot@profilechatter.example.com'
+          author_email: 'dsj7419@gmail.com'
+          # Ensure the action pushes the commit
+          push: true 
