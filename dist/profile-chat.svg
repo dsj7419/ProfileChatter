@@ -1,0 +1,172 @@
+<svg 
+    width="550" 
+    height="386" 
+    viewBox="0 0 550 386"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+  
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(data:application/font-woff2;charset=utf-8;base64,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) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    
+    /* Basic bubble styling */
+    .bubble {
+      fill: #e9e9eb;
+    }
+    
+    /* Sender bubble styling */
+    .bubble-me {
+      fill: #007aff;
+    }
+    
+    /* Basic text styling */
+    text {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      fill: #000000;
+    }
+    
+    /* Sender text styling */
+    .text-me {
+      fill: #ffffff;
+    }
+    
+    /* Message animation */
+    .message-bubble {
+      opacity: 0;
+      animation: msg-reveal 0.3s ease-out forwards;
+    }
+    
+    @keyframes msg-reveal {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Typing indicator styling */
+    .typing-indicator {
+      opacity: 0;
+      animation: fade-in-out 1.5s 0.5s forwards;
+    }
+    
+    .typing-indicator circle {
+      opacity: 0.3;
+      animation: typing-dot 1.2s 0.5s forwards;
+      animation-iteration-count: 2;
+    }
+    
+    .typing-indicator circle:nth-child(2) {
+      animation-delay: 0.7s;
+    }
+    
+    .typing-indicator circle:nth-child(3) {
+      animation-delay: 0.9s;
+    }
+    
+    @keyframes fade-in-out {
+      0% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    
+    @keyframes typing-dot {
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
+    
+    /* Dark mode styles */
+    @media (prefers-color-scheme: dark) {
+      .bubble {
+        fill: #262629;
+      }
+      
+      .bubble-me {
+        fill: #30d158;
+      }
+      
+      text {
+        fill: #E9E9EB;
+      }
+      
+      .text-me {
+        fill: #ffffff;
+      }
+    }
+  </style>
+  <g class="typing-indicator bubble" transform="translate(10, 20)" style="animation: fade-in-out 1.5s 0.5s forwards;">
+    <rect width="70" height="42" rx="18" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.5s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.7s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 0.9s forwards; animation-iteration-count: 2;" />
+  </g>
+  
+  <g class="message-bubble bubble-me" id="msg-1" transform="translate(-136, 72)" style="animation-delay: 2.5s;">
+    <rect width="676" height="42" rx="18" />
+    <text class="text-me" x="15" y="28">
+  Hey there! I'm Dan Johnson, a Software Developer based in San Diego.
+    </text>
+  
+    <path class="bubble-me" d="M676,34 L686,42 L676,42 Z" />
+    
+  </g>
+  
+  <g class="typing-indicator bubble" transform="translate(10, 124)" style="animation: fade-in-out 1.5s 3.3s forwards;">
+    <rect width="70" height="42" rx="18" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.3s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.5s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 3.6999999999999997s forwards; animation-iteration-count: 2;" />
+  </g>
+  
+  <g class="message-bubble bubble" id="msg-2" transform="translate(10, 124)" style="animation-delay: 5.3s;">
+    <rect width="476.5" height="42" rx="18" />
+    <text class="" x="15" y="28">
+  Nice to meet you! Today is Monday, May 5, 2025.
+    </text>
+  
+    <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+    
+  </g>
+  
+  <g class="message-bubble bubble-me" id="msg-3" transform="translate(-12.5, 176)" style="animation-delay: 6.1s;">
+    <rect width="552.5" height="64" rx="18" />
+    <text class="text-me" x="15" y="28">
+  <tspan x="15" dy="0">I've been working at Encore for over 3 years.</tspan><tspan x="15" dy="22">Currently, the weather here is 60°F (16°C) with Cloudy.</tspan>
+    </text>
+  
+    <path class="bubble-me" d="M552.5,56 L562.5,64 L552.5,64 Z" />
+    
+  </g>
+  
+  <g class="typing-indicator bubble" transform="translate(10, 250)" style="animation: fade-in-out 1.5s 6.8999999999999995s forwards;">
+    <rect width="70" height="42" rx="18" />
+    <circle cx="25" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 6.8999999999999995s forwards; animation-iteration-count: 2;" />
+    <circle cx="40" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 7.1s forwards; animation-iteration-count: 2;" />
+    <circle cx="55" cy="21" r="4" fill="#999999" style="animation: typing-dot 1.2s 7.3s forwards; animation-iteration-count: 2;" />
+  </g>
+  
+  <g class="message-bubble bubble" id="msg-4" transform="translate(10, 250)" style="animation-delay: 8.899999999999999s;">
+    <rect width="657" height="42" rx="18" />
+    <text class="" x="15" y="28">
+  That sounds interesting! What kind of projects are you working on?
+    </text>
+  
+    <path class="bubble" d="M0,34 L-10,42 L0,42 Z" />
+    
+  </g>
+  
+  <g class="message-bubble bubble-me" id="msg-5" transform="translate(-544.5, 302)" style="animation-delay: 9.7s;">
+    <rect width="1084.5" height="64" rx="18" />
+    <text class="text-me" x="15" y="28">
+  <tspan x="15" dy="0">I'm currently focused on ProfileChatter SVG Generator. I have 41 public repositories and 0 followers on GitHub.</tspan><tspan x="15" dy="22">Feel free to reach out if you want to collaborate! ☁️</tspan>
+    </text>
+  
+    <path class="bubble-me" d="M1084.5,56 L1094.5,64 L1084.5,64 Z" />
+    
+  </g>
+  </svg>
