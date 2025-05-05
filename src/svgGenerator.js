@@ -182,59 +182,63 @@ function createTypingIndicator(delay, yPos) {
  * @returns {string} - SVG string for message bubble
  */
 function createMessageElement(message, positionInfo, delay) {
-  const { yPos, width: bubbleWidth, height: bubbleHeight, lines, lineCount } = positionInfo
-  
-  // Determine position and classes based on sender
-  const isSender = message.sender === "me"
-  const xPos = isSender ? SVG_WIDTH - bubbleWidth - 10 : 10
-  const bubbleClass = isSender ? "bubble-me" : "bubble"
-  const textClass = isSender ? "text-me" : ""
-  
-  // Start building the message group
-  let messageString = `
-  <g class="message-bubble ${bubbleClass}" id="${message.id}" transform="translate(${xPos}, ${yPos})" style="animation-delay: ${delay}s;">
-    <rect width="${bubbleWidth}" height="${bubbleHeight}" rx="18" />
-    <text class="${textClass}" x="${PADDING_X}" y="28">
-  `
-  
-  // Handle text content (single or multi-line)
-  if (lineCount === 1) {
-    messageString += `${message.text}`
-  } else {
-    // First line
-    messageString += `<tspan x="${PADDING_X}" dy="0">${lines[0]}</tspan>`
+    const { yPos, width: bubbleWidth, height: bubbleHeight, lines, lineCount } = positionInfo
     
-    // Subsequent lines
-    for (let i = 1; i < lineCount; i++) {
-      messageString += `<tspan x="${PADDING_X}" dy="${LINE_HEIGHT}">${lines[i]}</tspan>`
+    // Determine position and classes based on sender
+    const isSender = message.sender === "me"
+    const xPos = isSender ? SVG_WIDTH - bubbleWidth - 10 : 10
+    const bubbleClass = isSender ? "bubble-me" : "bubble"
+    const textClass = isSender ? "text-me" : ""
+    
+    // Calculate text alignment within bubble
+    const textAlign = isSender ? "end" : "start"
+    const textX = isSender ? bubbleWidth - PADDING_X : PADDING_X
+    
+    // Start building the message group
+    let messageString = `
+    <g class="message-bubble ${bubbleClass}" id="${message.id}" transform="translate(${xPos}, ${yPos})" style="animation-delay: ${delay}s;">
+      <rect width="${bubbleWidth}" height="${bubbleHeight}" rx="18" />
+      <text class="${textClass}" x="${textX}" y="28" text-anchor="${textAlign}">
+    `
+    
+    // Handle text content (single or multi-line)
+    if (lineCount === 1) {
+      messageString += `${message.text}`
+    } else {
+      // First line
+      messageString += `<tspan x="${textX}" dy="0">${lines[0]}</tspan>`
+      
+      // Subsequent lines
+      for (let i = 1; i < lineCount; i++) {
+        messageString += `<tspan x="${textX}" dy="${LINE_HEIGHT}">${lines[i]}</tspan>`
+      }
     }
-  }
-  
-  // Close text element
-  messageString += `
-    </text>
-  `
-  
-  // Add bubble tail path based on sender type
-  if (isSender) {
-    // For sender ("me") messages - tail on right side pointing right
+    
+    // Close text element
     messageString += `
-    <path class="${bubbleClass}" d="M${bubbleWidth},${bubbleHeight - TAIL_HEIGHT} L${bubbleWidth + TAIL_WIDTH},${bubbleHeight} L${bubbleWidth},${bubbleHeight} Z" />
+      </text>
     `
-  } else {
-    // For visitor messages - tail on left side pointing left
+    
+    // Add bubble tail path based on sender type
+    if (isSender) {
+      // For sender ("me") messages - tail on right side pointing right
+      messageString += `
+      <path class="${bubbleClass}" d="M${bubbleWidth},${bubbleHeight - TAIL_HEIGHT} L${bubbleWidth + TAIL_WIDTH},${bubbleHeight} L${bubbleWidth},${bubbleHeight} Z" />
+      `
+    } else {
+      // For visitor messages - tail on left side pointing left
+      messageString += `
+      <path class="${bubbleClass}" d="M0,${bubbleHeight - TAIL_HEIGHT} L-${TAIL_WIDTH},${bubbleHeight} L0,${bubbleHeight} Z" />
+      `
+    }
+    
+    // Close the group
     messageString += `
-    <path class="${bubbleClass}" d="M0,${bubbleHeight - TAIL_HEIGHT} L-${TAIL_WIDTH},${bubbleHeight} L0,${bubbleHeight} Z" />
+    </g>
     `
+    
+    return messageString
   }
-  
-  // Close the group
-  messageString += `
-  </g>
-  `
-  
-  return messageString
-}
 
 /**
  * Generates an SVG element with the provided chat data
