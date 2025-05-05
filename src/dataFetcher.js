@@ -102,7 +102,7 @@ export async function getDynamicData() {
     }
     
     // Fetch GitHub user data
-    const githubUsername = 'github-user' // Placeholder username
+    const githubUsername = 'dsj7419'
     try {
       // Construct GitHub API URL for user data
       const githubUrl = `https://api.github.com/users/${githubUsername}`
@@ -140,10 +140,10 @@ export async function getDynamicData() {
     githubFollowers,
     
     // Placeholder data for future implementation
-    name: "Your Name",
+    name: "Dan Johnson",
     profession: "Software Developer",
-    location: "San Francisco",
-    company: "Tech Company",
+    location: "San Diego",
+    company: "Encore",
     currentProject: "ProfileChatter SVG Generator"
   }
 }
