@@ -1,4 +1,4 @@
-<svg width="550" height="540" viewBox="0 0 550 540" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg width="550" height="540" viewBox="0 0 550 540" xmlns="http://www.w3.org/2000/svg" role="img" fill="none">
   <style>
     @font-face {
       font-family: 'Inter';
@@ -10,14 +10,14 @@
     }
 
     text {
-      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
       font-size: 14px;
       line-height: 20px;
       white-space: pre;
       dominant-baseline: hanging;
     }
 
-    /* *****  Bubble base  ************************************************* */
+    /* *****  Bubble base *************************************************** */
     .message-bubble {
       transform: translate(var(--tx), calc(var(--ty) + 10px));
       opacity: 0;
@@ -25,30 +25,17 @@
     }
 
     @keyframes msg-reveal {
-      to {
-        transform: translate(var(--tx), var(--ty));
-        opacity: 1;
-      }
+      to { transform: translate(var(--tx), var(--ty)); opacity: 1; }
     }
 
-    .bubble-rect {
-      fill: var(--bubble-fill, #000000);
-    }
-    .bubble-tail {
-      fill: var(--bubble-fill, #000000);
-    }
+    .bubble-rect, .bubble-tail { fill: var(--bubble-fill, #000); }
+    .bubble--self  { --bubble-fill: #0d6efd; }
+    .bubble--other { --bubble-fill: #2b2b2b; }
 
-    /* ***** Self vs Other colours  **************************************** */
-    .bubble--self   .bubble-rect,
-    .bubble--self   .bubble-tail { --bubble-fill: #0d6efd; }
+    .text--self  { fill: #fff; }
+    .text--other { fill: #fff; }
 
-    .bubble--other  .bubble-rect,
-    .bubble--other  .bubble-tail { --bubble-fill: #2b2b2b; }
-
-    .text--self   { fill: #ffffff; }
-    .text--other  { fill: #ffffff; }
-
-    /* ***** Typing indicator  ********************************************* */
+    /* *****  Typing indicator ********************************************* */
     .typing-indicator {
       transform: translate(var(--tx), calc(var(--ty) + 10px));
       opacity: 0;
@@ -58,15 +45,11 @@
       fill: #2b2b2b;
       animation: blink 1s ease-in-out infinite;
     }
-    .typing-indicator circle:nth-child(2) { animation-delay: 0.15s; }
-    .typing-indicator circle:nth-child(3) { animation-delay: 0.30s; }
+    .typing-indicator circle:nth-child(2){ animation-delay: 0.15s; }
+    .typing-indicator circle:nth-child(3){ animation-delay: 0.30s; }
 
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0.2; }
-      40%           { opacity: 1;   }
-    }
+    @keyframes blink { 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
   </style>
-
 
   <g class="message-bubble bubble--other" style="--tx:0px; --ty:0px; animation-delay:0s">
     <path class="bubble-rect" d="M 0 0 h 363.2 a 18 18 0 0 1 18 18 v 28 a 18 18 0 0 1 -18 18 h -327.2 a 18 18 0 0 1 -18 -18 v -28 a 18 18 0 0 1 18 -18 Z"/>
