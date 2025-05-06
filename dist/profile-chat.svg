@@ -1,98 +1,203 @@
-<svg width="550" height="540" viewBox="0 0 550 540" xmlns="http://www.w3.org/2000/svg" role="img" fill="none">
-  <style>
-    @font-face {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
-      src: url(data:application/font-woff2;charset=utf-8;base64,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) format('woff2');
-      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="450" font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" shape-rendering="geometricPrecision">
+    <defs>
+      <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+        <feOffset dx="0" dy="1" result="offsetblur"/>
+        <feComponentTransfer>
+          <feFuncA type="linear" slope="0.15"/>
+        </feComponentTransfer>
+        <feMerge>
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <style>
+      @font-face {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 400;
+          src: url("data:application/font-woff2;charset=utf-8;base64,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") format('woff2');
+        }
+      @keyframes typingDot1 { 
+        0%, 100% { opacity: 0.4; transform: scale(0.8); }
+        40% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes typingDot2 { 
+        0%, 100% { opacity: 0.4; transform: scale(0.8); }
+        40% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes typingDot3 { 
+        0%, 100% { opacity: 0.4; transform: scale(0.8); }
+        40% { opacity: 1; transform: scale(1); }
+      }
+      @keyframes bubbleIn { 
+        0% { scale: 0.8; opacity: 0; }
+        100% { scale: 1; opacity: 1; }
+      }
+      @keyframes scrollUp { 
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-352px); }
+      }
+      
+      /* Scrolling with hardware acceleration and smooth movement */
+      .track { 
+        animation: scrollUp 140.42414340363595s linear forwards; 
+        animation-delay: 27.32s; 
+        transform: translate3d(0,0,0);
+        backface-visibility: hidden;
+        perspective: 1000px;
+        will-change: transform;
+      }
+      
+      .msg { 
+        transform-origin: top left; 
+        animation: bubbleIn 0.36s cubic-bezier(.36,1.64,.36,1) forwards; 
+        opacity: 0; 
+        filter: url(#shadowEffect);
+      }
+      
+      .typing { 
+        opacity: 0;
+        filter: url(#shadowEffect);
+      }
+      
+      .typing-dot1 { animation: typingDot1 1.4s infinite; animation-delay: 0s; }
+      .typing-dot2 { animation: typingDot2 1.4s infinite; animation-delay: 0.2s; }
+      .typing-dot3 { animation: typingDot3 1.4s infinite; animation-delay: 0.4s; }
+      
+      /* Support dark/light mode */
+      @media (prefers-color-scheme: dark) {
+        svg { background: #000000; }
+      }
+      @media (prefers-color-scheme: light) {
+        svg { background: #FFFFFF; }
+      }
+    </style>
+    
+    <!-- Background shape -->
+    <rect width="320" height="450" fill="transparent" />
+    
+    <!-- Scrolling message container -->
+    <g class="track">
 
-    text {
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      line-height: 20px;
-      white-space: pre;
-      dominant-baseline: hanging;
-    }
+      <g class="typing me" transform="translate(230,20)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="0.60s" dur="2.72s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
+      </g>
 
-    /* *****  Bubble base *************************************************** */
-    .message-bubble {
-      transform: translate(var(--tx), calc(var(--ty) + 10px));
-      opacity: 0;
-      animation: msg-reveal 0.45s ease-out forwards;
-    }
+      <g class="msg me" transform="translate(49.19999999999999,20)" style="animation-delay:3.32s">
+        <rect x="0" y="0" rx="18" ry="18" width="250.8" height="76" fill="#0B93F6" />
+        
+          <path d="M250.8,10 
+                   C254.8,14 257.8,18 256.8,22 
+                   C255.8,18 252.8,14 250.8,16 
+                   Z" 
+                fill="#0B93F6" />
+        <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Hey there! I&apos;m Dan Johnson,</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">a Software Developer based</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">in San Diego.</text>
+      </g>
 
-    @keyframes msg-reveal {
-      to { transform: translate(var(--tx), var(--ty)); opacity: 1; }
-    }
+      <g class="typing them" transform="translate(20,118)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="8.96s" dur="1.88s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
+        <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
+      </g>
 
-    .bubble-rect, .bubble-tail { fill: var(--bubble-fill, #000); }
-    .bubble--self  { --bubble-fill: #0d6efd; }
-    .bubble--other { --bubble-fill: #2b2b2b; }
+      <g class="msg them" transform="translate(20,118)" style="animation-delay:10.84s">
+        <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#E5E5EA" />
+        
+          <path d="M0,10 
+                   C-4,14 -7,18 -6,22 
+                   C-5,18 -2,14 0,16 
+                   Z" 
+                fill="#E5E5EA" />
+        <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Monday, May 5, 2025.</text>
+      </g>
 
-    .text--self  { fill: #fff; }
-    .text--other { fill: #fff; }
+      <g class="typing me" transform="translate(230,196)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="16.07s" dur="3.00s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
+      </g>
 
-    /* *****  Typing indicator ********************************************* */
-    .typing-indicator {
-      transform: translate(var(--tx), calc(var(--ty) + 10px));
-      opacity: 0;
-      animation: msg-reveal 0.45s ease-out forwards;
-    }
-    .typing-indicator circle {
-      fill: #2b2b2b;
-      animation: blink 1s ease-in-out infinite;
-    }
-    .typing-indicator circle:nth-child(2){ animation-delay: 0.15s; }
-    .typing-indicator circle:nth-child(3){ animation-delay: 0.30s; }
+      <g class="msg me" transform="translate(49.19999999999999,196)" style="animation-delay:19.07s">
+        <rect x="0" y="0" rx="18" ry="18" width="250.8" height="116" fill="#0B93F6" />
+        
+          <path d="M250.8,10 
+                   C254.8,14 257.8,18 256.8,22 
+                   C255.8,18 252.8,14 250.8,16 
+                   Z" 
+                fill="#0B93F6" />
+        <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 72°F (22°C) with partly</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">cloudy.</text>
+      </g>
 
-    @keyframes blink { 0%,80%,100%{opacity:0.25;} 40%{opacity:1;} }
-  </style>
+      <g class="typing them" transform="translate(20,334)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="26.67s" dur="2.64s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
+        <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
+      </g>
 
-  <g class="message-bubble bubble--other" style="--tx:0px; --ty:0px; animation-delay:0s">
-    <path class="bubble-rect" d="M 0 0 h 363.2 a 18 18 0 0 1 18 18 v 28 a 18 18 0 0 1 -18 18 h -327.2 a 18 18 0 0 1 -18 -18 v -28 a 18 18 0 0 1 18 -18 Z"/>
-    <path class="bubble-tail" d="M 0 52 l -10 12 v -12 Z"/>
-    <text class="text--other" text-anchor="start" y="27">
-      <tspan x="16" dy="0">Hey there! I'm {name}, a {profession} based in</tspan>
-      <tspan x="16" dy="20">{location}.</tspan>
-    </text>
-  </g>
-  <g class="message-bubble bubble--other" style="--tx:0px; --ty:92px; animation-delay:0.3s">
-    <path class="bubble-rect" d="M 0 0 h 363.2 a 18 18 0 0 1 18 18 v 28 a 18 18 0 0 1 -18 18 h -327.2 a 18 18 0 0 1 -18 -18 v -28 a 18 18 0 0 1 18 -18 Z"/>
-    <path class="bubble-tail" d="M 0 52 l -10 12 v -12 Z"/>
-    <text class="text--other" text-anchor="start" y="27">
-      <tspan x="16" dy="0">Nice to meet you! Today is {currentDayOfWeek},</tspan>
-      <tspan x="16" dy="20">{currentDate}.</tspan>
-    </text>
-  </g>
-  <g class="message-bubble bubble--other" style="--tx:0px; --ty:184px; animation-delay:0.6s">
-    <path class="bubble-rect" d="M 0 0 h 384.8 a 18 18 0 0 1 18 18 v 48 a 18 18 0 0 1 -18 18 h -348.8 a 18 18 0 0 1 -18 -18 v -48 a 18 18 0 0 1 18 -18 Z"/>
-    <path class="bubble-tail" d="M 0 72 l -10 12 v -12 Z"/>
-    <text class="text--other" text-anchor="start" y="27">
-      <tspan x="16" dy="0">I've been working at {company} for {workTenure}.</tspan>
-      <tspan x="16" dy="20">Currently, the weather here is {temperature} with</tspan>
-      <tspan x="16" dy="20">{weatherDescription}.</tspan>
-    </text>
-  </g>
-  <g class="message-bubble bubble--other" style="--tx:0px; --ty:296px; animation-delay:0.8999999999999999s">
-    <path class="bubble-rect" d="M 0 0 h 420.8 a 18 18 0 0 1 18 18 v 28 a 18 18 0 0 1 -18 18 h -384.8 a 18 18 0 0 1 -18 -18 v -28 a 18 18 0 0 1 18 -18 Z"/>
-    <path class="bubble-tail" d="M 0 52 l -10 12 v -12 Z"/>
-    <text class="text--other" text-anchor="start" y="27">
-      <tspan x="16" dy="0">That sounds interesting! What kind of projects are you</tspan>
-      <tspan x="16" dy="20">working on?</tspan>
-    </text>
-  </g>
-  <g class="message-bubble bubble--other" style="--tx:0px; --ty:388px; animation-delay:1.2s">
-    <path class="bubble-rect" d="M 0 0 h 392 a 18 18 0 0 1 18 18 v 88 a 18 18 0 0 1 -18 18 h -356 a 18 18 0 0 1 -18 -18 v -88 a 18 18 0 0 1 18 -18 Z"/>
-    <path class="bubble-tail" d="M 0 112 l -10 12 v -12 Z"/>
-    <text class="text--other" text-anchor="start" y="27">
-      <tspan x="16" dy="0">I'm currently focused on {currentProject}. I have</tspan>
-      <tspan x="16" dy="20">{githubPublicRepos} public repositories and</tspan>
-      <tspan x="16" dy="20">{githubFollowers} followers on GitHub.</tspan>
-      <tspan x="16" dy="20">Feel free to reach out if you want to collaborate!</tspan>
-      <tspan x="16" dy="20">{emoji}</tspan>
-    </text>
-  </g>
-</svg>
+      <g class="msg them" transform="translate(20,334)" style="animation-delay:29.31s">
+        <rect x="0" y="0" rx="18" ry="18" width="234" height="76" fill="#E5E5EA" />
+        
+          <path d="M0,10 
+                   C-4,14 -7,18 -6,22 
+                   C-5,18 -2,14 0,16 
+                   Z" 
+                fill="#E5E5EA" />
+        <text x="12" y="22" fill="#000000" dominant-baseline="middle">That sounds interesting!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">What kind of projects are</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">you working on?</text>
+      </g>
+
+      <g class="typing me" transform="translate(230,432)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="33.99s" dur="3.00s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
+      </g>
+
+      <g class="msg me" transform="translate(40.799999999999955,432)" style="animation-delay:36.99s">
+        <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="116" fill="#0B93F6" />
+        
+          <path d="M259.20000000000005,10 
+                   C263.20000000000005,14 266.20000000000005,18 265.20000000000005,22 
+                   C264.20000000000005,18 261.20000000000005,14 259.20000000000005,16 
+                   Z" 
+                fill="#0B93F6" />
+        <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused on</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41 public</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">repositories and 0 followers</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">on GitHub.</text>
+      </g>
+
+      <g class="typing me" transform="translate(230,570)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
+                 begin="42.73s" dur="2.08s" fill="freeze" />
+        <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
+        <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
+        <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
+      </g>
+
+      <g class="msg me" transform="translate(57.599999999999994,570)" style="animation-delay:44.81s">
+        <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#0B93F6" />
+        
+          <path d="M242.4,10 
+                   C246.4,14 249.4,18 248.4,22 
+                   C247.4,18 244.4,14 242.4,16 
+                   Z" 
+                fill="#0B93F6" />
+        <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out if</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">you want to collaborate! ⛅</text>
+      </g>
+</g></svg>

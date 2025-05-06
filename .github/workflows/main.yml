@@ -1,11 +1,12 @@
-name: ProfileChatter Build
+name: ProfileChatter Build
 
+# ── Triggers ──────────────────────────────────────────────────────────────
 on:
-  # Run every 6 hours to keep dynamic content updated
+  # Regenerate the SVG every 6 hours
   schedule:
     - cron: '0 */6 * * *'
-  
-  # Run on pushes to main branch when relevant files change
+
+  # Rebuild when relevant files change on main
   push:
     branches: [main]
     paths:
@@ -14,15 +15,15 @@ on:
       - '.github/workflows/**'
       - 'package.json'
       - 'package-lock.json'
-  
-  # Run when pull requests are created/updated
+
+  # PR safety net
   pull_request:
     branches: [main]
     paths:
       - 'src/**'
       - 'data/**'
-  
-  # Allow manual trigger from GitHub UI
+
+  # Manual trigger
   workflow_dispatch:
     inputs:
       debug:
@@ -30,112 +31,78 @@ on:
         required: false
         default: 'false'
 
-# Permissions required for the workflow to commit back to the repository
+# ── Repo write permission (needed for commit step) ────────────────────────
 permissions:
   contents: write
 
-# Environment variables available to all jobs and steps
+# ── Global environment vars ───────────────────────────────────────────────
 env:
-  NODE_VERSION: '16.x'
+  NODE_VERSION: '20.x'        # Node 20 required for modern syntax
 
+# ── Jobs ──────────────────────────────────────────────────────────────────
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # Step 1: Check out the repository code with full history for better commit messages
+      # 1) Checkout full history (for commit step & diff)
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
-      # Step 2: Set up Node.js environment with optimized caching
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+
+      # 2) Node + npm cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: package-lock.json
-      
-      # Step 3: Validate secrets are available (will show in logs whether they exist, not their values)
-      - name: Validate secrets
-        id: validate-secrets
-        run: |
-          if [ -n "${{ secrets.WEATHER_API_KEY }}" ]; then
-            echo "✅ WEATHER_API_KEY is set"
-          else
-            echo "❌ WEATHER_API_KEY is missing"
-            echo "warning_count=1" >> $GITHUB_OUTPUT
-          fi
-          
-          if [ -n "${{ secrets.LOCATION_KEY }}" ]; then
-            echo "✅ LOCATION_KEY is set"
-          else
-            echo "❌ LOCATION_KEY is missing"
-            echo "warning_count=1" >> $GITHUB_OUTPUT 
-          fi
-      
-      # Step 4: Install dependencies using the lock file for consistency
+
+      # 3) Install exact deps from lock‑file
       - name: Install dependencies
         run: npm ci
-      
-      # Step 5: Run linter to ensure code quality
+
+      # 4) Lint for code quality
       - name: Lint
         run: npm run lint
-      
-      # Step 6: Generate the SVG with dynamic data
+
+      # 5) Generate (or overwrite) SVG
       - name: Generate SVG
-        id: generate
         run: node src/main.js
-        env:
-          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-          LOCATION_KEY: ${{ secrets.LOCATION_KEY }}
-      
-      # Step 7: Get current timestamp for cache busting
-      - name: Get current timestamp
-        id: timestamp
-        run: echo "ts=$(date +%s)" >> $GITHUB_OUTPUT
-      
-      # Step 8: Update README timestamp
+
+      # 6) Timestamp for cache‑busting in README
+      - name: Record timestamp
+        id: ts
+        run: echo "ts=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      # 7) Update README reference to the fresh SVG
       - name: Update README timestamp
         run: |
-          TIMESTAMP="${{ steps.timestamp.outputs.ts }}"
-          sed -i "s|profile-chat.svg?ts=[0-9]*|profile-chat.svg?ts=$TIMESTAMP|g" README.md
-          # Fallback if the timestamp parameter doesn't exist yet
-          sed -i "s|profile-chat.svg)|profile-chat.svg?ts=$TIMESTAMP)|g" README.md
-      
-      # Step 9: Check if there are any changes to commit
-      - name: Check for changes
-        id: check-changes
+          TS=${{ steps.ts.outputs.ts }}
+          # Replace existing param or add one
+          sed -i "s|profile-chat.svg?ts=[0-9]*|profile-chat.svg?ts=${TS}|g" README.md || true
+          sed -i "s|profile-chat.svg)|profile-chat.svg?ts=${TS})|g" README.md || true
+
+      # 8) Detect whether anything actually changed
+      - name: Detect changes
+        id: diff
         run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-            echo "Changes detected, will commit and push"
-          else
-            echo "changes=false" >> $GITHUB_OUTPUT
-            echo "No changes detected, will skip commit"
-          fi
-      
-      # Step 10: Commit and push changes only if changes were detected
-      - name: Commit and push changes
-        if: steps.check-changes.outputs.changes == 'true'
+          git diff --quiet || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # 9) Commit & push only when there are changes
+      - name: Commit & push updated SVG
+        if: steps.diff.outputs.changed == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'dist/profile-chat.svg README.md'
-          message: 'Auto-update profile chat SVG [skip ci] - ${{ steps.timestamp.outputs.ts }}'
-          author_name: 'ProfileChatter Bot'
-          author_email: 'bot@profilechatter.example.com'
+          message: "Auto‑update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
           push: true
-      
-      # Step 11: Post-build status notification
-      - name: Post build status
+
+      # 10) Job summary
+      - name: Done
         run: |
-          if [[ "${{ steps.check-changes.outputs.changes }}" == "true" ]]; then
-            echo "✅ Build complete - SVG and README updated!"
-          else  
-            echo "ℹ️ Build complete - No changes needed at this time."
-          fi
-          
-          if [[ -n "${{ steps.validate-secrets.outputs.warning_count }}" ]]; then
-            echo "⚠️ Warning: Some secrets may be missing. Check the logs."
+          if [[ "${{ steps.diff.outputs.changed }}" == "true" ]]; then
+            echo "✅ SVG regenerated and committed."
+          else
+            echo "ℹ️ No changes – nothing to commit."
           fi

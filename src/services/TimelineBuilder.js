@@ -1,0 +1,176 @@
+/**
+ * TimelineBuilder.js
+ * Responsible for building the animation timeline with correct positioning
+ * Single Responsibility: Create and manage the timeline of chat events
+ */
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { TypingIndicator, ChatMessage } from '../models/TimelineItem.js';
+import { 
+  TYPING_CHAR_MS, 
+  TYPING_MIN_MS, 
+  TYPING_MAX_MS, 
+  VISIBLE_MESSAGES, 
+  LINE_HEIGHT_PX,
+  BUBBLE_PAD_Y_PX,
+  TIMING
+} from '../config/LayoutConstants.js';
+import TextProcessor from '../utils/TextProcessor.js';
+
+class TimelineBuilder {
+  constructor() {
+    try {
+      // Load chat data
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const chatDataPath = join(__dirname, '../../data/chatData.json');
+      this.chatData = JSON.parse(readFileSync(chatDataPath, 'utf8'));
+    } catch (error) {
+      console.error('Error loading chat data:', error);
+      // Provide fallback minimal chat data
+      this.chatData = [
+        { id: "error-1", sender: "me", text: "Error loading chat data. Please check your configuration." }
+      ];
+    }
+  }
+  
+  /**
+   * Calculate appropriate typing time based on message length
+   * @param {string} text - Message text
+   * @returns {number} - Duration in milliseconds
+   */
+  calculateTypingTime(text) {
+    // Typing time correlates with message length but has reasonable bounds
+    return Math.min(
+      TYPING_MAX_MS,
+      Math.max(TYPING_MIN_MS, text.length * TYPING_CHAR_MS)
+    );
+  }
+  
+  /**
+   * Calculate reading time for a message based on content length
+   * @param {string} text - Message text
+   * @returns {number} - Duration in milliseconds
+   */
+  calculateReadingTime(text) {
+    // Calculate reading time based on word count
+    const wordCount = text.split(/\s+/).length;
+    const baseReadingTime = TIMING.MIN_READING_TIME_MS;
+    const readingTime = Math.max(
+      baseReadingTime, 
+      wordCount * TIMING.MS_PER_WORD
+    );
+    
+    // Add random variation to make it feel more natural
+    return readingTime + (Math.random() * TIMING.READING_RANDOMNESS_MS);
+  }
+  
+  /**
+   * Calculate natural pause between messages based on sender change
+   * @param {string} currentSender - Current message sender
+   * @param {string} previousSender - Previous message sender
+   * @returns {number} - Pause duration in milliseconds
+   */
+  calculateSenderTransitionDelay(currentSender, previousSender) {
+    // Add extra delay when sender changes (simulating conversation turn-taking)
+    if (!previousSender || currentSender === previousSender) {
+      return TIMING.SAME_SENDER_DELAY_MS;
+    }
+    return TIMING.SENDER_CHANGE_DELAY_MS;
+  }
+
+  /**
+   * Build the complete animation timeline 
+   * @param {Object} dynamicData - Data for placeholder replacement
+   * @returns {Object} - Timeline data with items and metadata
+   */
+  buildTimeline(dynamicData) {
+    const timelineItems = [];
+    let currentTime = 0;
+    let currentY = 20; // Start with a top margin
+    let previousSender = null;
+    let totalTypingTime = 0;
+    
+    // First pass: Create all message objects and calculate dimensions
+    const processedMessages = [];
+    
+    for (const { sender, text: rawText } of this.chatData) {
+      // Replace dynamic placeholders in message text
+      const text = rawText.replace(/\{(\w+)\}/g, (_, key) => 
+        dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
+      );
+      
+      // Calculate dimensions using TextProcessor
+      const dimensions = TextProcessor.wrapText(text);
+      
+      // Calculate typing time
+      const typingTime = this.calculateTypingTime(text);
+      totalTypingTime += typingTime;
+      
+      // Store processed message
+      processedMessages.push({
+        sender,
+        text,
+        dimensions,
+        typingTime
+      });
+    }
+    
+    // Second pass: Create timeline items with correct positioning and timing
+    for (let i = 0; i < processedMessages.length; i++) {
+      const { sender, text, dimensions, typingTime } = processedMessages[i];
+      
+      // Add "reading time" for the previous message (if any)
+      if (i > 0) {
+        const prevMessage = processedMessages[i-1];
+        const readingTime = this.calculateReadingTime(prevMessage.text);
+        currentTime += readingTime;
+      }
+      
+      // Add sender transition delay (different timing based on whether sender changes)
+      const senderTransitionDelay = this.calculateSenderTransitionDelay(sender, previousSender);
+      currentTime += senderTransitionDelay;
+      
+      // Add typing indicator
+      timelineItems.push(new TypingIndicator(
+        sender,
+        currentTime,
+        currentY,
+        typingTime
+      ));
+      
+      // Advance time by typing duration
+      currentTime += typingTime;
+      
+      // Add message (appears after typing)
+      timelineItems.push(new ChatMessage(
+        sender,
+        currentTime,
+        currentY,
+        text,
+        dimensions
+      ));
+      
+      // Update Y position for next message based on this message's height
+      // Add extra spacing to separate messages visually
+      currentY += dimensions.height + TIMING.MESSAGE_VERTICAL_SPACING; 
+      
+      // Remember sender for next message
+      previousSender = sender;
+    }
+    
+    // Calculate scroll distance when messages exceed visible area
+    const totalContentHeight = currentY + TIMING.BOTTOM_MARGIN;
+    const viewportHeight = VISIBLE_MESSAGES * (LINE_HEIGHT_PX * 2 + BUBBLE_PAD_Y_PX * 2);
+    const scrollDistance = Math.max(0, totalContentHeight - viewportHeight);
+    
+    return { 
+      items: timelineItems,
+      scrollDistance,
+      totalDuration: currentTime + TIMING.ANIMATION_END_BUFFER_MS,
+      totalTypingTime: totalTypingTime
+    };
+  }
+}
+
+export default new TimelineBuilder();

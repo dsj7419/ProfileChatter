@@ -22,6 +22,11 @@
     {
       "id": "msg-5",
       "sender": "me",
-      "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub.\nFeel free to reach out if you want to collaborate! {emoji}"
+      "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub."
+    },
+    {
+      "id": "msg-6",
+      "sender": "me",
+      "text": "Feel free to reach out if you want to collaborate! {emoji}"
     }
   ]
