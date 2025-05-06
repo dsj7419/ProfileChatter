@@ -3,7 +3,7 @@
  * Responsible for providing dynamic data for the chat
  * Single Responsibility: Data acquisition and formatting
  */
-import { PROFILE, DEFAULTS } from '../config/ProfileConstants.js';
+import { config } from '../config/config.js';
 
 /**
  * Maps weather conditions to appropriate emojis
@@ -28,7 +28,7 @@ function getWeatherEmoji(weatherText) {
     'windy': '💨'
   };
 
-  if (!weatherText) return DEFAULTS.WEATHER_EMOJI;
+  if (!weatherText) return config.apiDefaults.WEATHER_EMOJI;
   
   const lowerWeatherText = weatherText.toLowerCase();
   
@@ -38,7 +38,7 @@ function getWeatherEmoji(weatherText) {
     }
   }
   
-  return DEFAULTS.WEATHER_EMOJI;
+  return config.apiDefaults.WEATHER_EMOJI;
 }
 
 /**
@@ -89,11 +89,11 @@ function formatTimePeriod(startDate) {
 }
 
 /**
- * Fetch GitHub user data
+ * Fetch GitHub user data with robust error handling
  */
 async function fetchGitHubData() {
   try {
-    const username = PROFILE.GITHUB_USERNAME;
+    const username = config.profile.GITHUB_USERNAME;
     
     // For browser environments
     if (typeof fetch === 'function') {
@@ -102,7 +102,18 @@ async function fetchGitHubData() {
       });
       
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        // Handle specific HTTP error status codes
+        switch (response.status) {
+          case 401:
+            throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
+          case 403:
+          case 429:
+            throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a GITHUB_TOKEN to your environment variables to increase your rate limit.`);
+          case 404:
+            throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
+          default:
+            throw new Error(`GitHub API server error (${response.status}): ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -121,7 +132,18 @@ async function fetchGitHubData() {
         });
         
         if (!response.ok) {
-          throw new Error(`GitHub API error: ${response.status}`);
+          // Handle specific HTTP error status codes
+          switch (response.status) {
+            case 401:
+              throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
+            case 403:
+            case 429:
+              throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a GITHUB_TOKEN to your environment variables to increase your rate limit.`);
+            case 404:
+              throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
+            default:
+              throw new Error(`GitHub API server error (${response.status}): ${response.statusText}`);
+          }
         }
         
         const data = await response.json();
@@ -131,24 +153,26 @@ async function fetchGitHubData() {
           githubFollowers: data.followers.toString()
         };
       } catch (error) {
-        console.warn('API fetch failed, using default GitHub data');
+        console.error('Error fetching GitHub data in Node environment:', error.message);
+        console.info('Using default GitHub data due to API error.');
         return {
-          githubPublicRepos: DEFAULTS.GITHUB_PUBLIC_REPOS,
-          githubFollowers: DEFAULTS.GITHUB_FOLLOWERS
+          githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+          githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
         };
       }
     }
   } catch (error) {
     console.error('Error fetching GitHub data:', error.message);
+    console.info('Using default GitHub data due to API error.');
     return {
-      githubPublicRepos: DEFAULTS.GITHUB_PUBLIC_REPOS,
-      githubFollowers: DEFAULTS.GITHUB_FOLLOWERS
+      githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+      githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
     };
   }
 }
 
 /**
- * Fetch weather data from AccuWeather API
+ * Fetch weather data from AccuWeather API with robust error handling
  */
 async function fetchWeatherData() {
   try {
@@ -157,12 +181,7 @@ async function fetchWeatherData() {
     const locationKey = process.env.LOCATION_KEY;
     
     if (!apiKey || !locationKey) {
-      console.warn('Weather API key or location key not provided');
-      return {
-        temperature: DEFAULTS.TEMPERATURE,
-        weatherDescription: DEFAULTS.WEATHER_DESCRIPTION,
-        emoji: DEFAULTS.WEATHER_EMOJI
-      };
+      throw new Error("Weather API key or location key not provided in environment variables.");
     }
     
     // For browser environments
@@ -172,7 +191,18 @@ async function fetchWeatherData() {
       );
       
       if (!response.ok) {
-        throw new Error(`AccuWeather API error: ${response.status}`);
+        // Handle specific HTTP error status codes
+        switch (response.status) {
+          case 401:
+            throw new Error(`AccuWeather API error (${response.status}): Unauthorized. Your WEATHER_API_KEY may be invalid.`);
+          case 400:
+          case 403:
+            throw new Error(`AccuWeather API error (${response.status}): Bad request or forbidden. Check your LOCATION_KEY and API key permissions.`);
+          case 429:
+            throw new Error(`AccuWeather API error (${response.status}): Rate limit exceeded. You may have reached your AccuWeather API quota.`);
+          default:
+            throw new Error(`AccuWeather API server error (${response.status}): ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -187,6 +217,8 @@ async function fetchWeatherData() {
           weatherDescription: weatherData.WeatherText.toLowerCase(),
           emoji: getWeatherEmoji(weatherData.WeatherText)
         };
+      } else {
+        throw new Error("AccuWeather API returned empty data.");
       }
     } 
     else {
@@ -198,7 +230,18 @@ async function fetchWeatherData() {
         );
         
         if (!response.ok) {
-          throw new Error(`AccuWeather API error: ${response.status}`);
+          // Handle specific HTTP error status codes
+          switch (response.status) {
+            case 401:
+              throw new Error(`AccuWeather API error (${response.status}): Unauthorized. Your WEATHER_API_KEY may be invalid.`);
+            case 400:
+            case 403:
+              throw new Error(`AccuWeather API error (${response.status}): Bad request or forbidden. Check your LOCATION_KEY and API key permissions.`);
+            case 429:
+              throw new Error(`AccuWeather API error (${response.status}): Rate limit exceeded. You may have reached your AccuWeather API quota.`);
+            default:
+              throw new Error(`AccuWeather API server error (${response.status}): ${response.statusText}`);
+          }
         }
         
         const data = await response.json();
@@ -213,23 +256,26 @@ async function fetchWeatherData() {
             weatherDescription: weatherData.WeatherText.toLowerCase(),
             emoji: getWeatherEmoji(weatherData.WeatherText)
           };
+        } else {
+          throw new Error("AccuWeather API returned empty data.");
         }
       } catch (error) {
-        console.warn('API fetch failed, using default weather data');
+        console.error('Error fetching AccuWeather data in Node environment:', error.message);
+        console.info('Using default weather data due to API error.');
+        return {
+          temperature: config.apiDefaults.TEMPERATURE,
+          weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+          emoji: config.apiDefaults.WEATHER_EMOJI
+        };
       }
     }
-    
-    return {
-      temperature: DEFAULTS.TEMPERATURE,
-      weatherDescription: DEFAULTS.WEATHER_DESCRIPTION,
-      emoji: DEFAULTS.WEATHER_EMOJI
-    };
   } catch (error) {
-    console.error('Error fetching weather data:', error.message);
+    console.error('Error fetching AccuWeather data:', error.message);
+    console.info('Using default weather data due to API error.');
     return {
-      temperature: DEFAULTS.TEMPERATURE,
-      weatherDescription: DEFAULTS.WEATHER_DESCRIPTION,
-      emoji: DEFAULTS.WEATHER_EMOJI
+      temperature: config.apiDefaults.TEMPERATURE,
+      weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+      emoji: config.apiDefaults.WEATHER_EMOJI
     };
   }
 }
@@ -251,17 +297,17 @@ class DataService {
       const baseData = {
         currentDayOfWeek: formatDayOfWeek(now),
         currentDate: formatDate(now),
-        workTenure: formatTimePeriod(PROFILE.WORK_START_DATE),
-        temperature: DEFAULTS.TEMPERATURE,
-        weatherDescription: DEFAULTS.WEATHER_DESCRIPTION,
-        emoji: DEFAULTS.WEATHER_EMOJI,
-        githubPublicRepos: DEFAULTS.GITHUB_PUBLIC_REPOS,
-        githubFollowers: DEFAULTS.GITHUB_FOLLOWERS,
-        name: PROFILE.NAME,
-        profession: PROFILE.PROFESSION,
-        location: PROFILE.LOCATION,
-        company: PROFILE.COMPANY,
-        currentProject: PROFILE.CURRENT_PROJECT
+        workTenure: formatTimePeriod(config.profile.WORK_START_DATE),
+        temperature: config.apiDefaults.TEMPERATURE,
+        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+        emoji: config.apiDefaults.WEATHER_EMOJI,
+        githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+        githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS,
+        name: config.profile.NAME,
+        profession: config.profile.PROFESSION,
+        location: config.profile.LOCATION,
+        company: config.profile.COMPANY,
+        currentProject: config.profile.CURRENT_PROJECT
       };
       
       // Then, fetch API data in parallel
@@ -275,6 +321,7 @@ class DataService {
         Object.assign(baseData, weatherData, githubData);
       } catch (error) {
         console.error('Error fetching API data:', error.message);
+        console.info('Using default data for some values due to API errors.');
       }
       
       // Finally, merge with any custom override data
@@ -287,16 +334,16 @@ class DataService {
         currentDayOfWeek: 'Monday',
         currentDate: 'May 5, 2025',
         workTenure: '3 years and 4 months',
-        temperature: DEFAULTS.TEMPERATURE,
-        weatherDescription: DEFAULTS.WEATHER_DESCRIPTION,
-        emoji: DEFAULTS.WEATHER_EMOJI,
-        githubPublicRepos: DEFAULTS.GITHUB_PUBLIC_REPOS,
-        githubFollowers: DEFAULTS.GITHUB_FOLLOWERS,
-        name: PROFILE.NAME,
-        profession: PROFILE.PROFESSION,
-        location: PROFILE.LOCATION,
-        company: PROFILE.COMPANY,
-        currentProject: PROFILE.CURRENT_PROJECT,
+        temperature: config.apiDefaults.TEMPERATURE,
+        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+        emoji: config.apiDefaults.WEATHER_EMOJI,
+        githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+        githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS,
+        name: config.profile.NAME,
+        profession: config.profile.PROFESSION,
+        location: config.profile.LOCATION,
+        company: config.profile.COMPANY,
+        currentProject: config.profile.CURRENT_PROJECT,
         ...customData
       };
     }

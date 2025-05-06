@@ -3,9 +3,13 @@
  * Main entry point for the application
  * Single Responsibility: Orchestrate the components to generate the SVG
  */
+import 'dotenv/config';
+
 import DataService from './services/DataService.js';
 import TimelineBuilder from './services/TimelineBuilder.js';
 import SvgRenderer from './rendering/SvgRenderer.js';
+import { validateConfiguration } from './utils/ConfigValidator.js';
+import { config } from './config/config.js';
 
 /**
  * ProfileChatter class - Orchestrates the generation of animated chat SVGs
@@ -18,13 +22,24 @@ class ProfileChatter {
    */
   async generateChatSVG(customContext = {}) {
     try {
-      // 1. Get dynamic data for chat messages
+      // 1. Validate configuration
+      if (!validateConfiguration(config)) {
+        console.error('Critical configuration errors found. SVG generation aborted. Please check the errors above.');
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="100">
+          <style>text { font-family: sans-serif; font-size: 12px; }</style>
+          <text x="10" y="20" fill="red">Configuration Error!</text>
+          <text x="10" y="40" fill="black">Please check console logs</text>
+          <text x="10" y="55" fill="black">for details.</text>
+        </svg>`;
+      }
+      
+      // 2. Get dynamic data for chat messages
       const dynamicData = await DataService.getDynamicData(customContext);
       
-      // 2. Build animation timeline with typing and message events
+      // 3. Build animation timeline with typing and message events
       const timelineData = TimelineBuilder.buildTimeline(dynamicData);
       
-      // 3. Render timeline to SVG markup
+      // 4. Render timeline to SVG markup
       return SvgRenderer.renderSVG(timelineData);
     } catch (error) {
       console.error('Error generating SVG:', error);

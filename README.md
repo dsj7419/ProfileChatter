@@ -2,7 +2,7 @@
 
 A dynamic SVG chat visualization generator for your GitHub profile README or other web pages. Create an interactive, auto-updating chat bubble visualization that shows real-time information like current date, weather, and GitHub stats.
 
-![ProfileChatter SVG](https://raw.githubusercontent.com/YOUR_USERNAME/ProfileChatter/main/dist/profile-chat.svg?ts=1746423562)
+![ProfileChatter SVG](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1746423562)
 
 ## How it Works
 
@@ -19,9 +19,17 @@ The system fetches current information (date, weather, GitHub stats) and injects
 ### Basic Setup
 
 1. Fork this repository
-2. Set up required repository secrets:
-   - `WEATHER_API_KEY`: Your AccuWeather API key for weather data
-   - `LOCATION_KEY`: Location ID for your city from AccuWeather
+2. Set up API Access:
+
+   - For Automated Updates (GitHub Actions): Configure the following as repository secrets in your GitHub repository settings:
+     - `WEATHER_API_KEY`: Your AccuWeather API key.
+     - `LOCATION_KEY`: Your AccuWeather location key.
+     - (Optional) `GITHUB_TOKEN`: Your GitHub Personal Access Token if needed.
+
+   - For Local Development:
+     - Copy the `.env.template` file (located in the project root) to a new file named `.env`.
+     - Fill in your API keys in the `.env` file. This file is already in `.gitignore` and should not be committed.
+
 3. Edit your GitHub profile README to embed the SVG
 
 ### Customizing Messages
@@ -44,18 +52,29 @@ Edit the messages in `data/chatData.json` to personalize the conversation. The f
 {currentProject} - Description of your current project
 ```
 
-### Customizing GitHub Data
+### User Profile Customization
 
-Open `src/dataFetcher.js` and change the `githubUsername` variable (around line 102) from the default placeholder to your actual GitHub username.
+To personalize your profile information such as your name, profession, GitHub username, company, location, current project, and work start date, edit the `profile` object within the `src/config/config.js` file. For example:
 
-### Customizing Start Date
-
-To accurately reflect your work tenure, update the `workStartDate` variable in `src/dataFetcher.js` with your actual start date.
+```javascript
+// In src/config/config.js
+// ...
+profile: {
+  NAME: "Your Name Here",
+  PROFESSION: "Your Profession",
+  LOCATION: "Your City",
+  COMPANY: "Your Company",
+  CURRENT_PROJECT: "What you're working on",
+  WORK_START_DATE: new Date(YYYY, MM-1, DD), // Example: new Date(2020, 0, 1) for Jan 1, 2020
+  GITHUB_USERNAME: "YourGitHubUsername"
+},
+// ...
+```
 
 ## Development
 
 ```bash
-# Install dependencies
+# Install dependencies (this will also install dotenv used for managing local .env files)
 npm install
 
 # Generate SVG manually
@@ -67,6 +86,8 @@ npm run format
 # Lint code
 npm run lint
 ```
+
+Local development uses a `.env` file (powered by the dotenv package) for environment variables. See `.env.template` for setup instructions.
 
 ## Contributing
 

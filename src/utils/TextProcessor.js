@@ -3,7 +3,7 @@
  * Handles text processing operations like wrapping and escaping
  * Single Responsibility: Text processing utilities
  */
-import { MAX_BUBBLE_W_PX, MIN_BUBBLE_W_PX, FONT_SIZE_PX, BUBBLE_PAD_X_PX, BUBBLE_PAD_Y_PX, LINE_HEIGHT_PX } from '../config/LayoutConstants.js';
+import { config } from '../config/config.js';
 
 class TextProcessor {
   /**
@@ -15,7 +15,7 @@ class TextProcessor {
     // Simple heuristic based on average character width
     // Different characters have different widths, so this is an approximation
     // For a more precise measurement, we would need a canvas context
-    const avgCharWidth = FONT_SIZE_PX * 0.6; // Rough approximation for proportional fonts
+    const avgCharWidth = config.layout.FONT_SIZE_PX * 0.6; // Rough approximation for proportional fonts
     return text.length * avgCharWidth;
   }
   
@@ -42,7 +42,7 @@ class TextProcessor {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
         const testWidth = this.measureTextWidth(testLine);
         
-        if (testWidth <= MAX_BUBBLE_W_PX - 2 * BUBBLE_PAD_X_PX) {
+        if (testWidth <= config.layout.MAX_BUBBLE_W_PX - 2 * config.layout.BUBBLE_PAD_X_PX) {
           currentLine = testLine;
         } else {
           if (currentLine) allLines.push(currentLine);
@@ -64,18 +64,18 @@ class TextProcessor {
     // Calculate maximum width needed
     const maxLineWidth = Math.max(
       ...allLines.map(line => this.measureTextWidth(line)),
-      MIN_BUBBLE_W_PX - 2 * BUBBLE_PAD_X_PX // Ensure minimum width
+      config.layout.MIN_BUBBLE_W_PX - 2 * config.layout.BUBBLE_PAD_X_PX // Ensure minimum width
     );
     
     // Calculate bubble dimensions
     const width = Math.min(
-      maxLineWidth + 2 * BUBBLE_PAD_X_PX,
-      MAX_BUBBLE_W_PX
+      maxLineWidth + 2 * config.layout.BUBBLE_PAD_X_PX,
+      config.layout.MAX_BUBBLE_W_PX
     );
     
     const height = Math.max(
-      allLines.length * LINE_HEIGHT_PX + 2 * BUBBLE_PAD_Y_PX,
-      2 * BUBBLE_PAD_Y_PX + LINE_HEIGHT_PX // Ensure minimum height
+      allLines.length * config.layout.LINE_HEIGHT_PX + 2 * config.layout.BUBBLE_PAD_Y_PX,
+      2 * config.layout.BUBBLE_PAD_Y_PX + config.layout.LINE_HEIGHT_PX // Ensure minimum height
     );
     
     return {

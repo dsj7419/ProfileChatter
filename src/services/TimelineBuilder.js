@@ -7,15 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TypingIndicator, ChatMessage } from '../models/TimelineItem.js';
-import { 
-  TYPING_CHAR_MS, 
-  TYPING_MIN_MS, 
-  TYPING_MAX_MS, 
-  VISIBLE_MESSAGES, 
-  LINE_HEIGHT_PX,
-  BUBBLE_PAD_Y_PX,
-  TIMING
-} from '../config/LayoutConstants.js';
+import { config } from '../config/config.js';
 import TextProcessor from '../utils/TextProcessor.js';
 
 class TimelineBuilder {
@@ -42,8 +34,8 @@ class TimelineBuilder {
   calculateTypingTime(text) {
     // Typing time correlates with message length but has reasonable bounds
     return Math.min(
-      TYPING_MAX_MS,
-      Math.max(TYPING_MIN_MS, text.length * TYPING_CHAR_MS)
+      config.layout.TYPING_MAX_MS,
+      Math.max(config.layout.TYPING_MIN_MS, text.length * config.layout.TYPING_CHAR_MS)
     );
   }
   
@@ -55,14 +47,14 @@ class TimelineBuilder {
   calculateReadingTime(text) {
     // Calculate reading time based on word count
     const wordCount = text.split(/\s+/).length;
-    const baseReadingTime = TIMING.MIN_READING_TIME_MS;
+    const baseReadingTime = config.layout.TIMING.MIN_READING_TIME_MS;
     const readingTime = Math.max(
       baseReadingTime, 
-      wordCount * TIMING.MS_PER_WORD
+      wordCount * config.layout.TIMING.MS_PER_WORD
     );
     
     // Add random variation to make it feel more natural
-    return readingTime + (Math.random() * TIMING.READING_RANDOMNESS_MS);
+    return readingTime + (Math.random() * config.layout.TIMING.READING_RANDOMNESS_MS);
   }
   
   /**
@@ -74,9 +66,9 @@ class TimelineBuilder {
   calculateSenderTransitionDelay(currentSender, previousSender) {
     // Add extra delay when sender changes (simulating conversation turn-taking)
     if (!previousSender || currentSender === previousSender) {
-      return TIMING.SAME_SENDER_DELAY_MS;
+      return config.layout.TIMING.SAME_SENDER_DELAY_MS;
     }
-    return TIMING.SENDER_CHANGE_DELAY_MS;
+    return config.layout.TIMING.SENDER_CHANGE_DELAY_MS;
   }
 
   /**
@@ -153,21 +145,21 @@ class TimelineBuilder {
       
       // Update Y position for next message based on this message's height
       // Add extra spacing to separate messages visually
-      currentY += dimensions.height + TIMING.MESSAGE_VERTICAL_SPACING; 
+      currentY += dimensions.height + config.layout.TIMING.MESSAGE_VERTICAL_SPACING; 
       
       // Remember sender for next message
       previousSender = sender;
     }
     
     // Calculate scroll distance when messages exceed visible area
-    const totalContentHeight = currentY + TIMING.BOTTOM_MARGIN;
-    const viewportHeight = VISIBLE_MESSAGES * (LINE_HEIGHT_PX * 2 + BUBBLE_PAD_Y_PX * 2);
+    const totalContentHeight = currentY + config.layout.TIMING.BOTTOM_MARGIN;
+    const viewportHeight = config.layout.VISIBLE_MESSAGES * (config.layout.LINE_HEIGHT_PX * 2 + config.layout.BUBBLE_PAD_Y_PX * 2);
     const scrollDistance = Math.max(0, totalContentHeight - viewportHeight);
     
     return { 
       items: timelineItems,
       scrollDistance,
-      totalDuration: currentTime + TIMING.ANIMATION_END_BUFFER_MS,
+      totalDuration: currentTime + config.layout.TIMING.ANIMATION_END_BUFFER_MS,
       totalTypingTime: totalTypingTime
     };
   }
