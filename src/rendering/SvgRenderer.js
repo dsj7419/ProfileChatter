@@ -17,6 +17,16 @@ try {
 
 class SvgRenderer {
   /**
+   * Get active theme styles with fallback
+   * @returns {Object} - Active theme styles
+   */
+  getActiveThemeStyles() {
+    const activeThemeName = config.activeTheme || 'ios'; // Fallback to ios
+    const themeStyles = config.themes[activeThemeName] || config.themes.ios; // Fallback
+    return themeStyles;
+  }
+
+  /**
    * Generate the complete SVG chat visualization
    * @param {Object} timelineData - Timeline with items and metadata
    * @returns {string} - Complete SVG markup
@@ -53,6 +63,8 @@ class SvgRenderer {
    * @returns {string} SVG header with styles
    */
   generateSvgHeader(scrollDistance, totalDuration, totalTypingTime) {
+    const themeStyles = this.getActiveThemeStyles();
+
     const fontFaceStyle = INTER_FONT_BASE64 ? 
       `@font-face {
         font-family: 'Inter';
@@ -71,7 +83,7 @@ class SvgRenderer {
       scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
     );
     
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${config.layout.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${themeStyles.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
   <defs>
     <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
@@ -147,10 +159,10 @@ class SvgRenderer {
     
     /* Support dark/light mode */
     @media (prefers-color-scheme: dark) {
-      svg { background: ${config.layout.COLORS.BACKGROUND_DARK}; }
+      svg { background: ${themeStyles.BACKGROUND_DARK}; }
     }
     @media (prefers-color-scheme: light) {
-      svg { background: ${config.layout.COLORS.BACKGROUND_LIGHT}; }
+      svg { background: ${themeStyles.BACKGROUND_LIGHT}; }
     }
   </style>
   
@@ -167,6 +179,8 @@ class SvgRenderer {
    * @returns {string} - SVG markup for typing indicator
    */
   renderTypingIndicator(item) {
+    const themeStyles = this.getActiveThemeStyles();
+
     // Position based on sender (right for me, left for visitor)
     const isMe = item.sender === 'me';
     const bubbleWidth = config.layout.ANIMATION.TYPING_BUBBLE_WIDTH;
@@ -174,11 +188,11 @@ class SvgRenderer {
     const x = isMe ? config.layout.CHAT_WIDTH_PX - bubbleWidth - 20 : 20;
     
     // Create bubble background for typing indicator
-    const fillColor = isMe ? config.layout.COLORS.ME_BUBBLE : config.layout.COLORS.VISITOR_BUBBLE;
-    const textColor = isMe ? config.layout.COLORS.TEXT : config.layout.COLORS.VISITOR_TEXT;
+    const fillColor = isMe ? themeStyles.ME_BUBBLE_COLOR : themeStyles.VISITOR_BUBBLE_COLOR;
+    const textColor = isMe ? themeStyles.ME_TEXT_COLOR : themeStyles.VISITOR_TEXT_COLOR;
     
     // Add bubble with proper iOS-style rounded rectangle
-    const bubble = `<rect x="0" y="0" rx="${config.layout.BUBBLE_RADIUS_PX}" ry="${config.layout.BUBBLE_RADIUS_PX}" width="${bubbleWidth}" height="${bubbleHeight}" fill="${fillColor}" />`;
+    const bubble = `<rect x="0" y="0" rx="${themeStyles.BUBBLE_RADIUS_PX}" ry="${themeStyles.BUBBLE_RADIUS_PX}" width="${bubbleWidth}" height="${bubbleHeight}" fill="${fillColor}" />`;
     
     // Dots with staggered animations (iOS-style)
     const dotY = bubbleHeight/2;
@@ -210,6 +224,8 @@ class SvgRenderer {
    * @returns {string} - SVG markup for chat bubble
    */
   renderChatBubble(item) {
+    const themeStyles = this.getActiveThemeStyles();
+
     // Calculate dimensions and wrap text
     const { lines, width, height } = item.layout ?? TextProcessor.wrapText(item.text);
     const isMe = item.sender === 'me';
@@ -217,11 +233,11 @@ class SvgRenderer {
     const delay = item.getDelayCSS();
     
     // Create bubble rectangle with correct color
-    const fillColor = isMe ? config.layout.COLORS.ME_BUBBLE : config.layout.COLORS.VISITOR_BUBBLE;
-    const rect = `<rect x="0" y="0" rx="${config.layout.BUBBLE_RADIUS_PX}" ry="${config.layout.BUBBLE_RADIUS_PX}" width="${width}" height="${height}" fill="${fillColor}" />`;
+    const fillColor = isMe ? themeStyles.ME_BUBBLE_COLOR : themeStyles.VISITOR_BUBBLE_COLOR;
+    const rect = `<rect x="0" y="0" rx="${themeStyles.BUBBLE_RADIUS_PX}" ry="${themeStyles.BUBBLE_RADIUS_PX}" width="${width}" height="${height}" fill="${fillColor}" />`;
     
     // Add text lines with correct color based on sender
-    const textColor = isMe ? config.layout.COLORS.TEXT : config.layout.COLORS.VISITOR_TEXT;
+    const textColor = isMe ? themeStyles.ME_TEXT_COLOR : themeStyles.VISITOR_TEXT_COLOR;
     const textLines = lines
       .map((line, index) => {
         const y = config.layout.BUBBLE_PAD_Y_PX + (index + 1) * config.layout.LINE_HEIGHT_PX - 6;

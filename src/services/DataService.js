@@ -5,6 +5,10 @@
  */
 import { config } from '../config/config.js';
 
+// Initialize in-memory cache stores
+let weatherCache = { data: null, expiresAt: 0 };
+let githubCache = { data: null, expiresAt: 0 };
+
 /**
  * Maps weather conditions to appropriate emojis
  * @param {string} weatherText - Weather condition text
@@ -89,10 +93,16 @@ function formatTimePeriod(startDate) {
 }
 
 /**
- * Fetch GitHub user data with robust error handling
+ * Fetch GitHub user data with robust error handling and caching
  */
 async function fetchGitHubData() {
   try {
+    // Check if valid cached data exists
+    if (githubCache.data && Date.now() < githubCache.expiresAt) {
+      console.info('Using cached GitHub data.');
+      return githubCache.data;
+    }
+
     const username = config.profile.GITHUB_USERNAME;
     
     // For browser environments
@@ -118,10 +128,17 @@ async function fetchGitHubData() {
       
       const data = await response.json();
       
-      return {
+      const result = {
         githubPublicRepos: data.public_repos.toString(),
         githubFollowers: data.followers.toString()
       };
+
+      // Cache the successful API response
+      githubCache.data = result;
+      githubCache.expiresAt = Date.now() + config.cache.GITHUB_CACHE_TTL_MS;
+      console.info('GitHub data fetched from API and cached.');
+      
+      return result;
     } 
     else {
       // Node.js environment - try with node-fetch
@@ -148,10 +165,17 @@ async function fetchGitHubData() {
         
         const data = await response.json();
         
-        return {
+        const result = {
           githubPublicRepos: data.public_repos.toString(),
           githubFollowers: data.followers.toString()
         };
+
+        // Cache the successful API response
+        githubCache.data = result;
+        githubCache.expiresAt = Date.now() + config.cache.GITHUB_CACHE_TTL_MS;
+        console.info('GitHub data fetched from API and cached.');
+        
+        return result;
       } catch (error) {
         console.error('Error fetching GitHub data in Node environment:', error.message);
         console.info('Using default GitHub data due to API error.');
@@ -172,10 +196,16 @@ async function fetchGitHubData() {
 }
 
 /**
- * Fetch weather data from AccuWeather API with robust error handling
+ * Fetch weather data from AccuWeather API with robust error handling and caching
  */
 async function fetchWeatherData() {
   try {
+    // Check if valid cached data exists
+    if (weatherCache.data && Date.now() < weatherCache.expiresAt) {
+      console.info('Using cached weather data.');
+      return weatherCache.data;
+    }
+
     // Get API key and location key from environment variables
     const apiKey = process.env.WEATHER_API_KEY;
     const locationKey = process.env.LOCATION_KEY;
@@ -212,11 +242,18 @@ async function fetchWeatherData() {
         const tempF = weatherData.Temperature.Imperial.Value;
         const tempC = Math.round((tempF - 32) * 5 / 9);
         
-        return {
+        const result = {
           temperature: `${tempF}°F (${tempC}°C)`,
           weatherDescription: weatherData.WeatherText.toLowerCase(),
           emoji: getWeatherEmoji(weatherData.WeatherText)
         };
+
+        // Cache the successful API response
+        weatherCache.data = result;
+        weatherCache.expiresAt = Date.now() + config.cache.WEATHER_CACHE_TTL_MS;
+        console.info('Weather data fetched from API and cached.');
+        
+        return result;
       } else {
         throw new Error("AccuWeather API returned empty data.");
       }
@@ -251,11 +288,18 @@ async function fetchWeatherData() {
           const tempF = weatherData.Temperature.Imperial.Value;
           const tempC = Math.round((tempF - 32) * 5 / 9);
           
-          return {
+          const result = {
             temperature: `${tempF}°F (${tempC}°C)`,
             weatherDescription: weatherData.WeatherText.toLowerCase(),
             emoji: getWeatherEmoji(weatherData.WeatherText)
           };
+
+          // Cache the successful API response
+          weatherCache.data = result;
+          weatherCache.expiresAt = Date.now() + config.cache.WEATHER_CACHE_TTL_MS;
+          console.info('Weather data fetched from API and cached.');
+          
+          return result;
         } else {
           throw new Error("AccuWeather API returned empty data.");
         }

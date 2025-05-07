@@ -130,6 +130,76 @@ function isNonEmptyString(value, propertyPath) {
   }
   
   /**
+   * Validates a theme object
+   * @param {Object} theme - The theme object to validate
+   * @param {string} themeName - Name of the theme for error reporting
+   * @returns {boolean} - true if the theme is valid, false otherwise
+   */
+  function validateTheme(theme, themeName) {
+    if (!theme || typeof theme !== 'object') {
+      console.error(`Configuration error: Theme "${themeName}" must be an object`);
+      return false;
+    }
+    
+    let isValid = true;
+    
+    // Required theme properties
+    const themeProps = [
+      'ME_BUBBLE_COLOR',
+      'VISITOR_BUBBLE_COLOR',
+      'ME_TEXT_COLOR',
+      'VISITOR_TEXT_COLOR',
+      'BACKGROUND_LIGHT',
+      'BACKGROUND_DARK',
+      'BUBBLE_RADIUS_PX',
+      'FONT_FAMILY'
+    ];
+    
+    // Check for required properties
+    for (const prop of themeProps) {
+      if (theme[prop] === undefined) {
+        console.error(`Configuration error: Missing required property in theme "${themeName}": ${prop}`);
+        isValid = false;
+      }
+    }
+    
+    // Validate property types
+    if (theme.ME_BUBBLE_COLOR !== undefined) {
+      isValid = isValidHexColor(theme.ME_BUBBLE_COLOR, `config.themes.${themeName}.ME_BUBBLE_COLOR`) && isValid;
+    }
+    
+    if (theme.VISITOR_BUBBLE_COLOR !== undefined) {
+      isValid = isValidHexColor(theme.VISITOR_BUBBLE_COLOR, `config.themes.${themeName}.VISITOR_BUBBLE_COLOR`) && isValid;
+    }
+    
+    if (theme.ME_TEXT_COLOR !== undefined) {
+      isValid = isValidHexColor(theme.ME_TEXT_COLOR, `config.themes.${themeName}.ME_TEXT_COLOR`) && isValid;
+    }
+    
+    if (theme.VISITOR_TEXT_COLOR !== undefined) {
+      isValid = isValidHexColor(theme.VISITOR_TEXT_COLOR, `config.themes.${themeName}.VISITOR_TEXT_COLOR`) && isValid;
+    }
+    
+    if (theme.BACKGROUND_LIGHT !== undefined) {
+      isValid = isValidHexColor(theme.BACKGROUND_LIGHT, `config.themes.${themeName}.BACKGROUND_LIGHT`) && isValid;
+    }
+    
+    if (theme.BACKGROUND_DARK !== undefined) {
+      isValid = isValidHexColor(theme.BACKGROUND_DARK, `config.themes.${themeName}.BACKGROUND_DARK`) && isValid;
+    }
+    
+    if (theme.BUBBLE_RADIUS_PX !== undefined) {
+      isValid = isPositiveNumber(theme.BUBBLE_RADIUS_PX, `config.themes.${themeName}.BUBBLE_RADIUS_PX`) && isValid;
+    }
+    
+    if (theme.FONT_FAMILY !== undefined) {
+      isValid = isNonEmptyString(theme.FONT_FAMILY, `config.themes.${themeName}.FONT_FAMILY`) && isValid;
+    }
+    
+    return isValid;
+  }
+  
+  /**
    * Validates the configuration object
    * @param {Object} config - The configuration object to validate
    * @returns {boolean} - true if the configuration is valid, false otherwise
@@ -141,6 +211,24 @@ function isNonEmptyString(value, propertyPath) {
     }
     
     let isValid = true;
+    
+    // Validate activeTheme
+    if (!isNonEmptyString(config.activeTheme, 'config.activeTheme')) {
+      isValid = false;
+    } else if (config.themes && !config.themes[config.activeTheme]) {
+      console.error(`Configuration error: activeTheme "${config.activeTheme}" does not exist in config.themes`);
+      isValid = false;
+    }
+    
+    // Validate themes
+    if (!validateObjectWithProps(config.themes, 'config.themes', ['ios'])) {
+      isValid = false;
+    } else {
+      // Validate each theme
+      for (const [themeName, theme] of Object.entries(config.themes)) {
+        isValid = validateTheme(theme, themeName) && isValid;
+      }
+    }
     
     // Validate profile object
     const profileProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME'];
@@ -157,6 +245,16 @@ function isNonEmptyString(value, propertyPath) {
       isValid = isNonEmptyString(config.profile.GITHUB_USERNAME, 'config.profile.GITHUB_USERNAME') && isValid;
     }
     
+    // Validate cache object
+    const cacheProps = ['WEATHER_CACHE_TTL_MS', 'GITHUB_CACHE_TTL_MS'];
+    if (!validateObjectWithProps(config.cache, 'config.cache', cacheProps)) {
+      isValid = false;
+    } else {
+      // Validate cache properties
+      isValid = isPositiveNumber(config.cache.WEATHER_CACHE_TTL_MS, 'config.cache.WEATHER_CACHE_TTL_MS') && isValid;
+      isValid = isPositiveNumber(config.cache.GITHUB_CACHE_TTL_MS, 'config.cache.GITHUB_CACHE_TTL_MS') && isValid;
+    }
+    
     // Validate apiDefaults object
     const apiDefaultsProps = ['TEMPERATURE', 'WEATHER_DESCRIPTION', 'WEATHER_EMOJI', 'GITHUB_PUBLIC_REPOS', 'GITHUB_FOLLOWERS'];
     if (!validateObjectWithProps(config.apiDefaults, 'config.apiDefaults', apiDefaultsProps)) {
@@ -171,12 +269,11 @@ function isNonEmptyString(value, propertyPath) {
     }
     
     // Validate layout object
-    const layoutProps = ['FONT_FAMILY', 'FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'COLORS', 'STATUS_INDICATOR'];
+    const layoutProps = ['FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'STATUS_INDICATOR'];
     if (!validateObjectWithProps(config.layout, 'config.layout', layoutProps)) {
       isValid = false;
     } else {
       // Validate layout properties
-      isValid = isNonEmptyString(config.layout.FONT_FAMILY, 'config.layout.FONT_FAMILY') && isValid;
       isValid = isPositiveNumber(config.layout.FONT_SIZE_PX, 'config.layout.FONT_SIZE_PX') && isValid;
       isValid = isPositiveNumber(config.layout.LINE_HEIGHT_PX, 'config.layout.LINE_HEIGHT_PX') && isValid;
       isValid = isPositiveNumber(config.layout.CHAT_WIDTH_PX, 'config.layout.CHAT_WIDTH_PX') && isValid;
@@ -194,17 +291,6 @@ function isNonEmptyString(value, propertyPath) {
         isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.OFFSET_Y_PX, 'config.layout.STATUS_INDICATOR.OFFSET_Y_PX') && isValid;
         isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC, 'config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC') && isValid;
         isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC, 'config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC') && isValid;
-      }
-      
-      // Validate COLORS object
-      const colorProps = ['ME_BUBBLE', 'VISITOR_BUBBLE', 'TEXT', 'VISITOR_TEXT', 'BACKGROUND_LIGHT', 'BACKGROUND_DARK'];
-      if (!validateObjectWithProps(config.layout.COLORS, 'config.layout.COLORS', colorProps)) {
-        isValid = false;
-      } else {
-        // Validate each color is a valid hex color
-        for (const colorProp of colorProps) {
-          isValid = isValidHexColor(config.layout.COLORS[colorProp], `config.layout.COLORS.${colorProp}`) && isValid;
-        }
       }
       
       // Validate TIMING object (essential properties only)

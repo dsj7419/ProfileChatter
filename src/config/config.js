@@ -6,6 +6,36 @@
 
 // Exported configuration object
 export const config = {
+    // Theme selection - default to iOS theme
+    activeTheme: "ios",
+
+    // Theme definitions
+    themes: {
+      // iOS theme (based on existing styles)
+      ios: {
+        ME_BUBBLE_COLOR: '#0B93F6',     // iOS blue for my messages
+        VISITOR_BUBBLE_COLOR: '#E5E5EA', // iOS gray for visitor messages
+        ME_TEXT_COLOR: '#FFFFFF',       // White text for my messages
+        VISITOR_TEXT_COLOR: '#000000',  // Black text for visitor messages
+        BACKGROUND_LIGHT: '#FFFFFF',    // iOS light background
+        BACKGROUND_DARK: '#000000',     // iOS dark background
+        BUBBLE_RADIUS_PX: 18,           // Rounded bubble corners
+        FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      },
+      
+      // Android theme (new)
+      android: {
+        ME_BUBBLE_COLOR: '#D1E6FF',     // Android-like light blue
+        VISITOR_BUBBLE_COLOR: '#F0F0F0', // Light gray
+        ME_TEXT_COLOR: '#000000',       // Black text on light bubble
+        VISITOR_TEXT_COLOR: '#000000',  // Black text on light bubble
+        BACKGROUND_LIGHT: '#FFFFFF',    // White background for light mode
+        BACKGROUND_DARK: '#121212',     // Material Design dark background
+        BUBBLE_RADIUS_PX: 8,            // Less rounded corners for Android
+        FONT_FAMILY: "'Roboto', sans-serif" // Android default font
+      }
+    },
+    
     // Profile information and user data
     profile: {
       // Personal information
@@ -22,6 +52,12 @@ export const config = {
       GITHUB_USERNAME: "dsj7419"
     },
     
+    // Cache settings for API requests
+    cache: {
+      WEATHER_CACHE_TTL_MS: 1800000, // Time To Live for weather data cache in milliseconds (30 minutes)
+      GITHUB_CACHE_TTL_MS: 3600000   // TTL for GitHub data cache (1 hour)
+    },
+    
     // Default values used when APIs fail
     apiDefaults: {
       // Weather defaults
@@ -36,15 +72,13 @@ export const config = {
     
     // Layout and styling parameters
     layout: {
-      // Font settings
-      FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      // Font settings (now sourced from active theme)
       FONT_SIZE_PX: 14,
       LINE_HEIGHT_PX: 20,
       
       // Bubble dimensions
       BUBBLE_PAD_X_PX: 12,
       BUBBLE_PAD_Y_PX: 8,
-      BUBBLE_RADIUS_PX: 18,
       MIN_BUBBLE_W_PX: 40,
       MAX_BUBBLE_W_PX: 260,
       
@@ -124,17 +158,7 @@ export const config = {
         // Scroll animation
         SCROLL_DELAY_BUFFER_SEC: 3.5,     // Delay after last message before scrolling starts
         MIN_SCROLL_DURATION_SEC: 1.2,     // Minimum scroll duration in seconds
-        SCROLL_PIXELS_PER_SEC: 10,       // Pixels scrolled per second for a natural pace
-      },
-      
-      // Theme colors (iOS Messages app style)
-      COLORS: {
-        ME_BUBBLE: '#0B93F6',       // iOS blue for my messages
-        VISITOR_BUBBLE: '#E5E5EA',  // iOS gray for visitor messages
-        TEXT: '#FFFFFF',            // White text for my messages
-        VISITOR_TEXT: '#000000',    // Black text for visitor messages
-        BACKGROUND_LIGHT: '#FFFFFF', // iOS light background
-        BACKGROUND_DARK: '#000000'   // iOS dark background
+        SCROLL_PIXELS_PER_SEC: 10,        // Pixels scrolled per second for a natural pace
       }
     }
   };
