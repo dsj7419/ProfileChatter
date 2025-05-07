@@ -115,6 +115,10 @@ class SvgRenderer {
       0% { scale: ${config.layout.ANIMATION.BUBBLE_START_SCALE}; opacity: 0; }
       100% { scale: 1; opacity: 1; }
     }
+    @keyframes reactionIn {
+      0% { scale: .5; opacity: 0; }
+      100% { scale: 1; opacity: 1; }
+    }
     @keyframes scrollUp { 
       0% { transform: translateY(0); }
       100% { transform: translateY(-${scrollDistance}px); }
@@ -122,6 +126,12 @@ class SvgRenderer {
     @keyframes fadeInStatus {
       0% { opacity: 0; }
       100% { opacity: 1; }
+    }
+    @keyframes fadeInOutStatus {
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { opacity: 0; }
     }
     
     /* Scrolling with hardware acceleration and smooth movement */
@@ -143,6 +153,13 @@ class SvgRenderer {
     
     .typing { 
       opacity: 0;
+      filter: url(#shadowEffect);
+    }
+    
+    .reaction {
+      animation: reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;
+      opacity: 0;
+      transform-origin: center;
       filter: url(#shadowEffect);
     }
     
@@ -266,32 +283,110 @@ class SvgRenderer {
               fill="${fillColor}" />`;
     }
     
-    // Add status indicator for "me" messages only
-    let statusIndicator = '';
+    // Add status indicators for "me" messages only
+    let statusIndicators = '';
     if (isMe) {
-      const statusText = config.layout.STATUS_INDICATOR.TEXT;
+      const deliveredText = config.layout.STATUS_INDICATOR.DELIVERED_TEXT;
+      const readText = config.layout.STATUS_INDICATOR.READ_TEXT;
       const statusY = height + config.layout.STATUS_INDICATOR.OFFSET_Y_PX;
       const statusX = width - config.layout.BUBBLE_PAD_X_PX;
-      const statusAnimationDelay = (item.startTime / 1000) + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC;
       
-      statusIndicator = `
+      // Calculate animation timings
+      const bubbleAnimationEnd = (item.startTime / 1000) + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION;
+      const deliveredAnimationDelay = bubbleAnimationEnd + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC;
+      const readAnimationDelay = deliveredAnimationDelay + config.layout.STATUS_INDICATOR.READ_DELAY_SEC;
+      const readTransitionDuration = config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC;
+      
+      // "Delivered" status (appears first, then fades out)
+      statusIndicators += `
         <text 
           x="${statusX}" 
           y="${statusY}" 
           text-anchor="end" 
-          class="status-indicator" 
-          style="animation: fadeInStatus ${config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC}s ease forwards; animation-delay: ${statusAnimationDelay.toFixed(2)}s;">
-            ${TextProcessor.escapeXML(statusText)}
+          class="status-indicator delivered" 
+          style="animation: fadeInOutStatus ${config.layout.STATUS_INDICATOR.READ_DELAY_SEC}s ease forwards; animation-delay: ${deliveredAnimationDelay.toFixed(2)}s;">
+            ${TextProcessor.escapeXML(deliveredText)}
+        </text>`;
+      
+      // "Read" status (appears after "Delivered" fades out)
+      statusIndicators += `
+        <text 
+          x="${statusX}" 
+          y="${statusY}" 
+          text-anchor="end" 
+          class="status-indicator read" 
+          style="animation: fadeInStatus ${readTransitionDuration}s ease forwards; animation-delay: ${readAnimationDelay.toFixed(2)}s;">
+            ${TextProcessor.escapeXML(readText)}
         </text>`;
     }
     
-    return `
+    // Start the bubble markup but don't close the group tag yet
+    const bubbleMarkup = `
     <g class="msg ${isMe ? 'me' : 'them'}" transform="translate(${x},${item.y})" style="${delay}">
       ${rect}
       ${tail}
       ${textLines}
-      ${statusIndicator}
-    </g>`;
+      ${statusIndicators}`;
+
+    // Add reaction if present within the same group
+    let reactionMarkup = '';
+    if (item.reaction) {
+      // Calculate dimensions for reaction pill
+      const emojiSize = themeStyles.REACTION_FONT_SIZE_PX;
+      const paddingX = themeStyles.REACTION_PADDING_X_PX;
+      const paddingY = themeStyles.REACTION_PADDING_Y_PX;
+      const pillWidth = emojiSize + (paddingX * 2);
+      const pillHeight = emojiSize + (paddingY * 2);
+      const borderRadius = themeStyles.REACTION_BORDER_RADIUS_PX;
+      
+      // Calculate relative positioning within the chat bubble group
+      let relX, relY;
+      
+      if (isMe) {
+        // For "me" messages: Position at the top-left corner of bubble
+        relX = -pillWidth / 2; // Center on the left edge
+        relY = themeStyles.REACTION_OFFSET_Y_PX; // Position above the bubble
+      } else {
+        // For "visitor" messages: Position at the top-right corner of bubble
+        relX = width - pillWidth / 2; // Center on the right edge
+        relY = themeStyles.REACTION_OFFSET_Y_PX; // Position above the bubble
+      }
+      
+      // Calculate animation delay
+      const bubbleAnimationEnd = (item.startTime / 1000) + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION;
+      const baseDelay = isMe 
+        ? bubbleAnimationEnd + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC + 
+          config.layout.STATUS_INDICATOR.READ_DELAY_SEC + config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC
+        : bubbleAnimationEnd;
+      
+      const reactionDelay = baseDelay + config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC;
+      
+      // Reaction markup with relative positioning
+      reactionMarkup = `
+        <g class="reaction" style="animation-delay: ${reactionDelay.toFixed(2)}s" transform="translate(${relX}, ${relY})">
+          <rect 
+            x="0" 
+            y="0" 
+            width="${pillWidth}" 
+            height="${pillHeight}" 
+            rx="${borderRadius}" 
+            ry="${borderRadius}" 
+            fill="${themeStyles.REACTION_BG_COLOR}" 
+            fill-opacity="${themeStyles.REACTION_BG_OPACITY}" />
+          <text 
+            x="${pillWidth/2}" 
+            y="${pillHeight/2}" 
+            text-anchor="middle" 
+            dominant-baseline="middle" 
+            font-size="${emojiSize}px"
+            fill="${themeStyles.REACTION_TEXT_COLOR}">
+              ${TextProcessor.escapeXML(item.reaction)}
+          </text>
+        </g>`;
+    }
+
+    // Return complete markup with reaction inside the bubble group
+    return bubbleMarkup + reactionMarkup + '</g>';
   }
 }
 

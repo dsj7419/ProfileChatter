@@ -86,7 +86,7 @@ class TimelineBuilder {
     // First pass: Create all message objects and calculate dimensions
     const processedMessages = [];
     
-    for (const { sender, text: rawText } of this.chatData) {
+    for (const { sender, text: rawText, reaction } of this.chatData) {
       // Replace dynamic placeholders in message text
       const text = rawText.replace(/\{(\w+)\}/g, (_, key) => 
         dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
@@ -104,13 +104,14 @@ class TimelineBuilder {
         sender,
         text,
         dimensions,
-        typingTime
+        typingTime,
+        reaction // Pass along any reaction
       });
     }
     
     // Second pass: Create timeline items with correct positioning and timing
     for (let i = 0; i < processedMessages.length; i++) {
-      const { sender, text, dimensions, typingTime } = processedMessages[i];
+      const { sender, text, dimensions, typingTime, reaction } = processedMessages[i];
       
       // Add "reading time" for the previous message (if any)
       if (i > 0) {
@@ -140,7 +141,8 @@ class TimelineBuilder {
         currentTime,
         currentY,
         text,
-        dimensions
+        dimensions,
+        reaction // Pass the reaction to the ChatMessage constructor
       ));
       
       // Update Y position for next message based on this message's height
