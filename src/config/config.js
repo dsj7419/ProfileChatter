@@ -61,6 +61,16 @@ export const config = {
       TYPING_MIN_MS: 1600,  // Minimum typing time
       TYPING_MAX_MS: 3000,  // Maximum typing time
       
+      // Status indicator settings
+      STATUS_INDICATOR: {
+        TEXT: "Delivered",
+        FONT_SIZE_PX: 10,
+        COLOR_ME: "#FFFFFFB3", // Semi-transparent white for subtle appearance
+        OFFSET_Y_PX: 12,
+        ANIMATION_DELAY_SEC: 0.2,
+        FADE_IN_DURATION_SEC: 0.3
+      },
+      
       // Layout settings
       VISIBLE_MESSAGES: 6,  // How many messages to keep visible before scrolling
       CHAT_WIDTH_PX: 320,   // Total width of the chat container
@@ -112,9 +122,9 @@ export const config = {
         SHADOW_OPACITY: 0.15,             // Shadow opacity
         
         // Scroll animation
-        SCROLL_DELAY_BUFFER_SEC: 12,      // Extra time before scrolling starts (increased significantly)
-        MIN_SCROLL_DURATION_SEC: 40,      // Minimum scroll duration
-        SCROLL_DURATION_MULTIPLIER: 3     // Multiplier for scroll duration
+        SCROLL_DELAY_BUFFER_SEC: 3.5,     // Delay after last message before scrolling starts
+        MIN_SCROLL_DURATION_SEC: 1.2,     // Minimum scroll duration in seconds
+        SCROLL_PIXELS_PER_SEC: 10,       // Pixels scrolled per second for a natural pace
       },
       
       // Theme colors (iOS Messages app style)

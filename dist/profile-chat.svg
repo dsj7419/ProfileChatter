@@ -39,11 +39,15 @@
       0% { transform: translateY(0); }
       100% { transform: translateY(-332px); }
     }
+    @keyframes fadeInStatus {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
     
     /* Scrolling with hardware acceleration and smooth movement */
     .track { 
-      animation: scrollUp 133.73488220350382s linear forwards; 
-      animation-delay: 27.4s; 
+      animation: scrollUp 2.21s linear forwards; 
+      animation-delay: 18.90s; 
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
       perspective: 1000px;
@@ -65,6 +69,13 @@
     .typing-dot1 { animation: typingDot1 1.4s infinite; animation-delay: 0s; }
     .typing-dot2 { animation: typingDot2 1.4s infinite; animation-delay: 0.2s; }
     .typing-dot3 { animation: typingDot3 1.4s infinite; animation-delay: 0.4s; }
+    
+    .status-indicator {
+      font-size: 10px;
+      fill: #FFFFFFB3;
+      opacity: 0;
+      will-change: opacity;
+    }
     
     /* Support dark/light mode */
     @media (prefers-color-scheme: dark) {
@@ -99,18 +110,27 @@
                  Z" 
               fill="#0B93F6" />
       <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Hey there! I&apos;m Dan Johnson,</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">a Software Developer based</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">in San Diego.</text>
+      
+        <text 
+          x="238.8" 
+          y="88" 
+          text-anchor="end" 
+          class="status-indicator" 
+          style="animation: fadeInStatus 0.3s ease forwards; animation-delay: 3.88s;">
+            Delivered
+        </text>
     </g>
 
     <g class="typing them" transform="translate(20,118)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="8.79s" dur="1.92s" fill="freeze" />
+               begin="8.88s" dur="1.92s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,118)" style="animation-delay:10.71s">
+    <g class="msg them" transform="translate(20,118)" style="animation-delay:10.80s">
       <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -119,18 +139,19 @@
                  Z" 
               fill="#E5E5EA" />
       <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Tuesday, May 6, 2025.</text>
+      
     </g>
 
     <g class="typing me" transform="translate(230,196)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="15.10s" dur="3.00s" fill="freeze" />
+               begin="15.53s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(49.19999999999999,196)" style="animation-delay:18.10s">
+    <g class="msg me" transform="translate(49.19999999999999,196)" style="animation-delay:18.53s">
       <rect x="0" y="0" rx="18" ry="18" width="250.8" height="96" fill="#0B93F6" />
       
         <path d="M250.8,10 
@@ -138,19 +159,28 @@
                  C255.8,18 252.8,14 250.8,16 
                  Z" 
               fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 59°F (15°C) with cloudy.</text>
+      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 63°F (17°C) with cloudy.</text>
+      
+        <text 
+          x="238.8" 
+          y="108" 
+          text-anchor="end" 
+          class="status-indicator" 
+          style="animation: fadeInStatus 0.3s ease forwards; animation-delay: 19.09s;">
+            Delivered
+        </text>
     </g>
 
     <g class="typing them" transform="translate(20,314)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="25.00s" dur="2.64s" fill="freeze" />
+               begin="25.64s" dur="2.64s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,314)" style="animation-delay:27.64s">
+    <g class="msg them" transform="translate(20,314)" style="animation-delay:28.28s">
       <rect x="0" y="0" rx="18" ry="18" width="234" height="76" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -159,18 +189,19 @@
                  Z" 
               fill="#E5E5EA" />
       <text x="12" y="22" fill="#000000" dominant-baseline="middle">That sounds interesting!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">What kind of projects are</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">you working on?</text>
+      
     </g>
 
     <g class="typing me" transform="translate(230,412)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="32.28s" dur="3.00s" fill="freeze" />
+               begin="33.34s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(40.799999999999955,412)" style="animation-delay:35.28s">
+    <g class="msg me" transform="translate(40.799999999999955,412)" style="animation-delay:36.34s">
       <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="116" fill="#0B93F6" />
       
         <path d="M259.20000000000005,10 
@@ -179,18 +210,27 @@
                  Z" 
               fill="#0B93F6" />
       <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused on</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41 public</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">repositories and 0 followers</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">on GitHub.</text>
+      
+        <text 
+          x="247.20000000000005" 
+          y="128" 
+          text-anchor="end" 
+          class="status-indicator" 
+          style="animation: fadeInStatus 0.3s ease forwards; animation-delay: 36.90s;">
+            Delivered
+        </text>
     </g>
 
     <g class="typing me" transform="translate(230,550)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="40.46s" dur="2.12s" fill="freeze" />
+               begin="42.19s" dur="2.12s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(49.19999999999999,550)" style="animation-delay:42.58s">
+    <g class="msg me" transform="translate(49.19999999999999,550)" style="animation-delay:44.31s">
       <rect x="0" y="0" rx="18" ry="18" width="250.8" height="56" fill="#0B93F6" />
       
         <path d="M250.8,10 
@@ -199,5 +239,14 @@
                  Z" 
               fill="#0B93F6" />
       <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out if</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">you want to collaborate! ☁️</text>
+      
+        <text 
+          x="238.8" 
+          y="68" 
+          text-anchor="end" 
+          class="status-indicator" 
+          style="animation: fadeInStatus 0.3s ease forwards; animation-delay: 44.87s;">
+            Delivered
+        </text>
     </g>
 </g></svg>

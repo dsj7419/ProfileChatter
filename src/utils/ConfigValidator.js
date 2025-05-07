@@ -171,7 +171,7 @@ function isNonEmptyString(value, propertyPath) {
     }
     
     // Validate layout object
-    const layoutProps = ['FONT_FAMILY', 'FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'COLORS'];
+    const layoutProps = ['FONT_FAMILY', 'FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'COLORS', 'STATUS_INDICATOR'];
     if (!validateObjectWithProps(config.layout, 'config.layout', layoutProps)) {
       isValid = false;
     } else {
@@ -181,6 +181,20 @@ function isNonEmptyString(value, propertyPath) {
       isValid = isPositiveNumber(config.layout.LINE_HEIGHT_PX, 'config.layout.LINE_HEIGHT_PX') && isValid;
       isValid = isPositiveNumber(config.layout.CHAT_WIDTH_PX, 'config.layout.CHAT_WIDTH_PX') && isValid;
       isValid = isPositiveNumber(config.layout.CHAT_HEIGHT_PX, 'config.layout.CHAT_HEIGHT_PX') && isValid;
+      
+      // Validate STATUS_INDICATOR object
+      const statusIndicatorProps = ['TEXT', 'FONT_SIZE_PX', 'COLOR_ME', 'OFFSET_Y_PX', 'ANIMATION_DELAY_SEC', 'FADE_IN_DURATION_SEC'];
+      if (!validateObjectWithProps(config.layout.STATUS_INDICATOR, 'config.layout.STATUS_INDICATOR', statusIndicatorProps)) {
+        isValid = false;
+      } else {
+        // Validate status indicator properties
+        isValid = isNonEmptyString(config.layout.STATUS_INDICATOR.TEXT, 'config.layout.STATUS_INDICATOR.TEXT') && isValid;
+        isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.FONT_SIZE_PX, 'config.layout.STATUS_INDICATOR.FONT_SIZE_PX') && isValid;
+        isValid = isValidHexColor(config.layout.STATUS_INDICATOR.COLOR_ME, 'config.layout.STATUS_INDICATOR.COLOR_ME') && isValid;
+        isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.OFFSET_Y_PX, 'config.layout.STATUS_INDICATOR.OFFSET_Y_PX') && isValid;
+        isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC, 'config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC') && isValid;
+        isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC, 'config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC') && isValid;
+      }
       
       // Validate COLORS object
       const colorProps = ['ME_BUBBLE', 'VISITOR_BUBBLE', 'TEXT', 'VISITOR_TEXT', 'BACKGROUND_LIGHT', 'BACKGROUND_DARK'];
@@ -206,6 +220,17 @@ function isNonEmptyString(value, propertyPath) {
         isValid = (typeof config.layout.ANIMATION === 'object') && isValid;
         if (config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION !== undefined) {
           isValid = isPositiveNumber(config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION, 'config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION') && isValid;
+        }
+        
+        // Validate new scroll animation parameters
+        if (config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC !== undefined) {
+          isValid = isPositiveNumber(config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC, 'config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC') && isValid;
+        }
+        if (config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC !== undefined) {
+          isValid = isPositiveNumber(config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC, 'config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC') && isValid;
+        }
+        if (config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC !== undefined) {
+          isValid = isPositiveNumber(config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC, 'config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC') && isValid;
         }
       }
     }

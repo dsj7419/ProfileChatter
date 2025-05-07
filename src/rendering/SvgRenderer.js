@@ -61,13 +61,14 @@ class SvgRenderer {
         src: url("${INTER_FONT_BASE64}") format('woff2');
       }` : '';
     
-    // Add a much longer delay before scrolling starts (wait for more messages)
+    // Add delay before scrolling starts (wait for last message to be read)
     const scrollDelay = (totalTypingTime / 1000) + config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC;
     
-    // Make the scrolling slow and smooth
+    // Calculate scroll duration based on distance to scroll, with a minimum duration
+    // This approach ties animation speed directly to the amount of content being scrolled
     const scrollDuration = Math.max(
-      config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC, 
-      totalDuration / 1000 * config.layout.ANIMATION.SCROLL_DURATION_MULTIPLIER
+      config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
+      scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
     );
     
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${config.layout.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
@@ -106,11 +107,15 @@ class SvgRenderer {
       0% { transform: translateY(0); }
       100% { transform: translateY(-${scrollDistance}px); }
     }
+    @keyframes fadeInStatus {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
     
     /* Scrolling with hardware acceleration and smooth movement */
     .track { 
-      animation: scrollUp ${scrollDuration}s linear forwards; 
-      animation-delay: ${scrollDelay}s; 
+      animation: scrollUp ${scrollDuration.toFixed(2)}s linear forwards; 
+      animation-delay: ${scrollDelay.toFixed(2)}s; 
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
       perspective: 1000px;
@@ -132,6 +137,13 @@ class SvgRenderer {
     .typing-dot1 { animation: typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite; animation-delay: 0s; }
     .typing-dot2 { animation: typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite; animation-delay: ${config.layout.ANIMATION.DOT_DELAY_2}s; }
     .typing-dot3 { animation: typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite; animation-delay: ${config.layout.ANIMATION.DOT_DELAY_3}s; }
+    
+    .status-indicator {
+      font-size: ${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;
+      fill: ${config.layout.STATUS_INDICATOR.COLOR_ME};
+      opacity: 0;
+      will-change: opacity;
+    }
     
     /* Support dark/light mode */
     @media (prefers-color-scheme: dark) {
@@ -238,11 +250,31 @@ class SvgRenderer {
               fill="${fillColor}" />`;
     }
     
+    // Add status indicator for "me" messages only
+    let statusIndicator = '';
+    if (isMe) {
+      const statusText = config.layout.STATUS_INDICATOR.TEXT;
+      const statusY = height + config.layout.STATUS_INDICATOR.OFFSET_Y_PX;
+      const statusX = width - config.layout.BUBBLE_PAD_X_PX;
+      const statusAnimationDelay = (item.startTime / 1000) + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC;
+      
+      statusIndicator = `
+        <text 
+          x="${statusX}" 
+          y="${statusY}" 
+          text-anchor="end" 
+          class="status-indicator" 
+          style="animation: fadeInStatus ${config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC}s ease forwards; animation-delay: ${statusAnimationDelay.toFixed(2)}s;">
+            ${TextProcessor.escapeXML(statusText)}
+        </text>`;
+    }
+    
     return `
     <g class="msg ${isMe ? 'me' : 'them'}" transform="translate(${x},${item.y})" style="${delay}">
       ${rect}
       ${tail}
       ${textLines}
+      ${statusIndicator}
     </g>`;
   }
 }
