@@ -147,14 +147,14 @@
 
     <g class="typing them" transform="translate(20,124)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="8.49s" dur="2.00s" fill="freeze" />
+               begin="8.89s" dur="2.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,124)" style="animation-delay:10.49s">
+    <g class="msg them" transform="translate(20,124)" style="animation-delay:10.89s">
       <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -164,7 +164,7 @@
               fill="#E5E5EA" />
       <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Wednesday, May 7, 2025.</text>
       
-        <g class="reaction" style="animation-delay: 11.65s" transform="translate(227.4, -12)">
+        <g class="reaction" style="animation-delay: 12.05s" transform="translate(227.4, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -187,14 +187,14 @@
 
     <g class="typing me" transform="translate(230,208)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="14.82s" dur="3.00s" fill="freeze" />
+               begin="15.62s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(49.19999999999999,208)" style="animation-delay:17.82s">
+    <g class="msg me" transform="translate(49.19999999999999,208)" style="animation-delay:18.62s">
       <rect x="0" y="0" rx="18" ry="18" width="250.8" height="116" fill="#0B93F6" />
       
         <path d="M250.8,10 
@@ -209,7 +209,7 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 18.38s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 19.18s;">
             Delivered
         </text>
         <text 
@@ -217,20 +217,20 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 19.88s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 20.68s;">
             Read
         </text></g>
 
     <g class="typing them" transform="translate(20,352)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="25.86s" dur="2.64s" fill="freeze" />
+               begin="26.06s" dur="2.64s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,352)" style="animation-delay:28.50s">
+    <g class="msg them" transform="translate(20,352)" style="animation-delay:28.70s">
       <rect x="0" y="0" rx="18" ry="18" width="234" height="76" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -240,7 +240,7 @@
               fill="#E5E5EA" />
       <text x="12" y="22" fill="#000000" dominant-baseline="middle">That sounds interesting!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">What kind of projects are</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">you working on?</text>
       
-        <g class="reaction" style="animation-delay: 29.66s" transform="translate(219, -12)">
+        <g class="reaction" style="animation-delay: 29.86s" transform="translate(219, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -263,14 +263,14 @@
 
     <g class="typing me" transform="translate(230,456)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="33.60s" dur="3.00s" fill="freeze" />
+               begin="33.77s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(40.799999999999955,456)" style="animation-delay:36.60s">
+    <g class="msg me" transform="translate(40.799999999999955,456)" style="animation-delay:36.77s">
       <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="116" fill="#0B93F6" />
       
         <path d="M259.20000000000005,10 
@@ -285,7 +285,7 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 37.16s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 37.33s;">
             Delivered
         </text>
         <text 
@@ -293,10 +293,10 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 38.66s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 38.83s;">
             Read
         </text>
-        <g class="reaction" style="animation-delay: 39.66s" transform="translate(-15, -12)">
+        <g class="reaction" style="animation-delay: 39.83s" transform="translate(-15, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -319,14 +319,14 @@
 
     <g class="typing me" transform="translate(230,600)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="41.55s" dur="2.08s" fill="freeze" />
+               begin="41.91s" dur="2.08s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(57.599999999999994,600)" style="animation-delay:43.63s">
+    <g class="msg me" transform="translate(57.599999999999994,600)" style="animation-delay:43.99s">
       <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#0B93F6" />
       
         <path d="M242.4,10 
@@ -341,7 +341,7 @@
           y="68" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 44.19s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 44.55s;">
             Delivered
         </text>
         <text 
@@ -349,7 +349,7 @@
           y="68" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 45.69s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 46.05s;">
             Read
         </text></g>
 </g></svg>
