@@ -3,7 +3,7 @@
  * Entry point for ProfileChatter
  * Single Responsibility: Provide main application interface
  */
-import { generateChatSVG } from './profileChatter.js';
+import { generateChatSVG } from './ProfileChatter.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 

@@ -3,7 +3,7 @@
  * Build script for generating the profile SVG
  * Single Responsibility: Build automation
  */
-import { generateChatSVG } from './profileChatter.js';
+import { generateChatSVG } from './ProfileChatter.js';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 // Ensure dist directory exists
