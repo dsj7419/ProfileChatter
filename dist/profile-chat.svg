@@ -57,7 +57,7 @@
     /* Scrolling with hardware acceleration and smooth movement */
     .track { 
       animation: scrollUp 74.60s linear forwards; 
-      animation-delay: 19.98s; 
+      animation-delay: 19.86s; 
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
       perspective: 1000px;
@@ -147,14 +147,14 @@
 
     <g class="typing them" transform="translate(20,124)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="8.12s" dur="2.00s" fill="freeze" />
+               begin="8.12s" dur="1.96s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,124)" style="animation-delay:10.12s">
+    <g class="msg them" transform="translate(20,124)" style="animation-delay:10.08s">
       <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -162,9 +162,9 @@
                  C-5,18 -2,14 0,16 
                  Z" 
               fill="#E5E5EA" />
-      <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Wednesday, May 7, 2025.</text>
+      <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Thursday, May 8, 2025.</text>
       
-        <g class="reaction" style="animation-delay: 11.28s" transform="translate(227.4, -12)">
+        <g class="reaction" style="animation-delay: 11.24s" transform="translate(227.4, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -187,14 +187,14 @@
 
     <g class="typing me" transform="translate(230,208)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="13.92s" dur="3.00s" fill="freeze" />
+               begin="13.88s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(49.19999999999999,208)" style="animation-delay:16.92s">
+    <g class="msg me" transform="translate(49.19999999999999,208)" style="animation-delay:16.88s">
       <rect x="0" y="0" rx="18" ry="18" width="250.8" height="116" fill="#0B93F6" />
       
         <path d="M250.8,10 
@@ -202,14 +202,14 @@
                  C255.8,18 252.8,14 250.8,16 
                  Z" 
               fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 67°F (19°C) with mostly</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">cloudy.</text>
+      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 72°F (22°C) with partly</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">cloudy.</text>
       
         <text 
           x="238.8" 
           y="128" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 17.48s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 17.44s;">
             Delivered
         </text>
         <text 
@@ -217,20 +217,20 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 18.98s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 18.94s;">
             Read
         </text></g>
 
     <g class="typing them" transform="translate(20,352)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="23.72s" dur="2.00s" fill="freeze" />
+               begin="23.68s" dur="2.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
       <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
     </g>
 
-    <g class="msg them" transform="translate(20,352)" style="animation-delay:25.72s">
+    <g class="msg them" transform="translate(20,352)" style="animation-delay:25.68s">
       <rect x="0" y="0" rx="18" ry="18" width="260" height="220" fill="#E5E5EA" />
       
         <path d="M0,10 
@@ -263,7 +263,7 @@
             from="0" 
             to="72" 
             dur="0.8s" 
-            begin="25.72s" 
+            begin="25.68s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -272,7 +272,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="25.72s" 
+            begin="25.68s" 
             fill="freeze" />
         </rect>
 <text x="202" y="61.666666666666664" 
@@ -288,7 +288,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.52s" 
+            begin="26.48s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
@@ -309,7 +309,7 @@
             from="0" 
             to="63.529411764705884" 
             dur="0.8s" 
-            begin="25.92s" 
+            begin="25.88s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -318,7 +318,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="25.92s" 
+            begin="25.88s" 
             fill="freeze" />
         </rect>
 <text x="193.52941176470588" y="95.66666666666667" 
@@ -334,7 +334,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.72s" 
+            begin="26.68s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
@@ -355,7 +355,7 @@
             from="0" 
             to="67.76470588235294" 
             dur="0.8s" 
-            begin="26.12s" 
+            begin="26.08s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -364,7 +364,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="26.12s" 
+            begin="26.08s" 
             fill="freeze" />
         </rect>
 <text x="197.76470588235293" y="129.66666666666666" 
@@ -380,7 +380,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.92s" 
+            begin="26.88s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
@@ -401,7 +401,7 @@
             from="0" 
             to="59.29411764705882" 
             dur="0.8s" 
-            begin="26.32s" 
+            begin="26.28s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -410,7 +410,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="26.32s" 
+            begin="26.28s" 
             fill="freeze" />
         </rect>
 <text x="189.2941176470588" y="163.66666666666666" 
@@ -426,7 +426,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.12s" 
+            begin="27.08s" 
             fill="freeze" />
         </text>
 <text x="14" y="197.66666666666666" 
@@ -447,7 +447,7 @@
             from="0" 
             to="50.82352941176471" 
             dur="0.8s" 
-            begin="26.52s" 
+            begin="26.48s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -456,7 +456,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="26.52s" 
+            begin="26.48s" 
             fill="freeze" />
         </rect>
 <text x="180.8235294117647" y="197.66666666666666" 
@@ -472,21 +472,21 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.32s" 
+            begin="27.28s" 
             fill="freeze" />
         </text>
       </g>
 
     <g class="typing me" transform="translate(230,600)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="32.52s" dur="3.00s" fill="freeze" />
+               begin="32.48s" dur="3.00s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(40.799999999999955,600)" style="animation-delay:35.52s">
+    <g class="msg me" transform="translate(40.799999999999955,600)" style="animation-delay:35.48s">
       <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="116" fill="#0B93F6" />
       
         <path d="M259.20000000000005,10 
@@ -501,7 +501,7 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 36.08s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 36.04s;">
             Delivered
         </text>
         <text 
@@ -509,10 +509,10 @@
           y="128" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 37.58s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 37.54s;">
             Read
         </text>
-        <g class="reaction" style="animation-delay: 38.58s" transform="translate(-15, -12)">
+        <g class="reaction" style="animation-delay: 38.54s" transform="translate(-15, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -535,14 +535,14 @@
 
     <g class="typing me" transform="translate(230,744)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="41.12s" dur="1.60s" fill="freeze" />
+               begin="41.08s" dur="1.60s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(40,744)" style="animation-delay:42.72s">
+    <g class="msg me" transform="translate(40,744)" style="animation-delay:42.68s">
       <rect x="0" y="0" rx="18" ry="18" width="260" height="186" fill="#0B93F6" />
       
         <path d="M260,10 
@@ -575,7 +575,7 @@
             from="0" 
             to="46.8" 
             dur="0.8s" 
-            begin="42.72s" 
+            begin="42.68s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -584,7 +584,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="42.72s" 
+            begin="42.68s" 
             fill="freeze" />
         </rect>
 <text x="176.8" y="61.666666666666664" 
@@ -600,7 +600,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.52s" 
+            begin="43.48s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
@@ -621,7 +621,7 @@
             from="0" 
             to="32.4" 
             dur="0.8s" 
-            begin="42.92s" 
+            begin="42.88s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -630,7 +630,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="42.92s" 
+            begin="42.88s" 
             fill="freeze" />
         </rect>
 <text x="162.4" y="95.66666666666667" 
@@ -646,7 +646,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.72s" 
+            begin="43.68s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
@@ -667,7 +667,7 @@
             from="0" 
             to="28.8" 
             dur="0.8s" 
-            begin="43.12s" 
+            begin="43.08s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -676,7 +676,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="43.12s" 
+            begin="43.08s" 
             fill="freeze" />
         </rect>
 <text x="158.8" y="129.66666666666666" 
@@ -692,7 +692,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.92s" 
+            begin="43.88s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
@@ -713,7 +713,7 @@
             from="0" 
             to="21.6" 
             dur="0.8s" 
-            begin="43.32s" 
+            begin="43.28s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -722,7 +722,7 @@
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="43.32s" 
+            begin="43.28s" 
             fill="freeze" />
         </rect>
 <text x="151.6" y="163.66666666666666" 
@@ -738,7 +738,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="44.12s" 
+            begin="44.08s" 
             fill="freeze" />
         </text>
       
@@ -747,7 +747,7 @@
           y="198" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 43.28s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 43.24s;">
             Delivered
         </text>
         <text 
@@ -755,43 +755,43 @@
           y="198" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 44.78s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 44.74s;">
             Read
         </text></g>
 
     <g class="typing me" transform="translate(230,958)">
       <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="47.32s" dur="2.16s" fill="freeze" />
+               begin="47.28s" dur="2.08s" fill="freeze" />
       <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
       <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
       <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
       <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
     </g>
 
-    <g class="msg me" transform="translate(40.799999999999955,958)" style="animation-delay:49.48s">
-      <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="56" fill="#0B93F6" />
+    <g class="msg me" transform="translate(57.599999999999994,958)" style="animation-delay:49.36s">
+      <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#0B93F6" />
       
-        <path d="M259.20000000000005,10 
-                 C263.20000000000005,14 266.20000000000005,18 265.20000000000005,22 
-                 C264.20000000000005,18 261.20000000000005,14 259.20000000000005,16 
+        <path d="M242.4,10 
+                 C246.4,14 249.4,18 248.4,22 
+                 C247.4,18 244.4,14 242.4,16 
                  Z" 
               fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out if</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">you want to collaborate! 🌥️</text>
+      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out if</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">you want to collaborate! ⛅</text>
       
         <text 
-          x="247.20000000000005" 
+          x="230.4" 
           y="68" 
           text-anchor="end" 
           class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 50.04s;">
+          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 49.92s;">
             Delivered
         </text>
         <text 
-          x="247.20000000000005" 
+          x="230.4" 
           y="68" 
           text-anchor="end" 
           class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 51.54s;">
+          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 51.42s;">
             Read
         </text></g>
 </g></svg>
