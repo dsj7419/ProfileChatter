@@ -272,10 +272,10 @@ class SvgRenderer {
     if (hasTitle) {
       chartElements.push(
         `<text x="${paddingX}" y="${paddingY + chartStyles.TITLE_FONT_SIZE_PX}" 
-               font-family="${chartStyles.TITLE_FONT_FAMILY}" 
-               font-size="${chartStyles.TITLE_FONT_SIZE_PX}px" 
-               font-weight="bold" 
-               fill="${chartStyles.TITLE_COLOR}">
+              font-family="${chartStyles.TITLE_FONT_FAMILY}" 
+              font-size="${chartStyles.TITLE_FONT_SIZE_PX}px" 
+              font-weight="bold" 
+              fill="${chartStyles.TITLE_COLOR}">
           ${TextProcessor.escapeXML(chartData.title)}
         </text>`
       );
@@ -296,11 +296,11 @@ class SvgRenderer {
       // Add label
       chartElements.push(
         `<text x="${paddingX}" y="${labelY}" 
-               font-family="${chartStyles.LABEL_FONT_FAMILY}" 
-               font-size="${chartStyles.LABEL_FONT_SIZE_PX}px" 
-               fill="${chartStyles.LABEL_COLOR}" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="${chartStyles.LABEL_FONT_FAMILY}" 
+              font-size="${chartStyles.LABEL_FONT_SIZE_PX}px" 
+              fill="${chartStyles.LABEL_COLOR}" 
+              text-anchor="start"
+              dominant-baseline="middle">
           ${TextProcessor.escapeXML(dataItem.label)}
         </text>`
       );
@@ -308,19 +308,24 @@ class SvgRenderer {
       // Calculate bar start position (right after the label)
       const barStartX = paddingX + labelWidth + 10;
       
+      // Calculate animation timings using configuration values consistently
+      const baseStartTime = item.startTime / 1000;
+      const staggerDelay = index * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC;
+      const barStartTime = (baseStartTime + staggerDelay).toFixed(2);
+      const barAnimDuration = config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC;
+      
       // Add bar with SMIL animation for width
-      const barStartTime = (item.startTime / 1000 + (index * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC)).toFixed(2);
       chartElements.push(
         `<rect x="${barStartX}" y="${barY}" 
-               width="0" height="${chartStyles.BAR_HEIGHT_PX}" 
-               rx="2" ry="2" 
-               fill="${barColor}"
-               opacity="0.7">
+              width="0" height="${chartStyles.BAR_HEIGHT_PX}" 
+              rx="2" ry="2" 
+              fill="${barColor}"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="${barWidth}" 
-            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
+            dur="${barAnimDuration}s" 
             begin="${barStartTime}s" 
             fill="freeze" 
             calcMode="spline" 
@@ -329,25 +334,24 @@ class SvgRenderer {
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
+            dur="${barAnimDuration}s" 
             begin="${barStartTime}s" 
             fill="freeze" />
         </rect>`
       );
       
-      // Add value text (positioned at the end of the bar)
-      const valueTextAppearTime = (item.startTime / 1000 + 
-                                 config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC + 
-                                 (index * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC)).toFixed(2);
+      // Calculate value text animation timing (starts after bar animation completes)
+      const valueTextAppearTime = (baseStartTime + staggerDelay + barAnimDuration).toFixed(2);
       
+      // Add value text with delayed appearance
       chartElements.push(
         `<text x="${barStartX + barWidth + 6}" y="${labelY}" 
-               font-family="${chartStyles.VALUE_TEXT_FONT_FAMILY}" 
-               font-size="${chartStyles.VALUE_TEXT_FONT_SIZE_PX}px" 
-               fill="${chartStyles.VALUE_TEXT_COLOR}" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="${chartStyles.VALUE_TEXT_FONT_FAMILY}" 
+              font-size="${chartStyles.VALUE_TEXT_FONT_SIZE_PX}px" 
+              fill="${chartStyles.VALUE_TEXT_COLOR}" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           ${dataItem.value}
           <animate 
             attributeName="opacity" 

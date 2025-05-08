@@ -217,12 +217,12 @@ export const config = {
       BUBBLE_START_SCALE: 0.8,          // Starting scale for bubble-in animation
       
       // Reaction animations 
-      REACTION_ANIMATION_DURATION_SEC: 0.3,     // Duration of reaction animation
-      REACTION_ANIMATION_DELAY_FACTOR_SEC: 0.8, // Delay after "Read" status appears
+      REACTION_ANIMATION_DURATION_SEC: 0.5,     // Duration of reaction animation
+      REACTION_ANIMATION_DELAY_FACTOR_SEC: 1.2, // Delay after "Read" status appears
       
       // Chart animations
-      CHART_BAR_ANIMATION_DURATION_SEC: 0.8,    // Duration of bar growth animation
-      CHART_ANIMATION_DELAY_SEC: 0.2,           // Delay between successive bar animations
+      CHART_BAR_ANIMATION_DURATION_SEC: 0.9,    // Duration of bar growth animation
+      CHART_ANIMATION_DELAY_SEC: 0.4,           // Delay between successive bar animations
       
       // Shadow effect
       SHADOW_BLUR: 1,                   // Shadow blur amount
@@ -233,7 +233,7 @@ export const config = {
       // Scroll animation
       SCROLL_DELAY_BUFFER_SEC: 3.5,     // Delay after last message before scrolling starts
       MIN_SCROLL_DURATION_SEC: 1.2,     // Minimum scroll duration in seconds
-      SCROLL_PIXELS_PER_SEC: 10,        // Pixels scrolled per second for a natural pace
+      SCROLL_PIXELS_PER_SEC: 20,        // Pixels scrolled per second for a natural pace
     }
   }
 };
