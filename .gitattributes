@@ -1,1 +1,2 @@
-dist/profile-chat.svg merge=ours
+dist/profile-chat.svg merge=keep-generated
+README.md              merge=keep-generated
