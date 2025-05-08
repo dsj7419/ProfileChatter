@@ -22,7 +22,7 @@
 @keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-846px)}}
 @keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
 @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
-.track{animation:scrollUp 42.30s linear forwards;animation-delay:19.98s;transform:translate3d(0,0,0);will-change:transform}
+.track{animation:scrollUp 42.30s linear forwards;animation-delay:19.86s;transform:translate3d(0,0,0);will-change:transform}
 .msg{animation:bubbleIn 0.36s cubic-bezier(.36,1.64,.36,1) forwards;opacity:0;filter:url(#shadowEffect)}
 .typing{opacity:0;filter:url(#shadowEffect)}
 .reaction{animation:reactionIn 0.3s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
@@ -48,36 +48,36 @@
       <text x="196.8" y="108" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:5.38s">Read</text></g>
 
       <g class="typing them" transform="translate(48,144)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="9.12s" dur="2.00s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="9.12s" dur="1.96s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#E5E5EA"/>
         <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#000000" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(8,144)" style="animation-delay:11.12s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,144)" style="animation-delay:11.12s"><rect width="183.6" height="76" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Today is Wednesday,</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">May 7, 2025.</text><g class="reaction" style="animation-delay:12.58s" transform="translate(168.6,-12)">
+<g class="avatar" transform="translate(8,144)" style="animation-delay:11.08s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,144)" style="animation-delay:11.08s"><rect width="208.8" height="76" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Today is Thursday, May</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">8, 2025.</text><g class="reaction" style="animation-delay:12.54s" transform="translate(193.8,-12)">
       <rect width="30" height="22" rx="12" ry="12" fill="#F1F1F1" fill-opacity="0.9"/>
       <text x="15" y="11" text-anchor="middle" dominant-baseline="middle" font-size="14px" fill="#000000">👋</text>
     </g></g>
 
       <g class="typing me" transform="translate(202,248)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="15.92s" dur="3.00s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="15.88s" dur="3.00s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
         <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(280,248)" style="animation-delay:18.92s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,248)" style="animation-delay:18.92s"><rect width="208.8" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">Encore for 3 years and</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">4 months.</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">here is 64°F (18°C)</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">with mostly cloudy.</text>
-      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:19.48s">Delivered</text>
-      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:20.98s">Read</text></g>
+<g class="avatar" transform="translate(280,248)" style="animation-delay:18.88s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,248)" style="animation-delay:18.88s"><rect width="208.8" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">Encore for 3 years and</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">4 months.</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">here is 72°F (22°C)</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">with partly cloudy.</text>
+      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:19.44s">Delivered</text>
+      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:20.94s">Read</text></g>
 
       <g class="typing them" transform="translate(48,412)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="26.72s" dur="2.00s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="26.68s" dur="2.00s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#E5E5EA"/>
         <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#000000" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(8,412)" style="animation-delay:28.72s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,412)" style="animation-delay:28.72s"><rect width="212" height="220" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="14" y="32" 
+<g class="avatar" transform="translate(8,412)" style="animation-delay:28.68s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,412)" style="animation-delay:28.68s"><rect width="212" height="220" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="14" y="32" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="16px" 
               font-weight="bold" 
@@ -88,38 +88,38 @@
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           JavaScript
         </text>
-<rect x="124" y="46" 
-              width="0" height="22" 
+<rect x="114" y="46" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#007AFF"
+              fill="#007AFF" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="24" 
+            to="56.00" 
             dur="0.8s" 
-            begin="28.72s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="28.68s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="28.72s" 
+            begin="28.68s" 
             fill="freeze" />
         </rect>
-<text x="154" y="61.666666666666664" 
+<text x="176" y="61.666666666666664" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           85
           <animate 
@@ -127,45 +127,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="29.52s" 
+            begin="29.48s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           React
         </text>
-<rect x="124" y="80" 
-              width="0" height="22" 
+<rect x="114" y="80" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#007AFF"
+              fill="#007AFF" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="21.176470588235293" 
+            to="49.41" 
             dur="0.8s" 
-            begin="29.02s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="28.98s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="29.02s" 
+            begin="28.98s" 
             fill="freeze" />
         </rect>
-<text x="151.1764705882353" y="95.66666666666667" 
+<text x="176" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           75
           <animate 
@@ -173,45 +173,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="29.82s" 
+            begin="29.78s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Node.js
         </text>
-<rect x="124" y="114" 
-              width="0" height="22" 
+<rect x="114" y="114" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#007AFF"
+              fill="#007AFF" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="22.588235294117645" 
+            to="52.71" 
             dur="0.8s" 
-            begin="29.32s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="29.28s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="29.32s" 
+            begin="29.28s" 
             fill="freeze" />
         </rect>
-<text x="152.58823529411765" y="129.66666666666666" 
+<text x="176" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           80
           <animate 
@@ -219,45 +219,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="30.12s" 
+            begin="30.08s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           CSS
         </text>
-<rect x="124" y="148" 
-              width="0" height="22" 
+<rect x="114" y="148" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#007AFF"
+              fill="#007AFF" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="19.76470588235294" 
+            to="46.12" 
             dur="0.8s" 
-            begin="29.62s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="29.58s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="29.62s" 
+            begin="29.58s" 
             fill="freeze" />
         </rect>
-<text x="149.76470588235293" y="163.66666666666666" 
+<text x="176" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           70
           <animate 
@@ -265,45 +265,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="30.42s" 
+            begin="30.38s" 
             fill="freeze" />
         </text>
 <text x="14" y="197.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Python
         </text>
-<rect x="124" y="182" 
-              width="0" height="22" 
+<rect x="114" y="182" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#007AFF"
+              fill="#007AFF" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="16.941176470588236" 
+            to="39.53" 
             dur="0.8s" 
-            begin="29.92s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="29.88s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="29.92s" 
+            begin="29.88s" 
             fill="freeze" />
         </rect>
-<text x="146.94117647058823" y="197.66666666666666" 
+<text x="176" y="197.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           60
           <animate 
@@ -311,32 +311,32 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="30.72s" 
+            begin="30.68s" 
             fill="freeze" />
         </text></g>
 
       <g class="typing me" transform="translate(202,660)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="35.52s" dur="3.00s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="35.48s" dur="3.00s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
         <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(280,660)" style="animation-delay:38.52s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(71.6,660)" style="animation-delay:38.52s"><rect width="200.4" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M200.4,10 C204.4,14 207.4,18 206.4,22 C205.4,18 202.4,14 200.4,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">on ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">public repositories</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">and 0 followers on</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">GitHub.</text>
-      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:39.08s">Delivered</text>
-      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:40.58s">Read</text><g class="reaction" style="animation-delay:41.88s" transform="translate(-15,-12)">
+<g class="avatar" transform="translate(280,660)" style="animation-delay:38.48s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(71.6,660)" style="animation-delay:38.48s"><rect width="200.4" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M200.4,10 C204.4,14 207.4,18 206.4,22 C205.4,18 202.4,14 200.4,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">on ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">public repositories</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">and 0 followers on</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">GitHub.</text>
+      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:39.04s">Delivered</text>
+      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:40.54s">Read</text><g class="reaction" style="animation-delay:41.84s" transform="translate(-15,-12)">
       <rect width="30" height="22" rx="12" ry="12" fill="#F1F1F1" fill-opacity="0.9"/>
       <text x="15" y="11" text-anchor="middle" dominant-baseline="middle" font-size="14px" fill="#000000">👍</text>
     </g></g>
 
       <g class="typing me" transform="translate(202,824)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="45.12s" dur="1.60s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="45.08s" dur="1.60s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
         <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(280,824)" style="animation-delay:46.72s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(60,824)" style="animation-delay:46.72s"><rect width="212" height="186" rx="18" ry="18" fill="#0B93F6"/><path d="M212,10 C216,14 219,18 218,22 C217,18 214,14 212,16 Z" fill="#0B93F6"/><text x="14" y="32" 
+<g class="avatar" transform="translate(280,824)" style="animation-delay:46.68s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(60,824)" style="animation-delay:46.68s"><rect width="212" height="186" rx="18" ry="18" fill="#0B93F6"/><path d="M212,10 C216,14 219,18 218,22 C217,18 214,14 212,16 Z" fill="#0B93F6"/><text x="14" y="32" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="16px" 
               font-weight="bold" 
@@ -347,38 +347,38 @@
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Code
         </text>
-<rect x="124" y="46" 
-              width="0" height="22" 
+<rect x="88.80000000000001" y="46" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#4A90E2"
+              fill="#4A90E2" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="15.6" 
+            to="49.40" 
             dur="0.8s" 
-            begin="46.72s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="46.68s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="46.72s" 
+            begin="46.68s" 
             fill="freeze" />
         </rect>
-<text x="145.6" y="61.666666666666664" 
+<text x="170.8" y="61.666666666666664" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           65
           <animate 
@@ -386,45 +386,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="47.52s" 
+            begin="47.48s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Docs
         </text>
-<rect x="124" y="80" 
-              width="0" height="22" 
+<rect x="88.80000000000001" y="80" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#50C878"
+              fill="#50C878" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="10.8" 
+            to="34.20" 
             dur="0.8s" 
-            begin="47.02s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="46.98s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="47.02s" 
+            begin="46.98s" 
             fill="freeze" />
         </rect>
-<text x="140.8" y="95.66666666666667" 
+<text x="170.8" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           45
           <animate 
@@ -432,45 +432,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="47.82s" 
+            begin="47.78s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Testing
         </text>
-<rect x="124" y="114" 
-              width="0" height="22" 
+<rect x="88.80000000000001" y="114" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#FF7F50"
+              fill="#FF7F50" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="9.6" 
+            to="30.40" 
             dur="0.8s" 
-            begin="47.32s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="47.28s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="47.32s" 
+            begin="47.28s" 
             fill="freeze" />
         </rect>
-<text x="139.6" y="129.66666666666666" 
+<text x="170.8" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           40
           <animate 
@@ -478,45 +478,45 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="48.12s" 
+            begin="48.08s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="14px" 
               fill="#000000" 
-              text-anchor="start"
               dominant-baseline="middle">
           Design
         </text>
-<rect x="124" y="148" 
-              width="0" height="22" 
+<rect x="88.80000000000001" y="148" 
+              width="0" 
+              height="22" 
               rx="2" ry="2" 
-              fill="#9370DB"
+              fill="#9370DB" 
               opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
-            to="7.2" 
+            to="22.80" 
             dur="0.8s" 
-            begin="47.62s" 
-            fill="freeze" 
-            calcMode="spline" 
+            begin="47.58s" 
+            fill="freeze"
+            calcMode="spline"
             keySplines="0.25 0.1 0.25 1" />
           <animate 
             attributeName="opacity" 
             from="0.7" 
             to="1" 
             dur="0.8s" 
-            begin="47.62s" 
+            begin="47.58s" 
             fill="freeze" />
         </rect>
-<text x="137.2" y="163.66666666666666" 
+<text x="170.8" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
-              fill="#000000" 
-              text-anchor="start"
-              dominant-baseline="middle"
+              fill="#000000"
+              text-anchor="end"
+              dominant-baseline="middle" 
               opacity="0">
           30
           <animate 
@@ -524,20 +524,20 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="48.42s" 
+            begin="48.38s" 
             fill="freeze" />
         </text>
-      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:47.28s">Delivered</text>
-      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:48.78s">Read</text></g>
+      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:47.24s">Delivered</text>
+      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:48.74s">Read</text></g>
 
       <g class="typing me" transform="translate(202,1038)">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="51.32s" dur="2.16s" fill="freeze"/>
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="51.28s" dur="2.08s" fill="freeze"/>
         <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
         <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
             <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
       </g>
-<g class="avatar" transform="translate(280,1038)" style="animation-delay:53.48s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,1038)" style="animation-delay:53.48s"><rect width="208.8" height="76" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">if you want to</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">collaborate! 🌥️</text>
-      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:54.04s">Delivered</text>
-      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:55.54s">Read</text></g>
+<g class="avatar" transform="translate(280,1038)" style="animation-delay:53.36s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,1038)" style="animation-delay:53.36s"><rect width="208.8" height="76" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">if you want to</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">collaborate! ⛅</text>
+      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:53.92s">Delivered</text>
+      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:55.42s">Read</text></g>
 </g></svg>
