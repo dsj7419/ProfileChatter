@@ -10,6 +10,8 @@
  */
 import { config } from '../config/config.js';
 import TextProcessor from '../utils/TextProcessor.js';
+import AvatarRenderer from './components/AvatarRenderer.js';
+import ReactionRenderer from './components/ReactionRenderer.js';
 
 // Import font data
 let INTER_FONT_BASE64 = '';
@@ -118,30 +120,6 @@ ${fontFace}
   }
 
   /**
-   * Render avatar content (image or fallback)
-   * @param {string} sender - Message sender ('me' or 'visitor')
-   * @returns {string} - SVG markup for avatar content without the group wrapper
-   */
-  _avatarContent(sender) {
-    const theme = this.getActiveThemeStyles();
-    const sCfg = sender === "me" ? config.avatars.me : config.avatars.visitor;
-    const size = config.avatars.sizePx;
-    const clip = config.avatars.shape === "circle" ? "avatarCircle" : "avatarSquare";
-
-    if (sCfg.imageUrl) {
-      return `<image href="${sCfg.imageUrl}" width="${size}" height="${size}" clip-path="url(#${clip})"/>`;
-    }
-
-    const bg = sender === "me" ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR;
-    const fg = sender === "me" ? theme.ME_TEXT_COLOR : theme.VISITOR_TEXT_COLOR;
-    const radius = config.avatars.shape === "circle" ? size / 2 : 4;
-
-    return `
-      <rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="${bg}"/>
-      <text x="${size / 2}" y="${size / 2}" text-anchor="middle" dominant-baseline="central" fill="${fg}" font-size="${size / 2}" font-family="${theme.FONT_FAMILY}">${TextProcessor.escapeXML(sCfg.fallbackText)}</text>`;
-  }
-
-  /**
    * Render a typing indicator with proper iOS styling
    * @param {TypingIndicator} item - Typing indicator item
    * @returns {string} - SVG markup for typing indicator
@@ -239,7 +217,7 @@ ${fontFace}
         ? config.layout.CHAT_WIDTH_PX - avSize - avOff
         : avOff;
       const ay = item.y + config.avatars.yOffsetPx;
-      avatar = `<g class="avatar" transform="translate(${ax},${ay})" style="${delayCss}">${this._avatarContent(item.sender)}</g>`;
+      avatar = AvatarRenderer.render(item.sender, theme, ax, ay, delayCss);
     }
 
     /* bubble rect ---------------------------------------------------------- */
@@ -261,7 +239,7 @@ ${fontFace}
     const status = isMe ? this._statusIndicators(item, width, height) : "";
 
     /* reaction ------------------------------------------------------------ */
-    const reaction = item.reaction ? this._reaction(item, theme, width, isMe) : "";
+    const reaction = ReactionRenderer.render(item, theme, width, isMe);
 
     return `${avatar}<g class="msg ${isMe ? "me" : "them"}" transform="translate(${bubbleX},${item.y})" style="${delayCss}">${rect}${tail}${content}${status}${reaction}</g>`;
   }
@@ -427,38 +405,6 @@ ${fontFace}
     return `
       <text x="${x}" y="${y}" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus ${config.layout.STATUS_INDICATOR.READ_DELAY_SEC}s ease forwards;animation-delay:${deliveredDelay.toFixed(2)}s">${TextProcessor.escapeXML(config.layout.STATUS_INDICATOR.DELIVERED_TEXT)}</text>
       <text x="${x}" y="${y}" text-anchor="end" class="status-indicator" style="animation:fadeInStatus ${config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC}s ease forwards;animation-delay:${readDelay.toFixed(2)}s">${TextProcessor.escapeXML(config.layout.STATUS_INDICATOR.READ_TEXT)}</text>`;
-  }
-
-  /**
-   * Render reaction for message bubbles
-   * @param {ChatMessage} item - Message item
-   * @param {Object} theme - Theme styles
-   * @param {number} width - Bubble width
-   * @param {boolean} isMe - Whether message is from the user
-   * @returns {string} - SVG markup for reaction
-   */
-  _reaction(item, theme, width, isMe) {
-    const sz = theme.REACTION_FONT_SIZE_PX;
-    const px = theme.REACTION_PADDING_X_PX;
-    const py = theme.REACTION_PADDING_Y_PX;
-    const pillW = sz + px * 2;
-    const pillH = sz + py * 2;
-
-    const rx = isMe ? -pillW / 2 : width - pillW / 2;
-    const ry = theme.REACTION_OFFSET_Y_PX;
-
-    const base = item.startTime / 1000 + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION;
-    const extra = isMe
-      ? config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC +
-        config.layout.STATUS_INDICATOR.READ_DELAY_SEC +
-        config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC
-      : 0;
-    const delay = base + extra + config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC;
-
-    return `<g class="reaction" style="animation-delay:${delay.toFixed(2)}s" transform="translate(${rx},${ry})">
-      <rect width="${pillW}" height="${pillH}" rx="${theme.REACTION_BORDER_RADIUS_PX}" ry="${theme.REACTION_BORDER_RADIUS_PX}" fill="${theme.REACTION_BG_COLOR}" fill-opacity="${theme.REACTION_BG_OPACITY}"/>
-      <text x="${pillW / 2}" y="${pillH / 2}" text-anchor="middle" dominant-baseline="middle" font-size="${sz}px" fill="${theme.REACTION_TEXT_COLOR}">${TextProcessor.escapeXML(item.reaction)}</text>
-    </g>`;
   }
 }
 
