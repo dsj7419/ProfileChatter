@@ -4,6 +4,8 @@
  * Single Responsibility: Store and provide all application configurations
  */
 
+import { makeDate } from '../utils/dateHelper.js';
+
 // Exported configuration object
 export const config = {
   // Theme selection - default to iOS theme
@@ -127,7 +129,7 @@ export const config = {
     CURRENT_PROJECT: "ProfileChatter SVG Generator",
     
     // Work information
-    WORK_START_DATE: new Date(2007, 4, 16), // January 1, 2022
+    WORK_START_DATE: makeDate(2007, 4, 16), // January 1, 2022
     
     // GitHub username for stats
     GITHUB_USERNAME: "dsj7419",
