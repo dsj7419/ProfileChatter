@@ -1,8 +1,8 @@
-name: ProfileChatter Build
+name: ProfileChatter Build
 
 # ── Triggers ──────────────────────────────────────────────────────────────
 on:
-  # Regenerate the SVG every 6 hours
+  # Regenerate the SVG every 6 hours
   schedule:
     - cron: '0 */6 * * *'
 
@@ -12,6 +12,7 @@ on:
     paths:
       - 'src/**'
       - 'data/**'
+      - 'assets/**'  # Include assets directory for avatar images
       - '.github/workflows/**'
       - 'package.json'
       - 'package-lock.json'
@@ -22,6 +23,7 @@ on:
     paths:
       - 'src/**'
       - 'data/**'
+      - 'assets/**'  # Include assets directory for avatar images
 
   # Manual trigger
   workflow_dispatch:
@@ -37,7 +39,7 @@ permissions:
 
 # ── Global environment vars ───────────────────────────────────────────────
 env:
-  NODE_VERSION: '20.x'        # Node 20 required for modern syntax
+  NODE_VERSION: '20.x'        # Node 20 required for modern syntax
 
 # ── Jobs ──────────────────────────────────────────────────────────────────
 jobs:
@@ -51,8 +53,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2) Node + npm cache
-      - name: Setup Node.js
+      # 2) Node + npm cache
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -68,7 +70,7 @@ jobs:
 
       # 5) Generate (or overwrite) SVG
       - name: Generate SVG
-        run: node src/main.js
+        run: node src/build-profile.js
 
       # 6) Timestamp for cache‑busting in README
       - name: Record timestamp
@@ -90,12 +92,12 @@ jobs:
           git diff --quiet || echo "changed=true" >> "$GITHUB_OUTPUT"
 
       # 9) Commit & push only when there are changes
-      - name: Commit & push updated SVG
+      - name: Commit & push updated SVG
         if: steps.diff.outputs.changed == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'dist/profile-chat.svg README.md'
-          message: "Auto‑update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
+          message: "Auto‑update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
           push: true
 
       # 10) Job summary

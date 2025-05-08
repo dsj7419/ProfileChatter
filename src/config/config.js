@@ -13,11 +13,11 @@ export const config = {
   avatars: {
     enabled: true, // Master toggle for avatars
     me: {
-      imageUrl: "https://github.com/dsj7419.png", // URL for 'me' avatar (e.g., GitHub profile pic)
+      imageUrl: "", // URL for 'me' avatar (e.g., GitHub profile pic)
       fallbackText: "DJ" // Initials or text for fallback
     },
     visitor: {
-      imageUrl: "https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png", // URL for visitor avatar (empty means use fallback)
+      imageUrl: "", // URL for visitor avatar (empty means use fallback)
       fallbackText: "?" // Placeholder for visitor
     },
     sizePx: 32,        // Diameter/width of the avatar
