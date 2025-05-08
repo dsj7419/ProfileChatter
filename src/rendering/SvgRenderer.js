@@ -236,6 +236,134 @@ class SvgRenderer {
   }
   
   /**
+   * Render a horizontal bar chart inside a message bubble
+   * @param {ChatMessage} item - Chart message item 
+   * @param {Object} themeStyles - Current theme styles
+   * @returns {string} - SVG markup for chart content
+   */
+  _renderHorizontalBarChart(item, themeStyles) {
+    const chartData = item.chartData;
+    const chartStyles = themeStyles.CHART_STYLES;
+    
+    // Title variables
+    const hasTitle = !!chartData.title;
+    const titleHeight = hasTitle ? chartStyles.TITLE_FONT_SIZE_PX + 14 : 0;
+    
+    // Start with padding values from theme
+    const paddingX = chartStyles.CHART_PADDING_X_PX;
+    const paddingY = chartStyles.CHART_PADDING_Y_PX;
+    
+    // Calculate available width for bars (account for label width)
+    const labelWidth = chartStyles.LABEL_MAX_WIDTH_PX;
+    const valueTextWidth = 40; // Approximate width for value text
+    const availableBarWidth = item.layout.width - (paddingX * 2) - labelWidth - valueTextWidth - 20; // Extra spacing
+    
+    // Calculate max value for scaling
+    let maxValue = chartData.maxValue || 0;
+    if (!maxValue) {
+      // If maxValue not provided, find the max from the items
+      maxValue = Math.max(...chartData.items.map(item => item.value));
+    }
+    
+    // Start building chart elements
+    let chartElements = [];
+    
+    // Add title if present
+    if (hasTitle) {
+      chartElements.push(
+        `<text x="${paddingX}" y="${paddingY + chartStyles.TITLE_FONT_SIZE_PX}" 
+               font-family="${chartStyles.TITLE_FONT_FAMILY}" 
+               font-size="${chartStyles.TITLE_FONT_SIZE_PX}px" 
+               font-weight="bold" 
+               fill="${chartStyles.TITLE_COLOR}">
+          ${TextProcessor.escapeXML(chartData.title)}
+        </text>`
+      );
+    }
+    
+    // Render each bar
+    chartData.items.forEach((dataItem, index) => {
+      const barY = paddingY + titleHeight + (index * (chartStyles.BAR_HEIGHT_PX + chartStyles.BAR_SPACING_PX));
+      const labelY = barY + (chartStyles.BAR_HEIGHT_PX / 2) + (chartStyles.LABEL_FONT_SIZE_PX / 3); // Center text vertically
+      
+      // Calculate bar width based on value and maxValue
+      const barWidthPct = (dataItem.value / maxValue) * 100;
+      const barWidth = (availableBarWidth * barWidthPct) / 100;
+      
+      // Bar color - use override if provided, otherwise default
+      const barColor = dataItem.color || chartStyles.BAR_DEFAULT_COLOR;
+      
+      // Add label
+      chartElements.push(
+        `<text x="${paddingX}" y="${labelY}" 
+               font-family="${chartStyles.LABEL_FONT_FAMILY}" 
+               font-size="${chartStyles.LABEL_FONT_SIZE_PX}px" 
+               fill="${chartStyles.LABEL_COLOR}" 
+               text-anchor="start"
+               dominant-baseline="middle">
+          ${TextProcessor.escapeXML(dataItem.label)}
+        </text>`
+      );
+      
+      // Calculate bar start position (right after the label)
+      const barStartX = paddingX + labelWidth + 10;
+      
+      // Add bar with SMIL animation for width
+      const barStartTime = (item.startTime / 1000 + (index * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC)).toFixed(2);
+      chartElements.push(
+        `<rect x="${barStartX}" y="${barY}" 
+               width="0" height="${chartStyles.BAR_HEIGHT_PX}" 
+               rx="2" ry="2" 
+               fill="${barColor}"
+               opacity="0.7">
+          <animate 
+            attributeName="width" 
+            from="0" 
+            to="${barWidth}" 
+            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
+            begin="${barStartTime}s" 
+            fill="freeze" 
+            calcMode="spline" 
+            keySplines="0.25 0.1 0.25 1" />
+          <animate 
+            attributeName="opacity" 
+            from="0.7" 
+            to="1" 
+            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
+            begin="${barStartTime}s" 
+            fill="freeze" />
+        </rect>`
+      );
+      
+      // Add value text (positioned at the end of the bar)
+      const valueTextAppearTime = (item.startTime / 1000 + 
+                                 config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC + 
+                                 (index * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC)).toFixed(2);
+      
+      chartElements.push(
+        `<text x="${barStartX + barWidth + 6}" y="${labelY}" 
+               font-family="${chartStyles.VALUE_TEXT_FONT_FAMILY}" 
+               font-size="${chartStyles.VALUE_TEXT_FONT_SIZE_PX}px" 
+               fill="${chartStyles.VALUE_TEXT_COLOR}" 
+               text-anchor="start"
+               dominant-baseline="middle"
+               opacity="0">
+          ${dataItem.value}
+          <animate 
+            attributeName="opacity" 
+            from="0" 
+            to="1" 
+            dur="0.4s" 
+            begin="${valueTextAppearTime}s" 
+            fill="freeze" />
+        </text>`
+      );
+    });
+    
+    return chartElements.join('\n');
+  }
+  
+  /**
    * Render a chat bubble with iPhone-like styling
    * @param {ChatMessage} item - Message item
    * @returns {string} - SVG markup for chat bubble
@@ -243,8 +371,8 @@ class SvgRenderer {
   renderChatBubble(item) {
     const themeStyles = this.getActiveThemeStyles();
 
-    // Calculate dimensions and wrap text
-    const { lines, width, height } = item.layout ?? TextProcessor.wrapText(item.text);
+    // Calculate dimensions
+    const { width, height } = item.layout;
     const isMe = item.sender === 'me';
     const x = isMe ? config.layout.CHAT_WIDTH_PX - width - 20 : 20;
     const delay = item.getDelayCSS();
@@ -253,14 +381,23 @@ class SvgRenderer {
     const fillColor = isMe ? themeStyles.ME_BUBBLE_COLOR : themeStyles.VISITOR_BUBBLE_COLOR;
     const rect = `<rect x="0" y="0" rx="${themeStyles.BUBBLE_RADIUS_PX}" ry="${themeStyles.BUBBLE_RADIUS_PX}" width="${width}" height="${height}" fill="${fillColor}" />`;
     
-    // Add text lines with correct color based on sender
-    const textColor = isMe ? themeStyles.ME_TEXT_COLOR : themeStyles.VISITOR_TEXT_COLOR;
-    const textLines = lines
-      .map((line, index) => {
-        const y = config.layout.BUBBLE_PAD_Y_PX + (index + 1) * config.layout.LINE_HEIGHT_PX - 6;
-        return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="${textColor}" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
-      })
-      .join('');
+    // Add content based on contentType
+    let contentMarkup = '';
+    
+    if (item.contentType === "chart" && item.chartData) {
+      // Render chart content
+      contentMarkup = this._renderHorizontalBarChart(item, themeStyles);
+    } else {
+      // Add text lines with correct color based on sender
+      const textColor = isMe ? themeStyles.ME_TEXT_COLOR : themeStyles.VISITOR_TEXT_COLOR;
+      const lines = item.layout.lines || [];
+      contentMarkup = lines
+        .map((line, index) => {
+          const y = config.layout.BUBBLE_PAD_Y_PX + (index + 1) * config.layout.LINE_HEIGHT_PX - 6;
+          return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="${textColor}" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
+        })
+        .join('');
+    }
     
     // Add bubble tails as proper SVG paths
     let tail = '';
@@ -325,7 +462,7 @@ class SvgRenderer {
     <g class="msg ${isMe ? 'me' : 'them'}" transform="translate(${x},${item.y})" style="${delay}">
       ${rect}
       ${tail}
-      ${textLines}
+      ${contentMarkup}
       ${statusIndicators}`;
 
     // Add reaction if present within the same group

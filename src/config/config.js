@@ -31,7 +31,28 @@ export const config = {
       REACTION_PADDING_Y_PX: 4,           // Vertical padding
       REACTION_BORDER_RADIUS_PX: 12,      // Rounded corners like iOS reactions
       REACTION_OFFSET_X_PX: 0,            // Horizontal position offset
-      REACTION_OFFSET_Y_PX: -12           // Position above the bubble
+      REACTION_OFFSET_Y_PX: -12,          // Position above the bubble
+      
+      // Chart styling for iOS theme
+      CHART_STYLES: {
+        BAR_DEFAULT_COLOR: '#007AFF',     // iOS blue for bars
+        BAR_HEIGHT_PX: 22,                // Height of individual bars
+        BAR_SPACING_PX: 12,               // Vertical spacing between bars
+        LABEL_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        LABEL_FONT_SIZE_PX: 14,           // Font size for bar labels
+        LABEL_COLOR: '#000000',           // Black text for labels
+        LABEL_MAX_WIDTH_PX: 100,          // Maximum width for labels
+        VALUE_TEXT_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        VALUE_TEXT_FONT_SIZE_PX: 12,      // Font size for value text
+        VALUE_TEXT_COLOR: '#000000',      // Black text for values
+        TITLE_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        TITLE_FONT_SIZE_PX: 16,           // Font size for chart title
+        TITLE_COLOR: '#000000',           // Black text for title
+        CHART_PADDING_X_PX: 14,           // Horizontal padding
+        CHART_PADDING_Y_PX: 16,           // Vertical padding
+        AXIS_LINE_COLOR: '#E5E5EA',       // Light gray for axis lines
+        GRID_LINE_COLOR: '#F5F5F5'        // Very light gray for grid lines
+      }
     },
     
     // Android theme (new)
@@ -54,7 +75,28 @@ export const config = {
       REACTION_PADDING_Y_PX: 3,           // Vertical padding
       REACTION_BORDER_RADIUS_PX: 12,      // Circular reactions (Material Design)
       REACTION_OFFSET_X_PX: 0,            // Horizontal position offset
-      REACTION_OFFSET_Y_PX: -10           // Position above the bubble
+      REACTION_OFFSET_Y_PX: -10,          // Position above the bubble
+      
+      // Chart styling for Android theme
+      CHART_STYLES: {
+        BAR_DEFAULT_COLOR: '#4285F4',     // Google blue for bars
+        BAR_HEIGHT_PX: 20,                // Height of individual bars
+        BAR_SPACING_PX: 14,               // Vertical spacing between bars
+        LABEL_FONT_FAMILY: "'Roboto', sans-serif",
+        LABEL_FONT_SIZE_PX: 14,           // Font size for bar labels
+        LABEL_COLOR: '#000000',           // Black text for labels
+        LABEL_MAX_WIDTH_PX: 100,          // Maximum width for labels
+        VALUE_TEXT_FONT_FAMILY: "'Roboto', sans-serif",
+        VALUE_TEXT_FONT_SIZE_PX: 12,      // Font size for value text
+        VALUE_TEXT_COLOR: '#757575',      // Gray text for values (Material Design)
+        TITLE_FONT_FAMILY: "'Roboto', sans-serif",
+        TITLE_FONT_SIZE_PX: 16,           // Font size for chart title
+        TITLE_COLOR: '#212121',           // Dark gray for title (Material Design)
+        CHART_PADDING_X_PX: 16,           // Horizontal padding
+        CHART_PADDING_Y_PX: 16,           // Vertical padding
+        AXIS_LINE_COLOR: '#E0E0E0',       // Light gray for axis lines (Material Design)
+        GRID_LINE_COLOR: '#F5F5F5'        // Very light gray for grid lines
+      }
     }
   },
   
@@ -177,6 +219,10 @@ export const config = {
       // Reaction animations 
       REACTION_ANIMATION_DURATION_SEC: 0.3,     // Duration of reaction animation
       REACTION_ANIMATION_DELAY_FACTOR_SEC: 0.8, // Delay after "Read" status appears
+      
+      // Chart animations
+      CHART_BAR_ANIMATION_DURATION_SEC: 0.8,    // Duration of bar growth animation
+      CHART_ANIMATION_DELAY_SEC: 0.2,           // Delay between successive bar animations
       
       // Shadow effect
       SHADOW_BLUR: 1,                   // Shadow blur amount

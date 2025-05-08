@@ -72,6 +72,40 @@ class TimelineBuilder {
   }
 
   /**
+   * Calculate dimensions for a chart message
+   * @param {Object} chartData - Chart data object
+   * @returns {Object} - Dimensions { width, height }
+   */
+  _calculateChartDimensions(chartData) {
+    const themeStyles = config.themes[config.activeTheme] || config.themes.ios;
+    const chartStyles = themeStyles.CHART_STYLES;
+    
+    // Initialize with padding
+    let totalHeight = chartStyles.CHART_PADDING_Y_PX * 2;
+    
+    // Add title height if present
+    if (chartData.title) {
+      totalHeight += chartStyles.TITLE_FONT_SIZE_PX + 14; // Title + spacing
+    }
+    
+    // Calculate height for all bars
+    const itemCount = chartData.items?.length || 0;
+    if (itemCount > 0) {
+      totalHeight += (itemCount * chartStyles.BAR_HEIGHT_PX) + 
+                     ((itemCount - 1) * chartStyles.BAR_SPACING_PX);
+    }
+    
+    // Set chart width to maximum bubble width for consistency
+    const totalWidth = config.layout.MAX_BUBBLE_W_PX;
+    
+    return {
+      width: totalWidth,
+      height: totalHeight,
+      lineCount: itemCount // Equivalent to text line count for reading time calculation
+    };
+  }
+
+  /**
    * Build the complete animation timeline 
    * @param {Object} dynamicData - Data for placeholder replacement
    * @returns {Object} - Timeline data with items and metadata
@@ -86,17 +120,38 @@ class TimelineBuilder {
     // First pass: Create all message objects and calculate dimensions
     const processedMessages = [];
     
-    for (const { sender, text: rawText, reaction } of this.chatData) {
-      // Replace dynamic placeholders in message text
-      const text = rawText.replace(/\{(\w+)\}/g, (_, key) => 
-        dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
-      );
+    for (const message of this.chatData) {
+      const { sender, reaction, contentType = "text" } = message;
       
-      // Calculate dimensions using TextProcessor
-      const dimensions = TextProcessor.wrapText(text);
+      let text = null;
+      let dimensions = null;
+      let typingTime = 0;
+      let chartData = null;
       
-      // Calculate typing time
-      const typingTime = this.calculateTypingTime(text);
+      if (contentType === "chart" && message.chartData) {
+        // Process chart message
+        chartData = message.chartData;
+        dimensions = this._calculateChartDimensions(chartData);
+        
+        // For chart messages, calculate typing time based on complexity
+        const itemCount = chartData.items?.length || 0;
+        typingTime = Math.min(
+          config.layout.TYPING_MAX_MS,
+          Math.max(config.layout.TYPING_MIN_MS, itemCount * 400) // 400ms per chart item
+        );
+      } else {
+        // Process text message
+        text = message.text.replace(/\{(\w+)\}/g, (_, key) => 
+          dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
+        );
+        
+        // Calculate dimensions using TextProcessor
+        dimensions = TextProcessor.wrapText(text);
+        
+        // Calculate typing time
+        typingTime = this.calculateTypingTime(text);
+      }
+      
       totalTypingTime += typingTime;
       
       // Store processed message
@@ -105,18 +160,27 @@ class TimelineBuilder {
         text,
         dimensions,
         typingTime,
-        reaction // Pass along any reaction
+        reaction,
+        contentType,
+        chartData
       });
     }
     
     // Second pass: Create timeline items with correct positioning and timing
     for (let i = 0; i < processedMessages.length; i++) {
-      const { sender, text, dimensions, typingTime, reaction } = processedMessages[i];
+      const { 
+        sender, text, dimensions, typingTime, reaction, contentType, chartData 
+      } = processedMessages[i];
       
       // Add "reading time" for the previous message (if any)
       if (i > 0) {
         const prevMessage = processedMessages[i-1];
-        const readingTime = this.calculateReadingTime(prevMessage.text);
+        // Base reading time on line count for both text and chart messages
+        const lineCount = prevMessage.dimensions.lineCount;
+        const readingTime = Math.max(
+          config.layout.TIMING.MIN_READING_TIME_MS,
+          lineCount * config.layout.TIMING.MS_PER_WORD * 4 // Approximate 4 words per line
+        );
         currentTime += readingTime;
       }
       
@@ -142,7 +206,9 @@ class TimelineBuilder {
         currentY,
         text,
         dimensions,
-        reaction // Pass the reaction to the ChatMessage constructor
+        reaction,
+        contentType,
+        chartData
       ));
       
       // Update Y position for next message based on this message's height

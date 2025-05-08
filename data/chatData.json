@@ -18,8 +18,18 @@
   {
     "id": "msg-4",
     "sender": "visitor",
-    "text": "That sounds interesting! What kind of projects are you working on?",
-    "reaction": "☀️"
+    "contentType": "chart",
+    "chartData": {
+      "type": "horizontalBar",
+      "title": "Skills Distribution",
+      "items": [
+        { "label": "JavaScript", "value": 85 },
+        { "label": "React", "value": 75 },
+        { "label": "Node.js", "value": 80 },
+        { "label": "CSS", "value": 70 },
+        { "label": "Python", "value": 60 }
+      ]
+    }
   },
   {
     "id": "msg-5",
@@ -29,6 +39,22 @@
   },
   {
     "id": "msg-6",
+    "sender": "me",
+    "contentType": "chart",
+    "chartData": {
+      "type": "horizontalBar",
+      "title": "Project Contributions",
+      "items": [
+        { "label": "Code", "value": 65, "color": "#4A90E2" },
+        { "label": "Documentation", "value": 45, "color": "#50C878" },
+        { "label": "Testing", "value": 40, "color": "#FF7F50" },
+        { "label": "Design", "value": 30, "color": "#9370DB" }
+      ],
+      "maxValue": 100
+    }
+  },
+  {
+    "id": "msg-7",
     "sender": "me",
     "text": "Feel free to reach out if you want to collaborate! {emoji}"
   }

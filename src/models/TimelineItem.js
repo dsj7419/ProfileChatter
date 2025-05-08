@@ -57,15 +57,19 @@ export class ChatMessage extends TimelineItem {
    * @param {string} sender - Who sent the message ("me" or "visitor")
    * @param {number} startTime - When message appears (ms) 
    * @param {number} y - Vertical position
-   * @param {string} text - Message content
+   * @param {string|null} text - Message content (can be null for chart messages)
    * @param {Object} layout - Layout dimensions
    * @param {string} reaction - Optional emoji reaction
+   * @param {string} contentType - Message content type ("text" or "chart")
+   * @param {Object|null} chartData - Chart data (for chart messages)
    */
-  constructor(sender, startTime, y, text, layout, reaction) {
+  constructor(sender, startTime, y, text, layout, reaction, contentType = "text", chartData = null) {
     super(sender, startTime, y);
     this.type = 'message';
     this.text = text;
     this.layout = layout;
     this.reaction = reaction; // Optional emoji reaction
+    this.contentType = contentType; // Type of content ("text" or "chart")
+    this.chartData = chartData; // Chart data (only for contentType === "chart")
   }
 }

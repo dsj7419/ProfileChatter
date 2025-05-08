@@ -45,6 +45,26 @@ function isPositiveNumber(value, propertyPath) {
 }
 
 /**
+ * Validates whether a value is a non-negative number
+ * @param {any} value - The value to check
+ * @param {string} propertyPath - Property path for error reporting
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function isNonNegativeNumber(value, propertyPath) {
+  if (typeof value !== 'number') {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+    return false;
+  }
+  
+  if (value < 0) {
+    console.error(`Configuration error: ${propertyPath} must be a non-negative number, got ${value}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
  * Validates whether a value is a number between 0 and 1
  * @param {any} value - The value to check
  * @param {string} propertyPath - Property path for error reporting
@@ -150,6 +170,121 @@ function validateObjectWithProps(obj, objPath, requiredProps) {
 }
 
 /**
+ * Validates chart styles configuration
+ * @param {Object} chartStyles - The chart styles object to validate
+ * @param {string} themeName - Name of the theme for error reporting
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function validateChartStyles(chartStyles, themeName) {
+  if (!chartStyles || typeof chartStyles !== 'object') {
+    console.error(`Configuration error: themes.${themeName}.CHART_STYLES must be an object`);
+    return false;
+  }
+  
+  let isValid = true;
+  
+  // Required chart style properties
+  const chartStyleProps = [
+    'BAR_DEFAULT_COLOR',
+    'BAR_HEIGHT_PX',
+    'BAR_SPACING_PX',
+    'LABEL_FONT_FAMILY',
+    'LABEL_FONT_SIZE_PX',
+    'LABEL_COLOR',
+    'LABEL_MAX_WIDTH_PX',
+    'VALUE_TEXT_FONT_FAMILY',
+    'VALUE_TEXT_FONT_SIZE_PX',
+    'VALUE_TEXT_COLOR',
+    'TITLE_FONT_FAMILY',
+    'TITLE_FONT_SIZE_PX',
+    'TITLE_COLOR',
+    'CHART_PADDING_X_PX',
+    'CHART_PADDING_Y_PX',
+    'AXIS_LINE_COLOR',
+    'GRID_LINE_COLOR'
+  ];
+  
+  // Check for required properties
+  for (const prop of chartStyleProps) {
+    if (chartStyles[prop] === undefined) {
+      console.error(`Configuration error: Missing required property in themes.${themeName}.CHART_STYLES: ${prop}`);
+      isValid = false;
+    }
+  }
+  
+  // Validate property types
+  if (chartStyles.BAR_DEFAULT_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.BAR_DEFAULT_COLOR, `themes.${themeName}.CHART_STYLES.BAR_DEFAULT_COLOR`) && isValid;
+  }
+  
+  if (chartStyles.BAR_HEIGHT_PX !== undefined) {
+    isValid = isPositiveNumber(chartStyles.BAR_HEIGHT_PX, `themes.${themeName}.CHART_STYLES.BAR_HEIGHT_PX`) && isValid;
+  }
+  
+  if (chartStyles.BAR_SPACING_PX !== undefined) {
+    isValid = isNonNegativeNumber(chartStyles.BAR_SPACING_PX, `themes.${themeName}.CHART_STYLES.BAR_SPACING_PX`) && isValid;
+  }
+  
+  if (chartStyles.LABEL_FONT_FAMILY !== undefined) {
+    isValid = isNonEmptyString(chartStyles.LABEL_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.LABEL_FONT_FAMILY`) && isValid;
+  }
+  
+  if (chartStyles.LABEL_FONT_SIZE_PX !== undefined) {
+    isValid = isPositiveNumber(chartStyles.LABEL_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.LABEL_FONT_SIZE_PX`) && isValid;
+  }
+  
+  if (chartStyles.LABEL_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.LABEL_COLOR, `themes.${themeName}.CHART_STYLES.LABEL_COLOR`) && isValid;
+  }
+  
+  if (chartStyles.LABEL_MAX_WIDTH_PX !== undefined) {
+    isValid = isPositiveNumber(chartStyles.LABEL_MAX_WIDTH_PX, `themes.${themeName}.CHART_STYLES.LABEL_MAX_WIDTH_PX`) && isValid;
+  }
+  
+  if (chartStyles.VALUE_TEXT_FONT_FAMILY !== undefined) {
+    isValid = isNonEmptyString(chartStyles.VALUE_TEXT_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_FONT_FAMILY`) && isValid;
+  }
+  
+  if (chartStyles.VALUE_TEXT_FONT_SIZE_PX !== undefined) {
+    isValid = isPositiveNumber(chartStyles.VALUE_TEXT_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX`) && isValid;
+  }
+  
+  if (chartStyles.VALUE_TEXT_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.VALUE_TEXT_COLOR, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_COLOR`) && isValid;
+  }
+  
+  if (chartStyles.TITLE_FONT_FAMILY !== undefined) {
+    isValid = isNonEmptyString(chartStyles.TITLE_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.TITLE_FONT_FAMILY`) && isValid;
+  }
+  
+  if (chartStyles.TITLE_FONT_SIZE_PX !== undefined) {
+    isValid = isPositiveNumber(chartStyles.TITLE_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.TITLE_FONT_SIZE_PX`) && isValid;
+  }
+  
+  if (chartStyles.TITLE_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.TITLE_COLOR, `themes.${themeName}.CHART_STYLES.TITLE_COLOR`) && isValid;
+  }
+  
+  if (chartStyles.CHART_PADDING_X_PX !== undefined) {
+    isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_X_PX, `themes.${themeName}.CHART_STYLES.CHART_PADDING_X_PX`) && isValid;
+  }
+  
+  if (chartStyles.CHART_PADDING_Y_PX !== undefined) {
+    isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_Y_PX, `themes.${themeName}.CHART_STYLES.CHART_PADDING_Y_PX`) && isValid;
+  }
+  
+  if (chartStyles.AXIS_LINE_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.AXIS_LINE_COLOR, `themes.${themeName}.CHART_STYLES.AXIS_LINE_COLOR`) && isValid;
+  }
+  
+  if (chartStyles.GRID_LINE_COLOR !== undefined) {
+    isValid = isValidHexColor(chartStyles.GRID_LINE_COLOR, `themes.${themeName}.CHART_STYLES.GRID_LINE_COLOR`) && isValid;
+  }
+  
+  return isValid;
+}
+
+/**
  * Validates a theme object
  * @param {Object} theme - The theme object to validate
  * @param {string} themeName - Name of the theme for error reporting
@@ -182,7 +317,9 @@ function validateTheme(theme, themeName) {
     'REACTION_PADDING_Y_PX',
     'REACTION_BORDER_RADIUS_PX',
     'REACTION_OFFSET_X_PX',
-    'REACTION_OFFSET_Y_PX'
+    'REACTION_OFFSET_Y_PX',
+    // Required chart styles
+    'CHART_STYLES'
   ];
   
   // Check for required properties
@@ -261,6 +398,11 @@ function validateTheme(theme, themeName) {
   
   if (theme.REACTION_OFFSET_Y_PX !== undefined) {
     isValid = typeof theme.REACTION_OFFSET_Y_PX === 'number' && isValid;
+  }
+  
+  // Validate chart styles
+  if (theme.CHART_STYLES !== undefined) {
+    isValid = validateChartStyles(theme.CHART_STYLES, themeName) && isValid;
   }
   
   return isValid;
@@ -371,7 +513,7 @@ export function validateConfiguration(config) {
       }
     }
     
-    // Validate ANIMATION object including reaction animation properties
+    // Validate ANIMATION object including reaction and chart animation properties
     if (config.layout.ANIMATION) {
       isValid = (typeof config.layout.ANIMATION === 'object') && isValid;
       
@@ -388,7 +530,16 @@ export function validateConfiguration(config) {
         isValid = isPositiveNumber(config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC, 'config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC') && isValid;
       }
       
-      // Validate new scroll animation parameters
+      // Validate chart animation properties
+      if (config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC !== undefined) {
+        isValid = isPositiveNumber(config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC, 'config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC') && isValid;
+      }
+      
+      if (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC !== undefined) {
+        isValid = isNonNegativeNumber(config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC, 'config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC') && isValid;
+      }
+      
+      // Validate scroll animation parameters
       if (config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC !== undefined) {
         isValid = isPositiveNumber(config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC, 'config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC') && isValid;
       }
