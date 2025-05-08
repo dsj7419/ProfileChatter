@@ -127,10 +127,13 @@ export const config = {
     CURRENT_PROJECT: "ProfileChatter SVG Generator",
     
     // Work information
-    WORK_START_DATE: new Date(2022, 0, 1), // January 1, 2022
+    WORK_START_DATE: new Date(2007, 4, 16), // January 1, 2022
     
     // GitHub username for stats
-    GITHUB_USERNAME: "dsj7419"
+    GITHUB_USERNAME: "dsj7419",
+    
+    // WakaTime username
+    WAKATIME_USERNAME: "dsj7419"
   },
   
   // Cache settings for API requests
@@ -252,5 +255,17 @@ export const config = {
       MIN_SCROLL_DURATION_SEC: 1.2,     // Minimum scroll duration in seconds
       SCROLL_PIXELS_PER_SEC: 20,        // Pixels scrolled per second for a natural pace
     }
+  },
+  
+  // WakaTime configuration
+  wakatime: {
+    enabled: true, // Toggle for this data source
+    defaults: {
+      wakatime_summary: "No coding activity data available",
+      wakatime_top_language: "N/A",
+      wakatime_top_language_percent: "0" 
+      // Add more defaults as needed based on fetched data
+    },
+    cacheTtlMs: 7200000 // 2 hours cache
   }
 };

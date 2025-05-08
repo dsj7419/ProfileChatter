@@ -6,6 +6,7 @@
 import { config } from '../config/config.js';
 import { getGitHubData } from './data_sources/githubDataSource.js';
 import { getWeatherData } from './data_sources/weatherDataSource.js';
+import { getWakaTimeData } from './data_sources/wakatimeDataSource.js';
 
 /**
  * Format a date to day of week (e.g., "Monday")
@@ -81,18 +82,22 @@ class DataService {
         profession: config.profile.PROFESSION,
         location: config.profile.LOCATION,
         company: config.profile.COMPANY,
-        currentProject: config.profile.CURRENT_PROJECT
+        currentProject: config.profile.CURRENT_PROJECT,
+        wakatime_summary: config.wakatime.defaults.wakatime_summary,
+        wakatime_top_language: config.wakatime.defaults.wakatime_top_language,
+        wakatime_top_language_percent: config.wakatime.defaults.wakatime_top_language_percent
       };
       
       // Then, fetch API data in parallel from different data source modules
       try {
-        const [weatherResult, githubResult] = await Promise.all([
+        const [weatherResult, githubResult, wakatimeResult] = await Promise.all([
           getWeatherData(),
-          getGitHubData()
+          getGitHubData(),
+          getWakaTimeData()
         ]);
         
         // Merge API data with base data
-        Object.assign(baseData, weatherResult, githubResult);
+        Object.assign(baseData, weatherResult, githubResult, wakatimeResult);
       } catch (error) {
         console.error('Error fetching API data:', error.message);
         console.info('Using default data for some values due to API errors.');
@@ -118,6 +123,9 @@ class DataService {
         location: config.profile.LOCATION,
         company: config.profile.COMPANY,
         currentProject: config.profile.CURRENT_PROJECT,
+        wakatime_summary: config.wakatime.defaults.wakatime_summary,
+        wakatime_top_language: config.wakatime.defaults.wakatime_top_language,
+        wakatime_top_language_percent: config.wakatime.defaults.wakatime_top_language_percent,
         ...customData
       };
     }

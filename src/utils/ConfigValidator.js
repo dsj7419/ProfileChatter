@@ -548,7 +548,7 @@ export function validateConfiguration(config) {
   }
   
   // Validate profile object
-  const profileProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME'];
+  const profileProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME'];
   if (!validateObjectWithProps(config.profile, 'config.profile', profileProps)) {
     isValid = false;
   } else {
@@ -560,6 +560,7 @@ export function validateConfiguration(config) {
     isValid = isNonEmptyString(config.profile.CURRENT_PROJECT, 'config.profile.CURRENT_PROJECT') && isValid;
     isValid = isValidDate(config.profile.WORK_START_DATE, 'config.profile.WORK_START_DATE') && isValid;
     isValid = isNonEmptyString(config.profile.GITHUB_USERNAME, 'config.profile.GITHUB_USERNAME') && isValid;
+    isValid = isNonEmptyString(config.profile.WAKATIME_USERNAME, 'config.profile.WAKATIME_USERNAME') && isValid;
   }
   
   // Validate cache object
@@ -583,6 +584,25 @@ export function validateConfiguration(config) {
     isValid = isNonEmptyString(config.apiDefaults.WEATHER_EMOJI, 'config.apiDefaults.WEATHER_EMOJI') && isValid;
     isValid = isStringRepresentingNumber(config.apiDefaults.GITHUB_PUBLIC_REPOS, 'config.apiDefaults.GITHUB_PUBLIC_REPOS') && isValid;
     isValid = isStringRepresentingNumber(config.apiDefaults.GITHUB_FOLLOWERS, 'config.apiDefaults.GITHUB_FOLLOWERS') && isValid;
+  }
+  
+  // Validate wakatime object
+  if (!validateObjectWithProps(config.wakatime, 'config.wakatime', ['enabled', 'defaults', 'cacheTtlMs'])) {
+    isValid = false;
+  } else {
+    // Validate wakatime properties
+    isValid = isBoolean(config.wakatime.enabled, 'config.wakatime.enabled') && isValid;
+    isValid = isPositiveNumber(config.wakatime.cacheTtlMs, 'config.wakatime.cacheTtlMs') && isValid;
+    
+    // Validate wakatime defaults
+    const wakatimeDefaultProps = ['wakatime_summary', 'wakatime_top_language', 'wakatime_top_language_percent'];
+    if (!validateObjectWithProps(config.wakatime.defaults, 'config.wakatime.defaults', wakatimeDefaultProps)) {
+      isValid = false;
+    } else {
+      isValid = isNonEmptyString(config.wakatime.defaults.wakatime_summary, 'config.wakatime.defaults.wakatime_summary') && isValid;
+      isValid = isNonEmptyString(config.wakatime.defaults.wakatime_top_language, 'config.wakatime.defaults.wakatime_top_language') && isValid;
+      isValid = isStringRepresentingNumber(config.wakatime.defaults.wakatime_top_language_percent, 'config.wakatime.defaults.wakatime_top_language_percent') && isValid;
+    }
   }
   
   // Validate layout object

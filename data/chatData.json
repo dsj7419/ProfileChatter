@@ -39,22 +39,32 @@
   },
   {
     "id": "msg-6",
+    "sender": "visitor",
+    "text": "What programming languages have you been using lately?"
+  },
+  {
+    "id": "msg-7",
+    "sender": "me",
+    "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
+  },
+  {
+    "id": "msg-8",
     "sender": "me",
     "contentType": "chart",
     "chartData": {
       "type": "horizontalBar",
-      "title": "Project Contributions",
+      "title": "My Coding Activity (Last 7 Days)",
       "items": [
-        { "label": "Code", "value": 65, "color": "#4A90E2" },
-        { "label": "Docs", "value": 45, "color": "#50C878" },
-        { "label": "Testing", "value": 40, "color": "#FF7F50" },
-        { "label": "Design", "value": 30, "color": "#9370DB" }
-      ],
-      "maxValue": 100
+        { "label": "JavaScript", "value": 42, "color": "#F7DF1E" },
+        { "label": "TypeScript", "value": 28, "color": "#3178C6" },
+        { "label": "HTML", "value": 15, "color": "#E34C26" },
+        { "label": "CSS", "value": 10, "color": "#563D7C" },
+        { "label": "Markdown", "value": 5, "color": "#083fa1" }
+      ]
     }
   },
   {
-    "id": "msg-7",
+    "id": "msg-9",
     "sender": "me",
     "text": "Feel free to reach out if you want to collaborate! {emoji}"
   }
