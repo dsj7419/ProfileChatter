@@ -56,7 +56,7 @@
     
     /* Scrolling with hardware acceleration and smooth movement */
     .track { 
-      animation: scrollUp 74.60s linear forwards; 
+      animation: scrollUp 37.30s linear forwards; 
       animation-delay: 19.86s; 
       transform: translate3d(0,0,0);
       backface-visibility: hidden;
@@ -77,7 +77,7 @@
     }
     
     .reaction {
-      animation: reactionIn 0.3s ease-out forwards;
+      animation: reactionIn 0.5s ease-out forwards;
       opacity: 0;
       transform-origin: center;
       filter: url(#shadowEffect);
@@ -164,7 +164,7 @@
               fill="#E5E5EA" />
       <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Thursday, May 8, 2025.</text>
       
-        <g class="reaction" style="animation-delay: 11.24s" transform="translate(227.4, -12)">
+        <g class="reaction" style="animation-delay: 11.64s" transform="translate(227.4, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -239,30 +239,30 @@
                  Z" 
               fill="#E5E5EA" />
       <text x="14" y="32" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="16px" 
-               font-weight="bold" 
-               fill="#000000">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="16px" 
+              font-weight="bold" 
+              fill="#000000">
           Skills Distribution
         </text>
 <text x="14" y="61.666666666666664" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           JavaScript
         </text>
 <rect x="124" y="46" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#007AFF"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#007AFF"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="72" 
-            dur="0.8s" 
+            dur="0.9s" 
             begin="25.68s" 
             fill="freeze" 
             calcMode="spline" 
@@ -271,45 +271,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
+            dur="0.9s" 
             begin="25.68s" 
             fill="freeze" />
         </rect>
 <text x="202" y="61.666666666666664" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           85
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.48s" 
+            begin="26.58s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           React
         </text>
 <rect x="124" y="80" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#007AFF"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#007AFF"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="63.529411764705884" 
-            dur="0.8s" 
-            begin="25.88s" 
+            dur="0.9s" 
+            begin="26.08s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -317,45 +317,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="25.88s" 
+            dur="0.9s" 
+            begin="26.08s" 
             fill="freeze" />
         </rect>
 <text x="193.52941176470588" y="95.66666666666667" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           75
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.68s" 
+            begin="26.98s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Node.js
         </text>
 <rect x="124" y="114" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#007AFF"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#007AFF"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="67.76470588235294" 
-            dur="0.8s" 
-            begin="26.08s" 
+            dur="0.9s" 
+            begin="26.48s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -363,45 +363,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="26.08s" 
+            dur="0.9s" 
+            begin="26.48s" 
             fill="freeze" />
         </rect>
 <text x="197.76470588235293" y="129.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           80
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.88s" 
+            begin="27.38s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           CSS
         </text>
 <rect x="124" y="148" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#007AFF"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#007AFF"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="59.29411764705882" 
-            dur="0.8s" 
-            begin="26.28s" 
+            dur="0.9s" 
+            begin="26.88s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -409,45 +409,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="26.28s" 
+            dur="0.9s" 
+            begin="26.88s" 
             fill="freeze" />
         </rect>
 <text x="189.2941176470588" y="163.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           70
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.08s" 
+            begin="27.78s" 
             fill="freeze" />
         </text>
 <text x="14" y="197.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Python
         </text>
 <rect x="124" y="182" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#007AFF"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#007AFF"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="50.82352941176471" 
-            dur="0.8s" 
-            begin="26.48s" 
+            dur="0.9s" 
+            begin="27.28s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -455,24 +455,24 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="26.48s" 
+            dur="0.9s" 
+            begin="27.28s" 
             fill="freeze" />
         </rect>
 <text x="180.8235294117647" y="197.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           60
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.28s" 
+            begin="28.18s" 
             fill="freeze" />
         </text>
       </g>
@@ -512,7 +512,7 @@
           style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 37.54s;">
             Read
         </text>
-        <g class="reaction" style="animation-delay: 38.54s" transform="translate(-15, -12)">
+        <g class="reaction" style="animation-delay: 38.94s" transform="translate(-15, -12)">
           <rect 
             x="0" 
             y="0" 
@@ -551,30 +551,30 @@
                  Z" 
               fill="#0B93F6" />
       <text x="14" y="32" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="16px" 
-               font-weight="bold" 
-               fill="#000000">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="16px" 
+              font-weight="bold" 
+              fill="#000000">
           Project Contributions
         </text>
 <text x="14" y="61.666666666666664" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Code
         </text>
 <rect x="124" y="46" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#4A90E2"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#4A90E2"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="46.8" 
-            dur="0.8s" 
+            dur="0.9s" 
             begin="42.68s" 
             fill="freeze" 
             calcMode="spline" 
@@ -583,45 +583,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
+            dur="0.9s" 
             begin="42.68s" 
             fill="freeze" />
         </rect>
 <text x="176.8" y="61.666666666666664" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           65
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.48s" 
+            begin="43.58s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Documentation
         </text>
 <rect x="124" y="80" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#50C878"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#50C878"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="32.4" 
-            dur="0.8s" 
-            begin="42.88s" 
+            dur="0.9s" 
+            begin="43.08s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -629,45 +629,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="42.88s" 
+            dur="0.9s" 
+            begin="43.08s" 
             fill="freeze" />
         </rect>
 <text x="162.4" y="95.66666666666667" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           45
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.68s" 
+            begin="43.98s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Testing
         </text>
 <rect x="124" y="114" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#FF7F50"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#FF7F50"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="28.8" 
-            dur="0.8s" 
-            begin="43.08s" 
+            dur="0.9s" 
+            begin="43.48s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -675,45 +675,45 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="43.08s" 
+            dur="0.9s" 
+            begin="43.48s" 
             fill="freeze" />
         </rect>
 <text x="158.8" y="129.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           40
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.88s" 
+            begin="44.38s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="14px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="14px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle">
           Design
         </text>
 <rect x="124" y="148" 
-               width="0" height="22" 
-               rx="2" ry="2" 
-               fill="#9370DB"
-               opacity="0.7">
+              width="0" height="22" 
+              rx="2" ry="2" 
+              fill="#9370DB"
+              opacity="0.7">
           <animate 
             attributeName="width" 
             from="0" 
             to="21.6" 
-            dur="0.8s" 
-            begin="43.28s" 
+            dur="0.9s" 
+            begin="43.88s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -721,24 +721,24 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.8s" 
-            begin="43.28s" 
+            dur="0.9s" 
+            begin="43.88s" 
             fill="freeze" />
         </rect>
 <text x="151.6" y="163.66666666666666" 
-               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-               font-size="12px" 
-               fill="#000000" 
-               text-anchor="start"
-               dominant-baseline="middle"
-               opacity="0">
+              font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+              font-size="12px" 
+              fill="#000000" 
+              text-anchor="start"
+              dominant-baseline="middle"
+              opacity="0">
           30
           <animate 
             attributeName="opacity" 
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="44.08s" 
+            begin="44.78s" 
             fill="freeze" />
         </text>
       
