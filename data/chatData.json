@@ -46,7 +46,7 @@
       "title": "Project Contributions",
       "items": [
         { "label": "Code", "value": 65, "color": "#4A90E2" },
-        { "label": "Documentation", "value": 45, "color": "#50C878" },
+        { "label": "Docs", "value": 45, "color": "#50C878" },
         { "label": "Testing", "value": 40, "color": "#FF7F50" },
         { "label": "Design", "value": 30, "color": "#9370DB" }
       ],

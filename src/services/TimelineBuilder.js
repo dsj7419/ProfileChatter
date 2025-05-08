@@ -72,7 +72,22 @@ class TimelineBuilder {
   }
 
   /**
-   * Calculate dimensions for a chart message
+   * Calculate the available width for bubbles, accounting for avatars if enabled
+   * @returns {number} - Available width in pixels
+   */
+  calculateAvailableBubbleWidth() {
+    let maxWidth = config.layout.MAX_BUBBLE_W_PX;
+    
+    // If avatars are enabled, reduce available width by avatar size and offsets
+    if (config.avatars && config.avatars.enabled) {
+      maxWidth -= (config.avatars.sizePx + (config.avatars.xOffsetPx * 2));
+    }
+    
+    return maxWidth;
+  }
+
+  /**
+   * Calculate dimensions for a chart message, accounting for avatars
    * @param {Object} chartData - Chart data object
    * @returns {Object} - Dimensions { width, height }
    */
@@ -95,11 +110,11 @@ class TimelineBuilder {
                      ((itemCount - 1) * chartStyles.BAR_SPACING_PX);
     }
     
-    // Set chart width to maximum bubble width for consistency
-    const totalWidth = config.layout.MAX_BUBBLE_W_PX;
+    // Get adjusted maximum width accounting for avatars if enabled
+    const maxWidth = this.calculateAvailableBubbleWidth();
     
     return {
-      width: totalWidth,
+      width: maxWidth,
       height: totalHeight,
       lineCount: itemCount // Equivalent to text line count for reading time calculation
     };
@@ -119,6 +134,9 @@ class TimelineBuilder {
     
     // First pass: Create all message objects and calculate dimensions
     const processedMessages = [];
+    
+    // Get available bubble width, accounting for avatars if enabled
+    const availableBubbleWidth = this.calculateAvailableBubbleWidth();
     
     for (const message of this.chatData) {
       const { sender, reaction, contentType = "text" } = message;
@@ -145,8 +163,8 @@ class TimelineBuilder {
           dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
         );
         
-        // Calculate dimensions using TextProcessor
-        dimensions = TextProcessor.wrapText(text);
+        // Calculate dimensions using TextProcessor, passing the adjusted width
+        dimensions = TextProcessor.wrapText(text, availableBubbleWidth);
         
         // Calculate typing time
         typingTime = this.calculateTypingTime(text);

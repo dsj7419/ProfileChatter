@@ -3,242 +3,81 @@
     <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
       <feOffset dx="0" dy="1" result="offsetblur"/>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.15"/>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+      <feComponentTransfer><feFuncA type="linear" slope="0.15"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+
+    <!-- avatar masks -->
+    <clipPath id="avatarCircle"><circle cx="16" cy="16" r="16"/></clipPath>
+    <clipPath id="avatarSquare"><rect width="32" height="32" rx="4" ry="4"/></clipPath>
   </defs>
   <style>
-    @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 400;
-        src: url("data:application/font-woff2;charset=utf-8;base64,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") format('woff2');
-      }
-    @keyframes typingDot1 { 
-      0%, 100% { opacity: 0.4; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes typingDot2 { 
-      0%, 100% { opacity: 0.4; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes typingDot3 { 
-      0%, 100% { opacity: 0.4; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes bubbleIn { 
-      0% { scale: 0.8; opacity: 0; }
-      100% { scale: 1; opacity: 1; }
-    }
-    @keyframes reactionIn {
-      0% { scale: .5; opacity: 0; }
-      100% { scale: 1; opacity: 1; }
-    }
-    @keyframes scrollUp { 
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-746px); }
-    }
-    @keyframes fadeInStatus {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    @keyframes fadeInOutStatus {
-      0% { opacity: 0; }
-      15% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    
-    /* Scrolling with hardware acceleration and smooth movement */
-    .track { 
-      animation: scrollUp 37.30s linear forwards; 
-      animation-delay: 19.86s; 
-      transform: translate3d(0,0,0);
-      backface-visibility: hidden;
-      perspective: 1000px;
-      will-change: transform;
-    }
-    
-    .msg { 
-      transform-origin: top left; 
-      animation: bubbleIn 0.36s cubic-bezier(.36,1.64,.36,1) forwards; 
-      opacity: 0; 
-      filter: url(#shadowEffect);
-    }
-    
-    .typing { 
-      opacity: 0;
-      filter: url(#shadowEffect);
-    }
-    
-    .reaction {
-      animation: reactionIn 0.5s ease-out forwards;
-      opacity: 0;
-      transform-origin: center;
-      filter: url(#shadowEffect);
-    }
-    
-    .typing-dot1 { animation: typingDot1 1.4s infinite; animation-delay: 0s; }
-    .typing-dot2 { animation: typingDot2 1.4s infinite; animation-delay: 0.2s; }
-    .typing-dot3 { animation: typingDot3 1.4s infinite; animation-delay: 0.4s; }
-    
-    .status-indicator {
-      font-size: 10px;
-      fill: #FFFFFFB3;
-      opacity: 0;
-      will-change: opacity;
-    }
-    
-    /* Support dark/light mode */
-    @media (prefers-color-scheme: dark) {
-      svg { background: #000000; }
-    }
-    @media (prefers-color-scheme: light) {
-      svg { background: #FFFFFF; }
-    }
-  </style>
-  
-  <!-- Background shape -->
-  <rect width="320" height="450" fill="transparent" />
-  
-  <!-- Scrolling message container -->
+@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("data:application/font-woff2;charset=utf-8;base64,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") format('woff2');}
+@keyframes bubbleIn{0%{scale:0.8;opacity:0}100%{scale:1;opacity:1}}
+@keyframes typingDot1{0%,100%{opacity:0.4;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+@keyframes typingDot2{0%,100%{opacity:0.4;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+@keyframes typingDot3{0%,100%{opacity:0.4;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+@keyframes reactionIn{0%{scale:.5;opacity:0}100%{scale:1;opacity:1}}
+@keyframes avatarIn{0%{scale:.8;opacity:0}100%{scale:1;opacity:1}}
+@keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-846px)}}
+@keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
+@keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.track{animation:scrollUp 42.30s linear forwards;animation-delay:19.98s;transform:translate3d(0,0,0);will-change:transform}
+.msg{animation:bubbleIn 0.36s cubic-bezier(.36,1.64,.36,1) forwards;opacity:0;filter:url(#shadowEffect)}
+.typing{opacity:0;filter:url(#shadowEffect)}
+.reaction{animation:reactionIn 0.3s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
+.avatar{animation:avatarIn .3s ease-out forwards;opacity:0}
+.status-indicator{font-size:10px;fill:#FFFFFFB3;opacity:0}
+.typing-dot1{animation:typingDot1 1.4s infinite;animation-delay:0s}
+.typing-dot2{animation:typingDot2 1.4s infinite;animation-delay:0.2s}
+.typing-dot3{animation:typingDot3 1.4s infinite;animation-delay:0.4s}
+@media(prefers-color-scheme:dark){svg{background:#000000}}
+@media(prefers-color-scheme:light){svg{background:#FFFFFF}}</style>
+  <rect width="320" height="450" fill="transparent"/>
   <g class="track">
 
-    <g class="typing me" transform="translate(230,20)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="0.60s" dur="2.72s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
-      <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
-    </g>
+      <g class="typing me" transform="translate(202,20)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="0.60s" dur="2.72s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(280,20)" style="animation-delay:3.32s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,20)" style="animation-delay:3.32s"><rect width="208.8" height="96" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Hey there! I&apos;m Dan</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">Johnson, a Software</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Developer based in San</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">Diego.</text>
+      <text x="196.8" y="108" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:3.88s">Delivered</text>
+      <text x="196.8" y="108" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:5.38s">Read</text></g>
 
-    <g class="msg me" transform="translate(49.19999999999999,20)" style="animation-delay:3.32s">
-      <rect x="0" y="0" rx="18" ry="18" width="250.8" height="76" fill="#0B93F6" />
-      
-        <path d="M250.8,10 
-                 C254.8,14 257.8,18 256.8,22 
-                 C255.8,18 252.8,14 250.8,16 
-                 Z" 
-              fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Hey there! I&apos;m Dan Johnson,</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">a Software Developer based</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">in San Diego.</text>
-      
-        <text 
-          x="238.8" 
-          y="88" 
-          text-anchor="end" 
-          class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 3.88s;">
-            Delivered
-        </text>
-        <text 
-          x="238.8" 
-          y="88" 
-          text-anchor="end" 
-          class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 5.38s;">
-            Read
-        </text></g>
+      <g class="typing them" transform="translate(48,144)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="9.12s" dur="2.00s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#E5E5EA"/>
+        <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#000000" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(8,144)" style="animation-delay:11.12s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,144)" style="animation-delay:11.12s"><rect width="183.6" height="76" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you!</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Today is Wednesday,</text><text x="12" y="62" fill="#000000" dominant-baseline="middle">May 7, 2025.</text><g class="reaction" style="animation-delay:12.58s" transform="translate(168.6,-12)">
+      <rect width="30" height="22" rx="12" ry="12" fill="#F1F1F1" fill-opacity="0.9"/>
+      <text x="15" y="11" text-anchor="middle" dominant-baseline="middle" font-size="14px" fill="#000000">👋</text>
+    </g></g>
 
-    <g class="typing them" transform="translate(20,124)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="8.12s" dur="1.96s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
-      <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
-    </g>
+      <g class="typing me" transform="translate(202,248)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="15.92s" dur="3.00s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(280,248)" style="animation-delay:18.92s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,248)" style="animation-delay:18.92s"><rect width="208.8" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">Encore for 3 years and</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">4 months.</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">here is 64°F (18°C)</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">with mostly cloudy.</text>
+      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:19.48s">Delivered</text>
+      <text x="196.8" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:20.98s">Read</text></g>
 
-    <g class="msg them" transform="translate(20,124)" style="animation-delay:10.08s">
-      <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#E5E5EA" />
-      
-        <path d="M0,10 
-                 C-4,14 -7,18 -6,22 
-                 C-5,18 -2,14 0,16 
-                 Z" 
-              fill="#E5E5EA" />
-      <text x="12" y="22" fill="#000000" dominant-baseline="middle">Nice to meet you! Today is</text><text x="12" y="42" fill="#000000" dominant-baseline="middle">Thursday, May 8, 2025.</text>
-      
-        <g class="reaction" style="animation-delay: 11.64s" transform="translate(227.4, -12)">
-          <rect 
-            x="0" 
-            y="0" 
-            width="30" 
-            height="22" 
-            rx="12" 
-            ry="12" 
-            fill="#F1F1F1" 
-            fill-opacity="0.9" />
-          <text 
-            x="15" 
-            y="11" 
-            text-anchor="middle" 
-            dominant-baseline="middle" 
-            font-size="14px"
-            fill="#000000">
-              👋
-          </text>
-        </g></g>
-
-    <g class="typing me" transform="translate(230,208)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="13.88s" dur="3.00s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
-      <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
-    </g>
-
-    <g class="msg me" transform="translate(49.19999999999999,208)" style="animation-delay:16.88s">
-      <rect x="0" y="0" rx="18" ry="18" width="250.8" height="116" fill="#0B93F6" />
-      
-        <path d="M250.8,10 
-                 C254.8,14 257.8,18 256.8,22 
-                 C255.8,18 252.8,14 250.8,16 
-                 Z" 
-              fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;ve been working at Encore</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">for 3 years and 4 months.</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Currently, the weather here</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">is 72°F (22°C) with partly</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">cloudy.</text>
-      
-        <text 
-          x="238.8" 
-          y="128" 
-          text-anchor="end" 
-          class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 17.44s;">
-            Delivered
-        </text>
-        <text 
-          x="238.8" 
-          y="128" 
-          text-anchor="end" 
-          class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 18.94s;">
-            Read
-        </text></g>
-
-    <g class="typing them" transform="translate(20,352)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="23.68s" dur="2.00s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#E5E5EA" />
-      <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#000000" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3" />
-    </g>
-
-    <g class="msg them" transform="translate(20,352)" style="animation-delay:25.68s">
-      <rect x="0" y="0" rx="18" ry="18" width="260" height="220" fill="#E5E5EA" />
-      
-        <path d="M0,10 
-                 C-4,14 -7,18 -6,22 
-                 C-5,18 -2,14 0,16 
-                 Z" 
-              fill="#E5E5EA" />
-      <text x="14" y="32" 
+      <g class="typing them" transform="translate(48,412)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="26.72s" dur="2.00s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#E5E5EA"/>
+        <circle cx="17.5" cy="18" r="4" fill="#000000" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#000000" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(8,412)" style="animation-delay:28.72s"><image href="https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg them" transform="translate(48,412)" style="animation-delay:28.72s"><rect width="212" height="220" rx="18" ry="18" fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="#E5E5EA"/><text x="14" y="32" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="16px" 
               font-weight="bold" 
@@ -261,9 +100,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="72" 
-            dur="0.9s" 
-            begin="25.68s" 
+            to="24" 
+            dur="0.8s" 
+            begin="28.72s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -271,11 +110,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="25.68s" 
+            dur="0.8s" 
+            begin="28.72s" 
             fill="freeze" />
         </rect>
-<text x="202" y="61.666666666666664" 
+<text x="154" y="61.666666666666664" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -288,7 +127,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.58s" 
+            begin="29.52s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
@@ -307,9 +146,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="63.529411764705884" 
-            dur="0.9s" 
-            begin="26.08s" 
+            to="21.176470588235293" 
+            dur="0.8s" 
+            begin="29.02s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -317,11 +156,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="26.08s" 
+            dur="0.8s" 
+            begin="29.02s" 
             fill="freeze" />
         </rect>
-<text x="193.52941176470588" y="95.66666666666667" 
+<text x="151.1764705882353" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -334,7 +173,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="26.98s" 
+            begin="29.82s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
@@ -353,9 +192,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="67.76470588235294" 
-            dur="0.9s" 
-            begin="26.48s" 
+            to="22.588235294117645" 
+            dur="0.8s" 
+            begin="29.32s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -363,11 +202,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="26.48s" 
+            dur="0.8s" 
+            begin="29.32s" 
             fill="freeze" />
         </rect>
-<text x="197.76470588235293" y="129.66666666666666" 
+<text x="152.58823529411765" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -380,7 +219,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.38s" 
+            begin="30.12s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
@@ -399,9 +238,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="59.29411764705882" 
-            dur="0.9s" 
-            begin="26.88s" 
+            to="19.76470588235294" 
+            dur="0.8s" 
+            begin="29.62s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -409,11 +248,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="26.88s" 
+            dur="0.8s" 
+            begin="29.62s" 
             fill="freeze" />
         </rect>
-<text x="189.2941176470588" y="163.66666666666666" 
+<text x="149.76470588235293" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -426,7 +265,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="27.78s" 
+            begin="30.42s" 
             fill="freeze" />
         </text>
 <text x="14" y="197.66666666666666" 
@@ -445,9 +284,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="50.82352941176471" 
-            dur="0.9s" 
-            begin="27.28s" 
+            to="16.941176470588236" 
+            dur="0.8s" 
+            begin="29.92s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -455,11 +294,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="27.28s" 
+            dur="0.8s" 
+            begin="29.92s" 
             fill="freeze" />
         </rect>
-<text x="180.8235294117647" y="197.66666666666666" 
+<text x="146.94117647058823" y="197.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -472,85 +311,32 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="28.18s" 
+            begin="30.72s" 
             fill="freeze" />
-        </text>
+        </text></g>
+
+      <g class="typing me" transform="translate(202,660)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="35.52s" dur="3.00s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
       </g>
+<g class="avatar" transform="translate(280,660)" style="animation-delay:38.52s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(71.6,660)" style="animation-delay:38.52s"><rect width="200.4" height="136" rx="18" ry="18" fill="#0B93F6"/><path d="M200.4,10 C204.4,14 207.4,18 206.4,22 C205.4,18 202.4,14 200.4,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">on ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">public repositories</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">and 0 followers on</text><text x="12" y="122" fill="#FFFFFF" dominant-baseline="middle">GitHub.</text>
+      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:39.08s">Delivered</text>
+      <text x="188.4" y="148" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:40.58s">Read</text><g class="reaction" style="animation-delay:41.88s" transform="translate(-15,-12)">
+      <rect width="30" height="22" rx="12" ry="12" fill="#F1F1F1" fill-opacity="0.9"/>
+      <text x="15" y="11" text-anchor="middle" dominant-baseline="middle" font-size="14px" fill="#000000">👍</text>
+    </g></g>
 
-    <g class="typing me" transform="translate(230,600)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="32.48s" dur="3.00s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
-      <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
-    </g>
-
-    <g class="msg me" transform="translate(40.799999999999955,600)" style="animation-delay:35.48s">
-      <rect x="0" y="0" rx="18" ry="18" width="259.20000000000005" height="116" fill="#0B93F6" />
-      
-        <path d="M259.20000000000005,10 
-                 C263.20000000000005,14 266.20000000000005,18 265.20000000000005,22 
-                 C264.20000000000005,18 261.20000000000005,14 259.20000000000005,16 
-                 Z" 
-              fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">I&apos;m currently focused on</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">ProfileChatter SVG</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">Generator. I have 41 public</text><text x="12" y="82" fill="#FFFFFF" dominant-baseline="middle">repositories and 0 followers</text><text x="12" y="102" fill="#FFFFFF" dominant-baseline="middle">on GitHub.</text>
-      
-        <text 
-          x="247.20000000000005" 
-          y="128" 
-          text-anchor="end" 
-          class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 36.04s;">
-            Delivered
-        </text>
-        <text 
-          x="247.20000000000005" 
-          y="128" 
-          text-anchor="end" 
-          class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 37.54s;">
-            Read
-        </text>
-        <g class="reaction" style="animation-delay: 38.94s" transform="translate(-15, -12)">
-          <rect 
-            x="0" 
-            y="0" 
-            width="30" 
-            height="22" 
-            rx="12" 
-            ry="12" 
-            fill="#F1F1F1" 
-            fill-opacity="0.9" />
-          <text 
-            x="15" 
-            y="11" 
-            text-anchor="middle" 
-            dominant-baseline="middle" 
-            font-size="14px"
-            fill="#000000">
-              👍
-          </text>
-        </g></g>
-
-    <g class="typing me" transform="translate(230,744)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="41.08s" dur="1.60s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
-      <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
-    </g>
-
-    <g class="msg me" transform="translate(40,744)" style="animation-delay:42.68s">
-      <rect x="0" y="0" rx="18" ry="18" width="260" height="186" fill="#0B93F6" />
-      
-        <path d="M260,10 
-                 C264,14 267,18 266,22 
-                 C265,18 262,14 260,16 
-                 Z" 
-              fill="#0B93F6" />
-      <text x="14" y="32" 
+      <g class="typing me" transform="translate(202,824)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="45.12s" dur="1.60s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(280,824)" style="animation-delay:46.72s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(60,824)" style="animation-delay:46.72s"><rect width="212" height="186" rx="18" ry="18" fill="#0B93F6"/><path d="M212,10 C216,14 219,18 218,22 C217,18 214,14 212,16 Z" fill="#0B93F6"/><text x="14" y="32" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="16px" 
               font-weight="bold" 
@@ -573,9 +359,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="46.8" 
-            dur="0.9s" 
-            begin="42.68s" 
+            to="15.6" 
+            dur="0.8s" 
+            begin="46.72s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -583,11 +369,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="42.68s" 
+            dur="0.8s" 
+            begin="46.72s" 
             fill="freeze" />
         </rect>
-<text x="176.8" y="61.666666666666664" 
+<text x="145.6" y="61.666666666666664" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -600,7 +386,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.58s" 
+            begin="47.52s" 
             fill="freeze" />
         </text>
 <text x="14" y="95.66666666666667" 
@@ -609,7 +395,7 @@
               fill="#000000" 
               text-anchor="start"
               dominant-baseline="middle">
-          Documentation
+          Docs
         </text>
 <rect x="124" y="80" 
               width="0" height="22" 
@@ -619,9 +405,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="32.4" 
-            dur="0.9s" 
-            begin="43.08s" 
+            to="10.8" 
+            dur="0.8s" 
+            begin="47.02s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -629,11 +415,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="43.08s" 
+            dur="0.8s" 
+            begin="47.02s" 
             fill="freeze" />
         </rect>
-<text x="162.4" y="95.66666666666667" 
+<text x="140.8" y="95.66666666666667" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -646,7 +432,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="43.98s" 
+            begin="47.82s" 
             fill="freeze" />
         </text>
 <text x="14" y="129.66666666666666" 
@@ -665,9 +451,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="28.8" 
-            dur="0.9s" 
-            begin="43.48s" 
+            to="9.6" 
+            dur="0.8s" 
+            begin="47.32s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -675,11 +461,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="43.48s" 
+            dur="0.8s" 
+            begin="47.32s" 
             fill="freeze" />
         </rect>
-<text x="158.8" y="129.66666666666666" 
+<text x="139.6" y="129.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -692,7 +478,7 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="44.38s" 
+            begin="48.12s" 
             fill="freeze" />
         </text>
 <text x="14" y="163.66666666666666" 
@@ -711,9 +497,9 @@
           <animate 
             attributeName="width" 
             from="0" 
-            to="21.6" 
-            dur="0.9s" 
-            begin="43.88s" 
+            to="7.2" 
+            dur="0.8s" 
+            begin="47.62s" 
             fill="freeze" 
             calcMode="spline" 
             keySplines="0.25 0.1 0.25 1" />
@@ -721,11 +507,11 @@
             attributeName="opacity" 
             from="0.7" 
             to="1" 
-            dur="0.9s" 
-            begin="43.88s" 
+            dur="0.8s" 
+            begin="47.62s" 
             fill="freeze" />
         </rect>
-<text x="151.6" y="163.66666666666666" 
+<text x="137.2" y="163.66666666666666" 
               font-family="'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
               font-size="12px" 
               fill="#000000" 
@@ -738,60 +524,20 @@
             from="0" 
             to="1" 
             dur="0.4s" 
-            begin="44.78s" 
+            begin="48.42s" 
             fill="freeze" />
         </text>
-      
-        <text 
-          x="248" 
-          y="198" 
-          text-anchor="end" 
-          class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 43.24s;">
-            Delivered
-        </text>
-        <text 
-          x="248" 
-          y="198" 
-          text-anchor="end" 
-          class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 44.74s;">
-            Read
-        </text></g>
+      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:47.28s">Delivered</text>
+      <text x="200" y="198" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:48.78s">Read</text></g>
 
-    <g class="typing me" transform="translate(230,958)">
-      <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" 
-               begin="47.28s" dur="2.08s" fill="freeze" />
-      <rect x="0" y="0" rx="18" ry="18" width="70" height="36" fill="#0B93F6" />
-      <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1" />
-      <circle cx="35" cy="18" r="4" fill="#FFFFFF" class="typing-dot2" />
-      <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3" />
-    </g>
-
-    <g class="msg me" transform="translate(57.599999999999994,958)" style="animation-delay:49.36s">
-      <rect x="0" y="0" rx="18" ry="18" width="242.4" height="56" fill="#0B93F6" />
-      
-        <path d="M242.4,10 
-                 C246.4,14 249.4,18 248.4,22 
-                 C247.4,18 244.4,14 242.4,16 
-                 Z" 
-              fill="#0B93F6" />
-      <text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out if</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">you want to collaborate! ⛅</text>
-      
-        <text 
-          x="230.4" 
-          y="68" 
-          text-anchor="end" 
-          class="status-indicator delivered" 
-          style="animation: fadeInOutStatus 1.5s ease forwards; animation-delay: 49.92s;">
-            Delivered
-        </text>
-        <text 
-          x="230.4" 
-          y="68" 
-          text-anchor="end" 
-          class="status-indicator read" 
-          style="animation: fadeInStatus 0.2s ease forwards; animation-delay: 51.42s;">
-            Read
-        </text></g>
+      <g class="typing me" transform="translate(202,1038)">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="51.32s" dur="2.16s" fill="freeze"/>
+        <rect width="70" height="36" rx="18" ry="18" fill="#0B93F6"/>
+        <circle cx="17.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot1"/>
+            <circle cx="35"      cy="18" r="4" fill="#FFFFFF" class="typing-dot2"/>
+            <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
+      </g>
+<g class="avatar" transform="translate(280,1038)" style="animation-delay:53.48s"><image href="https://github.com/dsj7419.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g><g class="msg me" transform="translate(63.19999999999999,1038)" style="animation-delay:53.48s"><rect width="208.8" height="76" rx="18" ry="18" fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22 C213.8,18 210.8,14 208.8,16 Z" fill="#0B93F6"/><text x="12" y="22" fill="#FFFFFF" dominant-baseline="middle">Feel free to reach out</text><text x="12" y="42" fill="#FFFFFF" dominant-baseline="middle">if you want to</text><text x="12" y="62" fill="#FFFFFF" dominant-baseline="middle">collaborate! 🌥️</text>
+      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:54.04s">Delivered</text>
+      <text x="196.8" y="88" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:55.54s">Read</text></g>
 </g></svg>

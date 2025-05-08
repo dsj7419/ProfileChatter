@@ -9,6 +9,23 @@ export const config = {
   // Theme selection - default to iOS theme
   activeTheme: "ios",
 
+  // Avatar configuration
+  avatars: {
+    enabled: true, // Master toggle for avatars
+    me: {
+      imageUrl: "https://github.com/dsj7419.png", // URL for 'me' avatar (e.g., GitHub profile pic)
+      fallbackText: "DJ" // Initials or text for fallback
+    },
+    visitor: {
+      imageUrl: "https://png.pngtree.com/png-vector/20240529/ourmid/pngtree-web-programmer-avatar-png-image_12529205.png", // URL for visitor avatar (empty means use fallback)
+      fallbackText: "?" // Placeholder for visitor
+    },
+    sizePx: 32,        // Diameter/width of the avatar
+    shape: "circle",   // Shape: "circle" or "square"
+    xOffsetPx: 8,      // Horizontal space between avatar and chat edge/bubble
+    yOffsetPx: 0       // Vertical alignment offset relative to top of bubble
+  },
+
   // Theme definitions
   themes: {
     // iOS theme (based on existing styles)
@@ -217,12 +234,12 @@ export const config = {
       BUBBLE_START_SCALE: 0.8,          // Starting scale for bubble-in animation
       
       // Reaction animations 
-      REACTION_ANIMATION_DURATION_SEC: 0.5,     // Duration of reaction animation
-      REACTION_ANIMATION_DELAY_FACTOR_SEC: 1.2, // Delay after "Read" status appears
+      REACTION_ANIMATION_DURATION_SEC: 0.3,     // Duration of reaction animation
+      REACTION_ANIMATION_DELAY_FACTOR_SEC: 1.1, // Delay after "Read" status appears
       
       // Chart animations
-      CHART_BAR_ANIMATION_DURATION_SEC: 0.9,    // Duration of bar growth animation
-      CHART_ANIMATION_DELAY_SEC: 0.4,           // Delay between successive bar animations
+      CHART_BAR_ANIMATION_DURATION_SEC: 0.8,    // Duration of bar growth animation
+      CHART_ANIMATION_DELAY_SEC: 0.3,           // Delay between successive bar animations
       
       // Shadow effect
       SHADOW_BLUR: 1,                   // Shadow blur amount

@@ -25,6 +25,21 @@ function isNonEmptyString(value, propertyPath) {
 }
 
 /**
+ * Validates whether a value is a string (can be empty)
+ * @param {any} value - The value to check
+ * @param {string} propertyPath - Property path for error reporting
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function isString(value, propertyPath) {
+  if (typeof value !== 'string') {
+    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
  * Validates whether a value is a positive number
  * @param {any} value - The value to check
  * @param {string} propertyPath - Property path for error reporting
@@ -58,6 +73,36 @@ function isNonNegativeNumber(value, propertyPath) {
   
   if (value < 0) {
     console.error(`Configuration error: ${propertyPath} must be a non-negative number, got ${value}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Validates whether a value is a number (can be positive, negative, or zero)
+ * @param {any} value - The value to check
+ * @param {string} propertyPath - Property path for error reporting
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function isNumber(value, propertyPath) {
+  if (typeof value !== 'number') {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Validates whether a value is a boolean
+ * @param {any} value - The value to check
+ * @param {string} propertyPath - Property path for error reporting
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function isBoolean(value, propertyPath) {
+  if (typeof value !== 'boolean') {
+    console.error(`Configuration error: ${propertyPath} must be a boolean, got ${typeof value}`);
     return false;
   }
   
@@ -145,6 +190,22 @@ function isValidHexColor(value, propertyPath) {
 }
 
 /**
+ * Validates whether a value is one of the allowed values
+ * @param {any} value - The value to check
+ * @param {string} propertyPath - Property path for error reporting
+ * @param {Array} allowedValues - Array of allowed values
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function isOneOf(value, propertyPath, allowedValues) {
+  if (!allowedValues.includes(value)) {
+    console.error(`Configuration error: ${propertyPath} must be one of: ${allowedValues.join(', ')}, got '${value}'`);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
  * Validates that an object exists and contains required properties
  * @param {any} obj - The object to check
  * @param {string} objPath - Object path for error reporting
@@ -165,6 +226,48 @@ function validateObjectWithProps(obj, objPath, requiredProps) {
       isValid = false;
     }
   }
+  
+  return isValid;
+}
+
+/**
+ * Validates the avatar configuration object
+ * @param {Object} avatarsConfig - The avatar configuration to validate
+ * @returns {boolean} - true if valid, false otherwise
+ */
+function validateAvatarsConfig(avatarsConfig) {
+  if (!validateObjectWithProps(avatarsConfig, 'config.avatars', [
+    'enabled', 'me', 'visitor', 'sizePx', 'shape', 'xOffsetPx', 'yOffsetPx'
+  ])) {
+    return false;
+  }
+  
+  let isValid = true;
+  
+  // Validate enabled flag
+  isValid = isBoolean(avatarsConfig.enabled, 'config.avatars.enabled') && isValid;
+  
+  // Validate me and visitor objects
+  if (validateObjectWithProps(avatarsConfig.me, 'config.avatars.me', ['imageUrl', 'fallbackText'])) {
+    isValid = isString(avatarsConfig.me.imageUrl, 'config.avatars.me.imageUrl') && isValid;
+    isValid = isNonEmptyString(avatarsConfig.me.fallbackText, 'config.avatars.me.fallbackText') && isValid;
+  } else {
+    isValid = false;
+  }
+  
+  if (validateObjectWithProps(avatarsConfig.visitor, 'config.avatars.visitor', ['imageUrl', 'fallbackText'])) {
+    isValid = isString(avatarsConfig.visitor.imageUrl, 'config.avatars.visitor.imageUrl') && isValid;
+    isValid = isNonEmptyString(avatarsConfig.visitor.fallbackText, 'config.avatars.visitor.fallbackText') && isValid;
+  } else {
+    isValid = false;
+  }
+  
+  // Validate size and positioning properties
+  isValid = isPositiveNumber(avatarsConfig.sizePx, 'config.avatars.sizePx') && isValid;
+  isValid = isNonEmptyString(avatarsConfig.shape, 'config.avatars.shape') && isValid;
+  isValid = isOneOf(avatarsConfig.shape, 'config.avatars.shape', ['circle', 'square']) && isValid;
+  isValid = isNonNegativeNumber(avatarsConfig.xOffsetPx, 'config.avatars.xOffsetPx') && isValid;
+  isValid = isNumber(avatarsConfig.yOffsetPx, 'config.avatars.yOffsetPx') && isValid;
   
   return isValid;
 }
@@ -437,6 +540,11 @@ export function validateConfiguration(config) {
     for (const [themeName, theme] of Object.entries(config.themes)) {
       isValid = validateTheme(theme, themeName) && isValid;
     }
+  }
+  
+  // Validate avatars configuration
+  if (config.avatars) {
+    isValid = validateAvatarsConfig(config.avatars) && isValid;
   }
   
   // Validate profile object

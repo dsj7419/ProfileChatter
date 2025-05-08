@@ -20,14 +20,34 @@ class TextProcessor {
   }
   
   /**
-   * Wrap text to fit within chat bubble width constraints
+   * Calculate available width for chat bubbles, accounting for avatars if enabled
+   * @returns {number} - Maximum available width for bubbles in pixels
+   */
+  getAvailableBubbleWidth() {
+    let maxWidth = config.layout.MAX_BUBBLE_W_PX;
+    
+    // If avatars are enabled, reduce available space by avatar width + offset
+    if (config.avatars && config.avatars.enabled) {
+      maxWidth -= (config.avatars.sizePx + (config.avatars.xOffsetPx * 2));
+    }
+    
+    return maxWidth;
+  }
+  
+  /**
+   * Wrap text to fit within chat bubble width constraints, accounting for avatars
    * @param {string} text - Raw text to wrap
+   * @param {number} [maxWidth] - Optional maximum width override
    * @returns {Object} - Wrapped lines and calculated dimensions
    */
-  wrapText(text) {
+  wrapText(text, maxWidth) {
     // Handle multi-line input (e.g., from \n in the text)
     const paragraphs = text.split('\n');
     const allLines = [];
+    
+    // Get adjusted maximum width - use provided maxWidth if available,
+    // otherwise calculate based on avatar configuration
+    const maxBubbleWidth = maxWidth !== undefined ? maxWidth : this.getAvailableBubbleWidth();
     
     // Process each paragraph 
     for (const paragraph of paragraphs) {
@@ -42,7 +62,7 @@ class TextProcessor {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
         const testWidth = this.measureTextWidth(testLine);
         
-        if (testWidth <= config.layout.MAX_BUBBLE_W_PX - 2 * config.layout.BUBBLE_PAD_X_PX) {
+        if (testWidth <= maxBubbleWidth - 2 * config.layout.BUBBLE_PAD_X_PX) {
           currentLine = testLine;
         } else {
           if (currentLine) allLines.push(currentLine);
@@ -67,10 +87,10 @@ class TextProcessor {
       config.layout.MIN_BUBBLE_W_PX - 2 * config.layout.BUBBLE_PAD_X_PX // Ensure minimum width
     );
     
-    // Calculate bubble dimensions
+    // Calculate bubble dimensions (respecting the adjusted maximum width)
     const width = Math.min(
       maxLineWidth + 2 * config.layout.BUBBLE_PAD_X_PX,
-      config.layout.MAX_BUBBLE_W_PX
+      maxBubbleWidth
     );
     
     const height = Math.max(
