@@ -1,684 +1,425 @@
 /**
  * ConfigValidator.js
- * Validates the application configuration to ensure all required properties exist and have correct types
- * Single Responsibility: Configuration validation
+ * Validates the application configuration to ensure all required properties exist and have correct types.
+ * Single Responsibility: Configuration validation.
  */
 
-/**
- * Validates whether a value is a non-empty string
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
+// ... (all helper functions: isNonEmptyString, isString, ... , validateObjectWithProps, validateAvatarsConfig) ...
+// (Keep these exactly as they were in your last confirmed version)
 function isNonEmptyString(value, propertyPath) {
   if (typeof value !== 'string') {
-    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}`);
+    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}.`);
     return false;
   }
-  
   if (value.trim() === '') {
-    console.error(`Configuration error: ${propertyPath} cannot be an empty string`);
+    console.error(`Configuration error: ${propertyPath} cannot be an empty string.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a string (can be empty)
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isString(value, propertyPath) {
   if (typeof value !== 'string') {
-    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}`);
+    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a positive number
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isPositiveNumber(value, propertyPath) {
-  if (typeof value !== 'number') {
-    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+  if (typeof value !== 'number' || isNaN(value)) {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}.`);
     return false;
   }
-  
   if (value <= 0) {
-    console.error(`Configuration error: ${propertyPath} must be a positive number, got ${value}`);
+    console.error(`Configuration error: ${propertyPath} must be a positive number, got ${value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a non-negative number
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isNonNegativeNumber(value, propertyPath) {
-  if (typeof value !== 'number') {
-    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+  if (typeof value !== 'number' || isNaN(value)) {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}.`);
     return false;
   }
-  
   if (value < 0) {
-    console.error(`Configuration error: ${propertyPath} must be a non-negative number, got ${value}`);
+    console.error(`Configuration error: ${propertyPath} must be a non-negative number, got ${value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a number (can be positive, negative, or zero)
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isNumber(value, propertyPath) {
-  if (typeof value !== 'number') {
-    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+  if (typeof value !== 'number' || isNaN(value)) {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a boolean
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isBoolean(value, propertyPath) {
   if (typeof value !== 'boolean') {
-    console.error(`Configuration error: ${propertyPath} must be a boolean, got ${typeof value}`);
+    console.error(`Configuration error: ${propertyPath} must be a boolean, got ${typeof value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a number between 0 and 1
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isOpacityValue(value, propertyPath) {
-  if (typeof value !== 'number') {
-    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}`);
+  if (typeof value !== 'number' || isNaN(value)) {
+    console.error(`Configuration error: ${propertyPath} must be a number, got ${typeof value}.`);
     return false;
   }
-  
   if (value < 0 || value > 1) {
-    console.error(`Configuration error: ${propertyPath} must be between 0 and 1, got ${value}`);
+    console.error(`Configuration error: ${propertyPath} must be between 0 and 1, got ${value}.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a valid Date object
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isValidDate(value, propertyPath) {
   if (!(value instanceof Date)) {
-    console.error(`Configuration error: ${propertyPath} must be a Date object`);
+    console.error(`Configuration error: ${propertyPath} must be a Date object.`);
     return false;
   }
-  
   if (isNaN(value.getTime())) {
-    console.error(`Configuration error: ${propertyPath} must be a valid Date, but it's invalid`);
+    console.error(`Configuration error: ${propertyPath} must be a valid Date, but it's invalid.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a string representing a number
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isStringRepresentingNumber(value, propertyPath) {
   if (!isNonEmptyString(value, propertyPath)) {
     return false;
   }
-  
   if (isNaN(Number(value))) {
-    console.error(`Configuration error: ${propertyPath} must be a string representing a number, got '${value}'`);
+    console.error(`Configuration error: ${propertyPath} must be a string representing a number, got '${value}'.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is a valid hex color string
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function isValidHexColor(value, propertyPath) {
-  if (!isNonEmptyString(value, propertyPath)) {
+  if (typeof value !== 'string') { 
+    console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}.`);
     return false;
   }
-  
-  // Check if it's a hex color (#RGB, #RGBA, #RRGGBB, or #RRGGBBAA)
+  if (value === "") return true; 
+
   const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
   if (!hexColorRegex.test(value)) {
-    console.error(`Configuration error: ${propertyPath} must be a valid hex color string (e.g., #RGB, #RGBA, #RRGGBB, or #RRGGBBAA), got '${value}'`);
+    console.error(`Configuration error: ${propertyPath} must be a valid hex color string (e.g., #RGB, #RRGGBB), got '${value}'.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates whether a value is one of the allowed values
- * @param {any} value - The value to check
- * @param {string} propertyPath - Property path for error reporting
- * @param {Array} allowedValues - Array of allowed values
- * @returns {boolean} - true if valid, false otherwise
- */
 function isOneOf(value, propertyPath, allowedValues) {
   if (!allowedValues.includes(value)) {
-    console.error(`Configuration error: ${propertyPath} must be one of: ${allowedValues.join(', ')}, got '${value}'`);
+    console.error(`Configuration error: ${propertyPath} must be one of: ${allowedValues.join(', ')}, got '${value}'.`);
     return false;
   }
-  
   return true;
 }
-
-/**
- * Validates that an object exists and contains required properties
- * @param {any} obj - The object to check
- * @param {string} objPath - Object path for error reporting
- * @param {string[]} requiredProps - Array of required property names
- * @returns {boolean} - true if valid, false otherwise
- */
 function validateObjectWithProps(obj, objPath, requiredProps) {
-  if (!obj || typeof obj !== 'object') {
-    console.error(`Configuration error: ${objPath} must be an object`);
+  if (!obj || typeof obj !== 'object' || obj === null) {
+    console.error(`Configuration error: ${objPath} must be an object.`);
     return false;
   }
-  
   let isValid = true;
-  
   for (const prop of requiredProps) {
     if (obj[prop] === undefined) {
-      console.error(`Configuration error: Missing required property ${objPath}.${prop}`);
+      console.error(`Configuration error: Missing required property ${objPath}.${prop}.`);
       isValid = false;
     }
   }
-  
   return isValid;
 }
-
-/**
- * Validates the avatar configuration object
- * @param {Object} avatarsConfig - The avatar configuration to validate
- * @returns {boolean} - true if valid, false otherwise
- */
-function validateAvatarsConfig(avatarsConfig) {
-  if (!validateObjectWithProps(avatarsConfig, 'config.avatars', [
-    'enabled', 'me', 'visitor', 'sizePx', 'shape', 'xOffsetPx', 'yOffsetPx'
-  ])) {
-    return false;
-  }
-  
+function validateAvatarsConfig(avatarsConfig, pathPrefix = 'config.avatars') {
+  if (!validateObjectWithProps(avatarsConfig, pathPrefix, ['enabled', 'me', 'visitor', 'sizePx', 'shape', 'xOffsetPx', 'yOffsetPx'])) return false;
   let isValid = true;
-  
-  // Validate enabled flag
-  isValid = isBoolean(avatarsConfig.enabled, 'config.avatars.enabled') && isValid;
-  
-  // Validate me and visitor objects
-  if (validateObjectWithProps(avatarsConfig.me, 'config.avatars.me', ['imageUrl', 'fallbackText'])) {
-    isValid = isString(avatarsConfig.me.imageUrl, 'config.avatars.me.imageUrl') && isValid;
-    isValid = isNonEmptyString(avatarsConfig.me.fallbackText, 'config.avatars.me.fallbackText') && isValid;
-  } else {
-    isValid = false;
-  }
-  
-  if (validateObjectWithProps(avatarsConfig.visitor, 'config.avatars.visitor', ['imageUrl', 'fallbackText'])) {
-    isValid = isString(avatarsConfig.visitor.imageUrl, 'config.avatars.visitor.imageUrl') && isValid;
-    isValid = isNonEmptyString(avatarsConfig.visitor.fallbackText, 'config.avatars.visitor.fallbackText') && isValid;
-  } else {
-    isValid = false;
-  }
-  
-  // Validate size and positioning properties
-  isValid = isPositiveNumber(avatarsConfig.sizePx, 'config.avatars.sizePx') && isValid;
-  isValid = isNonEmptyString(avatarsConfig.shape, 'config.avatars.shape') && isValid;
-  isValid = isOneOf(avatarsConfig.shape, 'config.avatars.shape', ['circle', 'square']) && isValid;
-  isValid = isNonNegativeNumber(avatarsConfig.xOffsetPx, 'config.avatars.xOffsetPx') && isValid;
-  isValid = isNumber(avatarsConfig.yOffsetPx, 'config.avatars.yOffsetPx') && isValid;
-  
+  isValid = isBoolean(avatarsConfig.enabled, `${pathPrefix}.enabled`) && isValid;
+  if (validateObjectWithProps(avatarsConfig.me, `${pathPrefix}.me`, ['imageUrl', 'fallbackText'])) {
+    isValid = isString(avatarsConfig.me.imageUrl, `${pathPrefix}.me.imageUrl`) && isValid; // isString allows empty
+    isValid = isNonEmptyString(avatarsConfig.me.fallbackText, `${pathPrefix}.me.fallbackText`) && isValid;
+  } else { isValid = false; }
+  if (validateObjectWithProps(avatarsConfig.visitor, `${pathPrefix}.visitor`, ['imageUrl', 'fallbackText'])) {
+    isValid = isString(avatarsConfig.visitor.imageUrl, `${pathPrefix}.visitor.imageUrl`) && isValid; // isString allows empty
+    isValid = isNonEmptyString(avatarsConfig.visitor.fallbackText, `${pathPrefix}.visitor.fallbackText`) && isValid;
+  } else { isValid = false; }
+  isValid = isPositiveNumber(avatarsConfig.sizePx, `${pathPrefix}.sizePx`) && isValid;
+  isValid = isOneOf(avatarsConfig.shape, `${pathPrefix}.shape`, ['circle', 'square']) && isValid;
+  isValid = isNonNegativeNumber(avatarsConfig.xOffsetPx, `${pathPrefix}.xOffsetPx`) && isValid;
+  isValid = isNumber(avatarsConfig.yOffsetPx, `${pathPrefix}.yOffsetPx`) && isValid;
   return isValid;
 }
 
-/**
- * Validates chart styles configuration
- * @param {Object} chartStyles - The chart styles object to validate
- * @param {string} themeName - Name of the theme for error reporting
- * @returns {boolean} - true if valid, false otherwise
- */
 function validateChartStyles(chartStyles, themeName) {
-  if (!chartStyles || typeof chartStyles !== 'object') {
-    console.error(`Configuration error: themes.${themeName}.CHART_STYLES must be an object`);
-    return false;
-  }
+  const basePath = `config.themes.${themeName}.CHART_STYLES`;
+  const requiredProps = [
+    'BAR_DEFAULT_COLOR', 'BAR_TRACK_COLOR', 'BAR_CORNER_RADIUS_PX', 'VALUE_TEXT_INSIDE_COLOR', 
+    'BAR_HEIGHT_PX', 'BAR_SPACING_PX', 'LABEL_FONT_FAMILY', 'LABEL_FONT_SIZE_PX', 
+    'VALUE_TEXT_FONT_FAMILY', 'VALUE_TEXT_FONT_SIZE_PX', 
+    'TITLE_FONT_FAMILY', 'TITLE_FONT_SIZE_PX', 'TITLE_LINE_HEIGHT_MULTIPLIER', 
+    'TITLE_BOTTOM_MARGIN_PX', 'CHART_PADDING_X_PX', 'CHART_PADDING_Y_PX', 
+    'AXIS_LINE_COLOR', 'GRID_LINE_COLOR',
+    // New sender-specific colors
+    'ME_TITLE_COLOR', 'ME_LABEL_COLOR', 'ME_VALUE_TEXT_COLOR',
+    'VISITOR_TITLE_COLOR', 'VISITOR_LABEL_COLOR', 'VISITOR_VALUE_TEXT_COLOR'
+    // LABEL_MAX_WIDTH_PX is used by TextProcessor but not directly by ChartRenderer rendering loop,
+    // so we can consider it optional for basic validation here or handle its absence gracefully in TextProcessor.
+    // For now, keeping it optional to avoid breaking if it's not defined.
+  ];
+  // Temporarily remove LABEL_MAX_WIDTH_PX from required if it's causing issues and not strictly needed for rendering
+  // const requiredProps = requiredProps.filter(p => p !== 'LABEL_MAX_WIDTH_PX');
+
+
+  if (!validateObjectWithProps(chartStyles, basePath, requiredProps)) return false;
   
   let isValid = true;
-  
-  // Required chart style properties
-  const chartStyleProps = [
-    'BAR_DEFAULT_COLOR',
-    'BAR_HEIGHT_PX',
-    'BAR_SPACING_PX',
-    'LABEL_FONT_FAMILY',
-    'LABEL_FONT_SIZE_PX',
-    'LABEL_COLOR',
-    'LABEL_MAX_WIDTH_PX',
-    'VALUE_TEXT_FONT_FAMILY',
-    'VALUE_TEXT_FONT_SIZE_PX',
-    'VALUE_TEXT_COLOR',
-    'TITLE_FONT_FAMILY',
-    'TITLE_FONT_SIZE_PX',
-    'TITLE_COLOR',
-    'CHART_PADDING_X_PX',
-    'CHART_PADDING_Y_PX',
-    'AXIS_LINE_COLOR',
-    'GRID_LINE_COLOR'
-  ];
-  
-  // Check for required properties
-  for (const prop of chartStyleProps) {
-    if (chartStyles[prop] === undefined) {
-      console.error(`Configuration error: Missing required property in themes.${themeName}.CHART_STYLES: ${prop}`);
-      isValid = false;
-    }
+  isValid = isValidHexColor(chartStyles.BAR_DEFAULT_COLOR, `${basePath}.BAR_DEFAULT_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.BAR_TRACK_COLOR, `${basePath}.BAR_TRACK_COLOR`) && isValid;
+  isValid = isNonNegativeNumber(chartStyles.BAR_CORNER_RADIUS_PX, `${basePath}.BAR_CORNER_RADIUS_PX`) && isValid;
+  isValid = isValidHexColor(chartStyles.VALUE_TEXT_INSIDE_COLOR, `${basePath}.VALUE_TEXT_INSIDE_COLOR`) && isValid;
+  isValid = isPositiveNumber(chartStyles.BAR_HEIGHT_PX, `${basePath}.BAR_HEIGHT_PX`) && isValid;
+  isValid = isNonNegativeNumber(chartStyles.BAR_SPACING_PX, `${basePath}.BAR_SPACING_PX`) && isValid;
+  isValid = isNonEmptyString(chartStyles.LABEL_FONT_FAMILY, `${basePath}.LABEL_FONT_FAMILY`) && isValid;
+  isValid = isPositiveNumber(chartStyles.LABEL_FONT_SIZE_PX, `${basePath}.LABEL_FONT_SIZE_PX`) && isValid;
+  // LABEL_COLOR removed, now sender specific
+  if (chartStyles.LABEL_MAX_WIDTH_PX !== undefined) { // Making it optional for validation
+    isValid = isPositiveNumber(chartStyles.LABEL_MAX_WIDTH_PX, `${basePath}.LABEL_MAX_WIDTH_PX`) && isValid;
   }
-  
-  // Validate property types
-  if (chartStyles.BAR_DEFAULT_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.BAR_DEFAULT_COLOR, `themes.${themeName}.CHART_STYLES.BAR_DEFAULT_COLOR`) && isValid;
-  }
-  
-  if (chartStyles.BAR_HEIGHT_PX !== undefined) {
-    isValid = isPositiveNumber(chartStyles.BAR_HEIGHT_PX, `themes.${themeName}.CHART_STYLES.BAR_HEIGHT_PX`) && isValid;
-  }
-  
-  if (chartStyles.BAR_SPACING_PX !== undefined) {
-    isValid = isNonNegativeNumber(chartStyles.BAR_SPACING_PX, `themes.${themeName}.CHART_STYLES.BAR_SPACING_PX`) && isValid;
-  }
-  
-  if (chartStyles.LABEL_FONT_FAMILY !== undefined) {
-    isValid = isNonEmptyString(chartStyles.LABEL_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.LABEL_FONT_FAMILY`) && isValid;
-  }
-  
-  if (chartStyles.LABEL_FONT_SIZE_PX !== undefined) {
-    isValid = isPositiveNumber(chartStyles.LABEL_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.LABEL_FONT_SIZE_PX`) && isValid;
-  }
-  
-  if (chartStyles.LABEL_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.LABEL_COLOR, `themes.${themeName}.CHART_STYLES.LABEL_COLOR`) && isValid;
-  }
-  
-  if (chartStyles.LABEL_MAX_WIDTH_PX !== undefined) {
-    isValid = isPositiveNumber(chartStyles.LABEL_MAX_WIDTH_PX, `themes.${themeName}.CHART_STYLES.LABEL_MAX_WIDTH_PX`) && isValid;
-  }
-  
-  if (chartStyles.VALUE_TEXT_FONT_FAMILY !== undefined) {
-    isValid = isNonEmptyString(chartStyles.VALUE_TEXT_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_FONT_FAMILY`) && isValid;
-  }
-  
-  if (chartStyles.VALUE_TEXT_FONT_SIZE_PX !== undefined) {
-    isValid = isPositiveNumber(chartStyles.VALUE_TEXT_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX`) && isValid;
-  }
-  
-  if (chartStyles.VALUE_TEXT_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.VALUE_TEXT_COLOR, `themes.${themeName}.CHART_STYLES.VALUE_TEXT_COLOR`) && isValid;
-  }
-  
-  if (chartStyles.TITLE_FONT_FAMILY !== undefined) {
-    isValid = isNonEmptyString(chartStyles.TITLE_FONT_FAMILY, `themes.${themeName}.CHART_STYLES.TITLE_FONT_FAMILY`) && isValid;
-  }
-  
-  if (chartStyles.TITLE_FONT_SIZE_PX !== undefined) {
-    isValid = isPositiveNumber(chartStyles.TITLE_FONT_SIZE_PX, `themes.${themeName}.CHART_STYLES.TITLE_FONT_SIZE_PX`) && isValid;
-  }
-  
-  if (chartStyles.TITLE_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.TITLE_COLOR, `themes.${themeName}.CHART_STYLES.TITLE_COLOR`) && isValid;
-  }
-  
-  if (chartStyles.CHART_PADDING_X_PX !== undefined) {
-    isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_X_PX, `themes.${themeName}.CHART_STYLES.CHART_PADDING_X_PX`) && isValid;
-  }
-  
-  if (chartStyles.CHART_PADDING_Y_PX !== undefined) {
-    isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_Y_PX, `themes.${themeName}.CHART_STYLES.CHART_PADDING_Y_PX`) && isValid;
-  }
-  
-  if (chartStyles.AXIS_LINE_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.AXIS_LINE_COLOR, `themes.${themeName}.CHART_STYLES.AXIS_LINE_COLOR`) && isValid;
-  }
-  
-  if (chartStyles.GRID_LINE_COLOR !== undefined) {
-    isValid = isValidHexColor(chartStyles.GRID_LINE_COLOR, `themes.${themeName}.CHART_STYLES.GRID_LINE_COLOR`) && isValid;
-  }
-  
+  isValid = isNonEmptyString(chartStyles.VALUE_TEXT_FONT_FAMILY, `${basePath}.VALUE_TEXT_FONT_FAMILY`) && isValid;
+  isValid = isPositiveNumber(chartStyles.VALUE_TEXT_FONT_SIZE_PX, `${basePath}.VALUE_TEXT_FONT_SIZE_PX`) && isValid;
+  // VALUE_TEXT_COLOR removed, now sender specific
+  isValid = isNonEmptyString(chartStyles.TITLE_FONT_FAMILY, `${basePath}.TITLE_FONT_FAMILY`) && isValid;
+  isValid = isPositiveNumber(chartStyles.TITLE_FONT_SIZE_PX, `${basePath}.TITLE_FONT_SIZE_PX`) && isValid;
+  isValid = isPositiveNumber(chartStyles.TITLE_LINE_HEIGHT_MULTIPLIER, `${basePath}.TITLE_LINE_HEIGHT_MULTIPLIER`) && isValid;
+  // TITLE_COLOR removed, now sender specific
+  isValid = isNonNegativeNumber(chartStyles.TITLE_BOTTOM_MARGIN_PX, `${basePath}.TITLE_BOTTOM_MARGIN_PX`) && isValid;
+  isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_X_PX, `${basePath}.CHART_PADDING_X_PX`) && isValid;
+  isValid = isNonNegativeNumber(chartStyles.CHART_PADDING_Y_PX, `${basePath}.CHART_PADDING_Y_PX`) && isValid;
+  isValid = isValidHexColor(chartStyles.AXIS_LINE_COLOR, `${basePath}.AXIS_LINE_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.GRID_LINE_COLOR, `${basePath}.GRID_LINE_COLOR`) && isValid;
+
+  // Validate new sender-specific colors
+  isValid = isValidHexColor(chartStyles.ME_TITLE_COLOR, `${basePath}.ME_TITLE_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.ME_LABEL_COLOR, `${basePath}.ME_LABEL_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.ME_VALUE_TEXT_COLOR, `${basePath}.ME_VALUE_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.VISITOR_TITLE_COLOR, `${basePath}.VISITOR_TITLE_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.VISITOR_LABEL_COLOR, `${basePath}.VISITOR_LABEL_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.VISITOR_VALUE_TEXT_COLOR, `${basePath}.VISITOR_VALUE_TEXT_COLOR`) && isValid;
+
   return isValid;
 }
 
-/**
- * Validates a theme object
- * @param {Object} theme - The theme object to validate
- * @param {string} themeName - Name of the theme for error reporting
- * @returns {boolean} - true if the theme is valid, false otherwise
- */
+// ... (validateTheme, validateProfileConfig, validateCacheConfig, validateApiDefaultsConfig, validateWakatimeConfig, validateLayoutConfig)
+// These should remain largely the same as your last confirmed version, 
+// ensure validateTheme calls the updated validateChartStyles.
 function validateTheme(theme, themeName) {
-  if (!theme || typeof theme !== 'object') {
-    console.error(`Configuration error: Theme "${themeName}" must be an object`);
-    return false;
-  }
-  
-  let isValid = true;
-  
-  // Required theme properties
-  const themeProps = [
-    'ME_BUBBLE_COLOR',
-    'VISITOR_BUBBLE_COLOR',
-    'ME_TEXT_COLOR',
-    'VISITOR_TEXT_COLOR',
-    'BACKGROUND_LIGHT',
-    'BACKGROUND_DARK',
-    'BUBBLE_RADIUS_PX',
-    'FONT_FAMILY',
-    // Required reaction properties
-    'REACTION_FONT_SIZE_PX',
-    'REACTION_BG_COLOR',
-    'REACTION_BG_OPACITY',
-    'REACTION_TEXT_COLOR',
-    'REACTION_PADDING_X_PX',
-    'REACTION_PADDING_Y_PX',
-    'REACTION_BORDER_RADIUS_PX',
-    'REACTION_OFFSET_X_PX',
-    'REACTION_OFFSET_Y_PX',
-    // Required chart styles
-    'CHART_STYLES'
+  const basePath = `config.themes.${themeName}`;
+  const requiredProps = [
+    'ME_BUBBLE_COLOR', 'VISITOR_BUBBLE_COLOR', 'ME_TEXT_COLOR', 'VISITOR_TEXT_COLOR', 'BACKGROUND_LIGHT', 
+    'BACKGROUND_DARK', 'BUBBLE_RADIUS_PX', 'FONT_FAMILY', 'REACTION_FONT_SIZE_PX', 'REACTION_BG_COLOR', 
+    'REACTION_BG_OPACITY', 'REACTION_TEXT_COLOR', 'REACTION_PADDING_X_PX', 'REACTION_PADDING_Y_PX', 
+    'REACTION_BORDER_RADIUS_PX', 'REACTION_OFFSET_X_PX', 'REACTION_OFFSET_Y_PX', 'CHART_STYLES'
   ];
-  
-  // Check for required properties
-  for (const prop of themeProps) {
-    if (theme[prop] === undefined) {
-      console.error(`Configuration error: Missing required property in theme "${themeName}": ${prop}`);
-      isValid = false;
-    }
-  }
-  
-  // Validate property types
-  if (theme.ME_BUBBLE_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.ME_BUBBLE_COLOR, `config.themes.${themeName}.ME_BUBBLE_COLOR`) && isValid;
-  }
-  
-  if (theme.VISITOR_BUBBLE_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.VISITOR_BUBBLE_COLOR, `config.themes.${themeName}.VISITOR_BUBBLE_COLOR`) && isValid;
-  }
-  
-  if (theme.ME_TEXT_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.ME_TEXT_COLOR, `config.themes.${themeName}.ME_TEXT_COLOR`) && isValid;
-  }
-  
-  if (theme.VISITOR_TEXT_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.VISITOR_TEXT_COLOR, `config.themes.${themeName}.VISITOR_TEXT_COLOR`) && isValid;
-  }
-  
-  if (theme.BACKGROUND_LIGHT !== undefined) {
-    isValid = isValidHexColor(theme.BACKGROUND_LIGHT, `config.themes.${themeName}.BACKGROUND_LIGHT`) && isValid;
-  }
-  
-  if (theme.BACKGROUND_DARK !== undefined) {
-    isValid = isValidHexColor(theme.BACKGROUND_DARK, `config.themes.${themeName}.BACKGROUND_DARK`) && isValid;
-  }
-  
-  if (theme.BUBBLE_RADIUS_PX !== undefined) {
-    isValid = isPositiveNumber(theme.BUBBLE_RADIUS_PX, `config.themes.${themeName}.BUBBLE_RADIUS_PX`) && isValid;
-  }
-  
-  if (theme.FONT_FAMILY !== undefined) {
-    isValid = isNonEmptyString(theme.FONT_FAMILY, `config.themes.${themeName}.FONT_FAMILY`) && isValid;
-  }
-  
-  // Validate reaction properties
-  if (theme.REACTION_FONT_SIZE_PX !== undefined) {
-    isValid = isPositiveNumber(theme.REACTION_FONT_SIZE_PX, `config.themes.${themeName}.REACTION_FONT_SIZE_PX`) && isValid;
-  }
-  
-  if (theme.REACTION_BG_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.REACTION_BG_COLOR, `config.themes.${themeName}.REACTION_BG_COLOR`) && isValid;
-  }
-  
-  if (theme.REACTION_BG_OPACITY !== undefined) {
-    isValid = isOpacityValue(theme.REACTION_BG_OPACITY, `config.themes.${themeName}.REACTION_BG_OPACITY`) && isValid;
-  }
-  
-  if (theme.REACTION_TEXT_COLOR !== undefined) {
-    isValid = isValidHexColor(theme.REACTION_TEXT_COLOR, `config.themes.${themeName}.REACTION_TEXT_COLOR`) && isValid;
-  }
-  
-  if (theme.REACTION_PADDING_X_PX !== undefined) {
-    isValid = isPositiveNumber(theme.REACTION_PADDING_X_PX, `config.themes.${themeName}.REACTION_PADDING_X_PX`) && isValid;
-  }
-  
-  if (theme.REACTION_PADDING_Y_PX !== undefined) {
-    isValid = isPositiveNumber(theme.REACTION_PADDING_Y_PX, `config.themes.${themeName}.REACTION_PADDING_Y_PX`) && isValid;
-  }
-  
-  if (theme.REACTION_BORDER_RADIUS_PX !== undefined) {
-    isValid = isPositiveNumber(theme.REACTION_BORDER_RADIUS_PX, `config.themes.${themeName}.REACTION_BORDER_RADIUS_PX`) && isValid;
-  }
-  
-  if (theme.REACTION_OFFSET_X_PX !== undefined) {
-    isValid = typeof theme.REACTION_OFFSET_X_PX === 'number' && isValid;
-  }
-  
-  if (theme.REACTION_OFFSET_Y_PX !== undefined) {
-    isValid = typeof theme.REACTION_OFFSET_Y_PX === 'number' && isValid;
-  }
-  
-  // Validate chart styles
-  if (theme.CHART_STYLES !== undefined) {
-    isValid = validateChartStyles(theme.CHART_STYLES, themeName) && isValid;
-  }
-  
+  if (!validateObjectWithProps(theme, basePath, requiredProps)) return false;
+
+  let isValid = true;
+  isValid = isValidHexColor(theme.ME_BUBBLE_COLOR, `${basePath}.ME_BUBBLE_COLOR`) && isValid;
+  isValid = isValidHexColor(theme.VISITOR_BUBBLE_COLOR, `${basePath}.VISITOR_BUBBLE_COLOR`) && isValid;
+  isValid = isValidHexColor(theme.ME_TEXT_COLOR, `${basePath}.ME_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(theme.VISITOR_TEXT_COLOR, `${basePath}.VISITOR_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(theme.BACKGROUND_LIGHT, `${basePath}.BACKGROUND_LIGHT`) && isValid;
+  isValid = isValidHexColor(theme.BACKGROUND_DARK, `${basePath}.BACKGROUND_DARK`) && isValid;
+  isValid = isPositiveNumber(theme.BUBBLE_RADIUS_PX, `${basePath}.BUBBLE_RADIUS_PX`) && isValid;
+  isValid = isNonEmptyString(theme.FONT_FAMILY, `${basePath}.FONT_FAMILY`) && isValid;
+  isValid = isPositiveNumber(theme.REACTION_FONT_SIZE_PX, `${basePath}.REACTION_FONT_SIZE_PX`) && isValid;
+  isValid = isValidHexColor(theme.REACTION_BG_COLOR, `${basePath}.REACTION_BG_COLOR`) && isValid;
+  isValid = isOpacityValue(theme.REACTION_BG_OPACITY, `${basePath}.REACTION_BG_OPACITY`) && isValid;
+  isValid = isValidHexColor(theme.REACTION_TEXT_COLOR, `${basePath}.REACTION_TEXT_COLOR`) && isValid;
+  isValid = isPositiveNumber(theme.REACTION_PADDING_X_PX, `${basePath}.REACTION_PADDING_X_PX`) && isValid;
+  isValid = isPositiveNumber(theme.REACTION_PADDING_Y_PX, `${basePath}.REACTION_PADDING_Y_PX`) && isValid;
+  isValid = isPositiveNumber(theme.REACTION_BORDER_RADIUS_PX, `${basePath}.REACTION_BORDER_RADIUS_PX`) && isValid;
+  isValid = isNumber(theme.REACTION_OFFSET_X_PX, `${basePath}.REACTION_OFFSET_X_PX`) && isValid;
+  isValid = isNumber(theme.REACTION_OFFSET_Y_PX, `${basePath}.REACTION_OFFSET_Y_PX`) && isValid;
+  isValid = validateChartStyles(theme.CHART_STYLES, themeName) && isValid; // This call is important
   return isValid;
 }
 
-/**
- * Validates the configuration object
- * @param {Object} config - The configuration object to validate
- * @returns {boolean} - true if the configuration is valid, false otherwise
- */
+function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
+    const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME'];
+    if (!validateObjectWithProps(profileConfig, pathPrefix, requiredProps)) return false;
+    let isValid = true;
+    isValid = isNonEmptyString(profileConfig.NAME, `${pathPrefix}.NAME`) && isValid;
+    isValid = isNonEmptyString(profileConfig.PROFESSION, `${pathPrefix}.PROFESSION`) && isValid;
+    isValid = isNonEmptyString(profileConfig.LOCATION, `${pathPrefix}.LOCATION`) && isValid;
+    isValid = isNonEmptyString(profileConfig.COMPANY, `${pathPrefix}.COMPANY`) && isValid;
+    isValid = isNonEmptyString(profileConfig.CURRENT_PROJECT, `${pathPrefix}.CURRENT_PROJECT`) && isValid;
+    isValid = isValidDate(profileConfig.WORK_START_DATE, `${pathPrefix}.WORK_START_DATE`) && isValid;
+    isValid = isNonEmptyString(profileConfig.GITHUB_USERNAME, `${pathPrefix}.GITHUB_USERNAME`) && isValid;
+    isValid = isNonEmptyString(profileConfig.WAKATIME_USERNAME, `${pathPrefix}.WAKATIME_USERNAME`) && isValid;
+    return isValid;
+}
+
+function validateCacheConfig(cacheConfig, pathPrefix = 'config.cache') {
+    const requiredProps = ['WEATHER_CACHE_TTL_MS', 'GITHUB_CACHE_TTL_MS'];
+    if (!validateObjectWithProps(cacheConfig, pathPrefix, requiredProps)) return false;
+    let isValid = true;
+    isValid = isPositiveNumber(cacheConfig.WEATHER_CACHE_TTL_MS, `${pathPrefix}.WEATHER_CACHE_TTL_MS`) && isValid;
+    isValid = isPositiveNumber(cacheConfig.GITHUB_CACHE_TTL_MS, `${pathPrefix}.GITHUB_CACHE_TTL_MS`) && isValid;
+    return isValid;
+}
+
+function validateApiDefaultsConfig(apiDefaultsConfig, pathPrefix = 'config.apiDefaults') {
+    const requiredProps = ['TEMPERATURE', 'WEATHER_DESCRIPTION', 'WEATHER_EMOJI', 'GITHUB_PUBLIC_REPOS', 'GITHUB_FOLLOWERS'];
+    if (!validateObjectWithProps(apiDefaultsConfig, pathPrefix, requiredProps)) return false;
+    let isValid = true;
+    isValid = isNonEmptyString(apiDefaultsConfig.TEMPERATURE, `${pathPrefix}.TEMPERATURE`) && isValid;
+    isValid = isNonEmptyString(apiDefaultsConfig.WEATHER_DESCRIPTION, `${pathPrefix}.WEATHER_DESCRIPTION`) && isValid;
+    isValid = isNonEmptyString(apiDefaultsConfig.WEATHER_EMOJI, `${pathPrefix}.WEATHER_EMOJI`) && isValid;
+    isValid = isStringRepresentingNumber(apiDefaultsConfig.GITHUB_PUBLIC_REPOS, `${pathPrefix}.GITHUB_PUBLIC_REPOS`) && isValid;
+    isValid = isStringRepresentingNumber(apiDefaultsConfig.GITHUB_FOLLOWERS, `${pathPrefix}.GITHUB_FOLLOWERS`) && isValid;
+    return isValid;
+}
+
+function validateWakatimeConfig(wakatimeConfig, pathPrefix = 'config.wakatime') {
+    const requiredProps = ['enabled', 'defaults', 'cacheTtlMs'];
+    if (!validateObjectWithProps(wakatimeConfig, pathPrefix, requiredProps)) return false;
+    let isValid = true;
+    isValid = isBoolean(wakatimeConfig.enabled, `${pathPrefix}.enabled`) && isValid;
+    isValid = isPositiveNumber(wakatimeConfig.cacheTtlMs, `${pathPrefix}.cacheTtlMs`) && isValid;
+    const defaultProps = ['wakatime_summary', 'wakatime_top_language', 'wakatime_top_language_percent'];
+    if (!validateObjectWithProps(wakatimeConfig.defaults, `${pathPrefix}.defaults`, defaultProps)) {
+        isValid = false;
+    } else {
+        isValid = isNonEmptyString(wakatimeConfig.defaults.wakatime_summary, `${pathPrefix}.defaults.wakatime_summary`) && isValid;
+        isValid = isNonEmptyString(wakatimeConfig.defaults.wakatime_top_language, `${pathPrefix}.defaults.wakatime_top_language`) && isValid;
+        isValid = isStringRepresentingNumber(wakatimeConfig.defaults.wakatime_top_language_percent, `${pathPrefix}.defaults.wakatime_top_language_percent`) && isValid;
+    }
+    return isValid;
+}
+
+function validateLayoutConfig(layoutConfig, pathPrefix = 'config.layout') {
+    const requiredProps = ['FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'STATUS_INDICATOR', 'TIMING', 'ANIMATION',
+                           'BUBBLE_PAD_X_PX', 'BUBBLE_PAD_Y_PX', 'MIN_BUBBLE_W_PX', 'MAX_BUBBLE_W_PX', 'BUBBLE_TAIL_HEIGHT_PX',
+                           'BUBBLE_TAIL_WIDTH_PX', 'BUBBLE_TAIL_EXT_WIDTH_PX', 'BUBBLE_TAIL_RADIUS_X', 'BUBBLE_TAIL_RADIUS_Y',
+                           'TYPING_DOT_RADIUS_PX', 'TYPING_CHAR_MS', 'TYPING_MIN_MS', 'TYPING_MAX_MS', 'VISIBLE_MESSAGES'];
+    if (!validateObjectWithProps(layoutConfig, pathPrefix, requiredProps)) return false;
+    
+    let isValid = true;
+    isValid = isPositiveNumber(layoutConfig.FONT_SIZE_PX, `${pathPrefix}.FONT_SIZE_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.LINE_HEIGHT_PX, `${pathPrefix}.LINE_HEIGHT_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.CHAT_WIDTH_PX, `${pathPrefix}.CHAT_WIDTH_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.CHAT_HEIGHT_PX, `${pathPrefix}.CHAT_HEIGHT_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_PAD_X_PX, `${pathPrefix}.BUBBLE_PAD_X_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_PAD_Y_PX, `${pathPrefix}.BUBBLE_PAD_Y_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.MIN_BUBBLE_W_PX, `${pathPrefix}.MIN_BUBBLE_W_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.MAX_BUBBLE_W_PX, `${pathPrefix}.MAX_BUBBLE_W_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_TAIL_HEIGHT_PX, `${pathPrefix}.BUBBLE_TAIL_HEIGHT_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_TAIL_WIDTH_PX, `${pathPrefix}.BUBBLE_TAIL_WIDTH_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_TAIL_EXT_WIDTH_PX, `${pathPrefix}.BUBBLE_TAIL_EXT_WIDTH_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_TAIL_RADIUS_X, `${pathPrefix}.BUBBLE_TAIL_RADIUS_X`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.BUBBLE_TAIL_RADIUS_Y, `${pathPrefix}.BUBBLE_TAIL_RADIUS_Y`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.TYPING_DOT_RADIUS_PX, `${pathPrefix}.TYPING_DOT_RADIUS_PX`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.TYPING_CHAR_MS, `${pathPrefix}.TYPING_CHAR_MS`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.TYPING_MIN_MS, `${pathPrefix}.TYPING_MIN_MS`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.TYPING_MAX_MS, `${pathPrefix}.TYPING_MAX_MS`) && isValid;
+    isValid = isPositiveNumber(layoutConfig.VISIBLE_MESSAGES, `${pathPrefix}.VISIBLE_MESSAGES`) && isValid;
+
+    const statusPath = `${pathPrefix}.STATUS_INDICATOR`;
+    const statusProps = ['DELIVERED_TEXT', 'READ_TEXT', 'FONT_SIZE_PX', 'COLOR_ME', 'OFFSET_Y_PX', 'ANIMATION_DELAY_SEC', 'FADE_IN_DURATION_SEC', 'READ_DELAY_SEC', 'READ_TRANSITION_SEC'];
+    if (!validateObjectWithProps(layoutConfig.STATUS_INDICATOR, statusPath, statusProps)) {
+        isValid = false;
+    } else {
+        isValid = isNonEmptyString(layoutConfig.STATUS_INDICATOR.DELIVERED_TEXT, `${statusPath}.DELIVERED_TEXT`) && isValid;
+        isValid = isNonEmptyString(layoutConfig.STATUS_INDICATOR.READ_TEXT, `${statusPath}.READ_TEXT`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.STATUS_INDICATOR.FONT_SIZE_PX, `${statusPath}.FONT_SIZE_PX`) && isValid;
+        isValid = isValidHexColor(layoutConfig.STATUS_INDICATOR.COLOR_ME, `${statusPath}.COLOR_ME`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.STATUS_INDICATOR.OFFSET_Y_PX, `${statusPath}.OFFSET_Y_PX`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.STATUS_INDICATOR.ANIMATION_DELAY_SEC, `${statusPath}.ANIMATION_DELAY_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.STATUS_INDICATOR.FADE_IN_DURATION_SEC, `${statusPath}.FADE_IN_DURATION_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.STATUS_INDICATOR.READ_DELAY_SEC, `${statusPath}.READ_DELAY_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.STATUS_INDICATOR.READ_TRANSITION_SEC, `${statusPath}.READ_TRANSITION_SEC`) && isValid;
+    }
+
+    const timingPath = `${pathPrefix}.TIMING`;
+    const timingProps = ['MIN_READING_TIME_MS', 'MS_PER_WORD', 'READING_RANDOMNESS_MS', 'SAME_SENDER_DELAY_MS', 'SENDER_CHANGE_DELAY_MS', 'MESSAGE_VERTICAL_SPACING', 'BOTTOM_MARGIN', 'ANIMATION_END_BUFFER_MS'];
+    if(!validateObjectWithProps(layoutConfig.TIMING, timingPath, timingProps)) {
+        isValid = false;
+    } else {
+        isValid = isPositiveNumber(layoutConfig.TIMING.MIN_READING_TIME_MS, `${timingPath}.MIN_READING_TIME_MS`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.MS_PER_WORD, `${timingPath}.MS_PER_WORD`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.TIMING.READING_RANDOMNESS_MS, `${timingPath}.READING_RANDOMNESS_MS`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.SAME_SENDER_DELAY_MS, `${timingPath}.SAME_SENDER_DELAY_MS`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.SENDER_CHANGE_DELAY_MS, `${timingPath}.SENDER_CHANGE_DELAY_MS`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.MESSAGE_VERTICAL_SPACING, `${timingPath}.MESSAGE_VERTICAL_SPACING`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.BOTTOM_MARGIN, `${timingPath}.BOTTOM_MARGIN`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.TIMING.ANIMATION_END_BUFFER_MS, `${timingPath}.ANIMATION_END_BUFFER_MS`) && isValid;
+    }
+
+    const animPath = `${pathPrefix}.ANIMATION`;
+    const animProps = ['TYPING_BUBBLE_WIDTH', 'TYPING_BUBBLE_HEIGHT', 'DOT_ANIMATION_DURATION', 'DOT_DELAY_2', 'DOT_DELAY_3', 'DOT_MIN_OPACITY', 'DOT_MAX_OPACITY', 'DOT_MIN_SCALE', 'DOT_MAX_SCALE', 'BUBBLE_ANIMATION_DURATION', 'BUBBLE_ANIMATION_CURVE', 'BUBBLE_START_SCALE', 'REACTION_ANIMATION_DURATION_SEC', 'REACTION_ANIMATION_DELAY_FACTOR_SEC', 'CHART_BAR_ANIMATION_DURATION_SEC', 'CHART_ANIMATION_DELAY_SEC', 'SHADOW_BLUR', 'SHADOW_OFFSET_X', 'SHADOW_OFFSET_Y', 'SHADOW_OPACITY', 'SCROLL_DELAY_BUFFER_SEC', 'MIN_SCROLL_DURATION_SEC', 'SCROLL_PIXELS_PER_SEC'];
+    if(!validateObjectWithProps(layoutConfig.ANIMATION, animPath, animProps)) {
+        isValid = false;
+    } else {
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.TYPING_BUBBLE_WIDTH, `${animPath}.TYPING_BUBBLE_WIDTH`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.TYPING_BUBBLE_HEIGHT, `${animPath}.TYPING_BUBBLE_HEIGHT`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.DOT_ANIMATION_DURATION, `${animPath}.DOT_ANIMATION_DURATION`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.ANIMATION.DOT_DELAY_2, `${animPath}.DOT_DELAY_2`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.ANIMATION.DOT_DELAY_3, `${animPath}.DOT_DELAY_3`) && isValid;
+        isValid = isOpacityValue(layoutConfig.ANIMATION.DOT_MIN_OPACITY, `${animPath}.DOT_MIN_OPACITY`) && isValid;
+        isValid = isOpacityValue(layoutConfig.ANIMATION.DOT_MAX_OPACITY, `${animPath}.DOT_MAX_OPACITY`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.DOT_MIN_SCALE, `${animPath}.DOT_MIN_SCALE`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.DOT_MAX_SCALE, `${animPath}.DOT_MAX_SCALE`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.BUBBLE_ANIMATION_DURATION, `${animPath}.BUBBLE_ANIMATION_DURATION`) && isValid;
+        isValid = isNonEmptyString(layoutConfig.ANIMATION.BUBBLE_ANIMATION_CURVE, `${animPath}.BUBBLE_ANIMATION_CURVE`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.BUBBLE_START_SCALE, `${animPath}.BUBBLE_START_SCALE`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.REACTION_ANIMATION_DURATION_SEC, `${animPath}.REACTION_ANIMATION_DURATION_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC, `${animPath}.REACTION_ANIMATION_DELAY_FACTOR_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC, `${animPath}.CHART_BAR_ANIMATION_DURATION_SEC`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.ANIMATION.CHART_ANIMATION_DELAY_SEC, `${animPath}.CHART_ANIMATION_DELAY_SEC`) && isValid;
+        isValid = isNonNegativeNumber(layoutConfig.ANIMATION.SHADOW_BLUR, `${animPath}.SHADOW_BLUR`) && isValid;
+        isValid = isNumber(layoutConfig.ANIMATION.SHADOW_OFFSET_X, `${animPath}.SHADOW_OFFSET_X`) && isValid;
+        isValid = isNumber(layoutConfig.ANIMATION.SHADOW_OFFSET_Y, `${animPath}.SHADOW_OFFSET_Y`) && isValid;
+        isValid = isOpacityValue(layoutConfig.ANIMATION.SHADOW_OPACITY, `${animPath}.SHADOW_OPACITY`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.SCROLL_DELAY_BUFFER_SEC, `${animPath}.SCROLL_DELAY_BUFFER_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.MIN_SCROLL_DURATION_SEC, `${animPath}.MIN_SCROLL_DURATION_SEC`) && isValid;
+        isValid = isPositiveNumber(layoutConfig.ANIMATION.SCROLL_PIXELS_PER_SEC, `${animPath}.SCROLL_PIXELS_PER_SEC`) && isValid;
+    }
+    return isValid;
+}
+
 export function validateConfiguration(config) {
-  if (!config || typeof config !== 'object') {
-    console.error('Configuration error: Config must be an object');
+  if (!config || typeof config !== 'object' || config === null) {
+    console.error('Configuration error: Root config must be an object.');
     return false;
   }
-  
-  let isValid = true;
-  
-  // Validate activeTheme
-  if (!isNonEmptyString(config.activeTheme, 'config.activeTheme')) {
-    isValid = false;
-  } else if (config.themes && !config.themes[config.activeTheme]) {
-    console.error(`Configuration error: activeTheme "${config.activeTheme}" does not exist in config.themes`);
-    isValid = false;
+
+  let overallIsValid = true;
+
+  const rootProps = ['activeTheme', 'avatars', 'themes', 'profile', 'cache', 'apiDefaults', 'layout', 'wakatime'];
+  if (!validateObjectWithProps(config, 'config', rootProps)) {
+    overallIsValid = false; 
   }
-  
-  // Validate themes
-  if (!validateObjectWithProps(config.themes, 'config.themes', ['ios'])) {
-    isValid = false;
-  } else {
-    // Validate each theme
-    for (const [themeName, theme] of Object.entries(config.themes)) {
-      isValid = validateTheme(theme, themeName) && isValid;
+
+  if (overallIsValid) {
+    overallIsValid = isNonEmptyString(config.activeTheme, 'config.activeTheme') && overallIsValid;
+    if (config.themes && !config.themes[config.activeTheme]) {
+        console.error(`Configuration error: activeTheme "${config.activeTheme}" does not exist in config.themes.`);
+        overallIsValid = false;
     }
-  }
-  
-  // Validate avatars configuration
-  if (config.avatars) {
-    isValid = validateAvatarsConfig(config.avatars) && isValid;
-  }
-  
-  // Validate profile object
-  const profileProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME'];
-  if (!validateObjectWithProps(config.profile, 'config.profile', profileProps)) {
-    isValid = false;
-  } else {
-    // Validate profile properties
-    isValid = isNonEmptyString(config.profile.NAME, 'config.profile.NAME') && isValid;
-    isValid = isNonEmptyString(config.profile.PROFESSION, 'config.profile.PROFESSION') && isValid;
-    isValid = isNonEmptyString(config.profile.LOCATION, 'config.profile.LOCATION') && isValid;
-    isValid = isNonEmptyString(config.profile.COMPANY, 'config.profile.COMPANY') && isValid;
-    isValid = isNonEmptyString(config.profile.CURRENT_PROJECT, 'config.profile.CURRENT_PROJECT') && isValid;
-    isValid = isValidDate(config.profile.WORK_START_DATE, 'config.profile.WORK_START_DATE') && isValid;
-    isValid = isNonEmptyString(config.profile.GITHUB_USERNAME, 'config.profile.GITHUB_USERNAME') && isValid;
-    isValid = isNonEmptyString(config.profile.WAKATIME_USERNAME, 'config.profile.WAKATIME_USERNAME') && isValid;
-  }
-  
-  // Validate cache object
-  const cacheProps = ['WEATHER_CACHE_TTL_MS', 'GITHUB_CACHE_TTL_MS'];
-  if (!validateObjectWithProps(config.cache, 'config.cache', cacheProps)) {
-    isValid = false;
-  } else {
-    // Validate cache properties
-    isValid = isPositiveNumber(config.cache.WEATHER_CACHE_TTL_MS, 'config.cache.WEATHER_CACHE_TTL_MS') && isValid;
-    isValid = isPositiveNumber(config.cache.GITHUB_CACHE_TTL_MS, 'config.cache.GITHUB_CACHE_TTL_MS') && isValid;
-  }
-  
-  // Validate apiDefaults object
-  const apiDefaultsProps = ['TEMPERATURE', 'WEATHER_DESCRIPTION', 'WEATHER_EMOJI', 'GITHUB_PUBLIC_REPOS', 'GITHUB_FOLLOWERS'];
-  if (!validateObjectWithProps(config.apiDefaults, 'config.apiDefaults', apiDefaultsProps)) {
-    isValid = false;
-  } else {
-    // Validate apiDefaults properties
-    isValid = isNonEmptyString(config.apiDefaults.TEMPERATURE, 'config.apiDefaults.TEMPERATURE') && isValid;
-    isValid = isNonEmptyString(config.apiDefaults.WEATHER_DESCRIPTION, 'config.apiDefaults.WEATHER_DESCRIPTION') && isValid;
-    isValid = isNonEmptyString(config.apiDefaults.WEATHER_EMOJI, 'config.apiDefaults.WEATHER_EMOJI') && isValid;
-    isValid = isStringRepresentingNumber(config.apiDefaults.GITHUB_PUBLIC_REPOS, 'config.apiDefaults.GITHUB_PUBLIC_REPOS') && isValid;
-    isValid = isStringRepresentingNumber(config.apiDefaults.GITHUB_FOLLOWERS, 'config.apiDefaults.GITHUB_FOLLOWERS') && isValid;
-  }
-  
-  // Validate wakatime object
-  if (!validateObjectWithProps(config.wakatime, 'config.wakatime', ['enabled', 'defaults', 'cacheTtlMs'])) {
-    isValid = false;
-  } else {
-    // Validate wakatime properties
-    isValid = isBoolean(config.wakatime.enabled, 'config.wakatime.enabled') && isValid;
-    isValid = isPositiveNumber(config.wakatime.cacheTtlMs, 'config.wakatime.cacheTtlMs') && isValid;
-    
-    // Validate wakatime defaults
-    const wakatimeDefaultProps = ['wakatime_summary', 'wakatime_top_language', 'wakatime_top_language_percent'];
-    if (!validateObjectWithProps(config.wakatime.defaults, 'config.wakatime.defaults', wakatimeDefaultProps)) {
-      isValid = false;
+
+    if (config.themes) {
+        for (const themeName in config.themes) {
+            if (Object.hasOwnProperty.call(config.themes, themeName)) {
+                overallIsValid = validateTheme(config.themes[themeName], themeName) && overallIsValid;
+            }
+        }
     } else {
-      isValid = isNonEmptyString(config.wakatime.defaults.wakatime_summary, 'config.wakatime.defaults.wakatime_summary') && isValid;
-      isValid = isNonEmptyString(config.wakatime.defaults.wakatime_top_language, 'config.wakatime.defaults.wakatime_top_language') && isValid;
-      isValid = isStringRepresentingNumber(config.wakatime.defaults.wakatime_top_language_percent, 'config.wakatime.defaults.wakatime_top_language_percent') && isValid;
+        overallIsValid = false;
     }
+    
+    overallIsValid = validateAvatarsConfig(config.avatars) && overallIsValid;
+    overallIsValid = validateProfileConfig(config.profile) && overallIsValid;
+    overallIsValid = validateCacheConfig(config.cache) && overallIsValid;
+    overallIsValid = validateApiDefaultsConfig(config.apiDefaults) && overallIsValid;
+    overallIsValid = validateWakatimeConfig(config.wakatime) && overallIsValid;
+    overallIsValid = validateLayoutConfig(config.layout) && overallIsValid;
   }
   
-  // Validate layout object
-  const layoutProps = ['FONT_SIZE_PX', 'LINE_HEIGHT_PX', 'CHAT_WIDTH_PX', 'CHAT_HEIGHT_PX', 'STATUS_INDICATOR'];
-  if (!validateObjectWithProps(config.layout, 'config.layout', layoutProps)) {
-    isValid = false;
-  } else {
-    // Validate layout properties
-    isValid = isPositiveNumber(config.layout.FONT_SIZE_PX, 'config.layout.FONT_SIZE_PX') && isValid;
-    isValid = isPositiveNumber(config.layout.LINE_HEIGHT_PX, 'config.layout.LINE_HEIGHT_PX') && isValid;
-    isValid = isPositiveNumber(config.layout.CHAT_WIDTH_PX, 'config.layout.CHAT_WIDTH_PX') && isValid;
-    isValid = isPositiveNumber(config.layout.CHAT_HEIGHT_PX, 'config.layout.CHAT_HEIGHT_PX') && isValid;
-    
-    // Validate STATUS_INDICATOR object
-    const statusIndicatorProps = ['DELIVERED_TEXT', 'READ_TEXT', 'FONT_SIZE_PX', 'COLOR_ME', 'OFFSET_Y_PX', 'ANIMATION_DELAY_SEC', 'FADE_IN_DURATION_SEC', 'READ_DELAY_SEC', 'READ_TRANSITION_SEC'];
-    if (!validateObjectWithProps(config.layout.STATUS_INDICATOR, 'config.layout.STATUS_INDICATOR', statusIndicatorProps)) {
-      isValid = false;
-    } else {
-      // Validate status indicator properties
-      isValid = isNonEmptyString(config.layout.STATUS_INDICATOR.DELIVERED_TEXT, 'config.layout.STATUS_INDICATOR.DELIVERED_TEXT') && isValid;
-      isValid = isNonEmptyString(config.layout.STATUS_INDICATOR.READ_TEXT, 'config.layout.STATUS_INDICATOR.READ_TEXT') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.FONT_SIZE_PX, 'config.layout.STATUS_INDICATOR.FONT_SIZE_PX') && isValid;
-      isValid = isValidHexColor(config.layout.STATUS_INDICATOR.COLOR_ME, 'config.layout.STATUS_INDICATOR.COLOR_ME') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.OFFSET_Y_PX, 'config.layout.STATUS_INDICATOR.OFFSET_Y_PX') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC, 'config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC, 'config.layout.STATUS_INDICATOR.FADE_IN_DURATION_SEC') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.READ_DELAY_SEC, 'config.layout.STATUS_INDICATOR.READ_DELAY_SEC') && isValid;
-      isValid = isPositiveNumber(config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC, 'config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC') && isValid;
-    }
-    
-    // Validate TIMING object (essential properties only)
-    if (config.layout.TIMING) {
-      isValid = (typeof config.layout.TIMING === 'object') && isValid;
-      if (config.layout.TIMING.MIN_READING_TIME_MS !== undefined) {
-        isValid = isPositiveNumber(config.layout.TIMING.MIN_READING_TIME_MS, 'config.layout.TIMING.MIN_READING_TIME_MS') && isValid;
-      }
-    }
-    
-    // Validate ANIMATION object including reaction and chart animation properties
-    if (config.layout.ANIMATION) {
-      isValid = (typeof config.layout.ANIMATION === 'object') && isValid;
-      
-      if (config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION, 'config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION') && isValid;
-      }
-      
-      // Validate reaction animation properties
-      if (config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC, 'config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC') && isValid;
-      }
-      
-      if (config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC, 'config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC') && isValid;
-      }
-      
-      // Validate chart animation properties
-      if (config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC, 'config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC') && isValid;
-      }
-      
-      if (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC !== undefined) {
-        isValid = isNonNegativeNumber(config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC, 'config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC') && isValid;
-      }
-      
-      // Validate scroll animation parameters
-      if (config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC, 'config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC') && isValid;
-      }
-      if (config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC, 'config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC') && isValid;
-      }
-      if (config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC !== undefined) {
-        isValid = isPositiveNumber(config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC, 'config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC') && isValid;
-      }
-    }
-  }
-  
-  return isValid;
+  return overallIsValid;
 }

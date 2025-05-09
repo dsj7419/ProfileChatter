@@ -12,6 +12,7 @@ import { config } from '../config/config.js';
 import TextProcessor from '../utils/TextProcessor.js';
 import AvatarRenderer from './components/AvatarRenderer.js';
 import ReactionRenderer from './components/ReactionRenderer.js';
+import ChartRenderer from './components/ChartRenderer.js';
 
 // Import font data
 let INTER_FONT_BASE64 = '';
@@ -176,72 +177,96 @@ ${fontFace}
    * @param {ChatMessage} item - Message item
    * @returns {string} - SVG markup for chat bubble
    */
-  _renderChatBubble(item) {
-    const theme = this.getActiveThemeStyles();
-    const isMe = item.sender === "me";
-    const avatarOn = config.avatars.enabled;
-
-    // ── 1. Determine bubble width ──────────────────────────────────────
-    let width = item.layout.width;
-
-    if (item.contentType === "text" && item.layout.lines) {
-      // measure longest line (single run – perf OK)
+  _renderChatBubble (item) {
+    const theme         = this.getActiveThemeStyles()
+    const isMe          = item.sender === 'me'
+    const avatarOn      = config.avatars.enabled
+  
+    const padX          = config.layout.BUBBLE_PAD_X_PX
+    const padY          = config.layout.BUBBLE_PAD_Y_PX
+  
+    /* ── 1.   WIDTH ───────────────────────────────────────────────────── */
+    let width
+  
+    if (item.contentType === 'text' && item.layout.lines) {
+      // Compute longest line then add side padding
       const maxLinePx = Math.max(
-        ...item.layout.lines.map((ln) => TextProcessor.measureTextWidth(ln))
-      );
-      const dynWidth =
-        config.layout.BUBBLE_PAD_X_PX * 2 + maxLinePx; // inner + outer pads
-      width = Math.min(
-        Math.max(dynWidth, config.layout.MIN_BUBBLE_W_PX || 120),
-        config.layout.MAX_BUBBLE_W_PX
-      );
+        ...item.layout.lines.map(l => TextProcessor.measureTextWidth(l))
+      )
+      width = maxLinePx + padX * 2
+    } else {
+      // Chart or other rich content: layout.width is inner content
+      width = item.layout.width + padX * 2
     }
-
-    const height = item.layout.height; // height was already correct
-
-    // ── 2. X‑position considering avatars ─────────────────────────────
-    const avSize = avatarOn ? config.avatars.sizePx : 0;
-    const avOff = avatarOn ? config.avatars.xOffsetPx : 0;
-
+  
+    width = Math.min(
+      Math.max(width, config.layout.MIN_BUBBLE_W_PX),
+      config.layout.MAX_BUBBLE_W_PX
+    )
+  
+    /* ── 2.   HEIGHT ──────────────────────────────────────────────────── */
+    const innerH = item.layout.height
+    const height =
+      item.contentType === 'text'
+        ? innerH                               // text already includes vertical pad
+        : innerH + padY * 2                    // add pad for charts / rich blocks
+  
+    /* ── 3.   POSITION (x) — account for avatar and alignment ─────────── */
+    const avSize = avatarOn ? config.avatars.sizePx : 0
+    const avOff  = avatarOn ? config.avatars.xOffsetPx : 0
+  
     const bubbleX = isMe
       ? config.layout.CHAT_WIDTH_PX - width - avSize - avOff * 2
-      : avSize + avOff * 2;
-
-    /* shared animation delay ------------------------------------------------*/
-    const delayCss = item.getDelayCSS(); // e.g. "animation-delay: 4.23s;"
-
-    /* ----- AVATAR MARKUP ----- */
-    let avatar = "";
-    if (avatarOn) {
-      const ax = isMe
-        ? config.layout.CHAT_WIDTH_PX - avSize - avOff
-        : avOff;
-      const ay = item.y + config.avatars.yOffsetPx;
-      avatar = AvatarRenderer.render(item.sender, theme, ax, ay, delayCss);
-    }
-
-    /* bubble rect ---------------------------------------------------------- */
-    const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR;
-    const rect = `<rect width="${width}" height="${height}" rx="${theme.BUBBLE_RADIUS_PX}" ry="${theme.BUBBLE_RADIUS_PX}" fill="${bubbleFill}"/>`;
-
-    /* content -------------------------------------------------------------- */
+      : avSize + avOff * 2
+  
+    /* ── 4.   Shared animation delay style ───────────────────────────── */
+    const delayCss = item.getDelayCSS()
+  
+    /* ── 5.   Avatar (optional) ───────────────────────────────────────── */
+    const avatar = avatarOn
+      ? AvatarRenderer.render(
+          item.sender,
+          theme,
+          isMe
+            ? config.layout.CHAT_WIDTH_PX - avSize - avOff
+            : avOff,
+          item.y + config.avatars.yOffsetPx,
+          delayCss
+        )
+      : ''
+  
+    /* ── 6.   Bubble fill + shell ─────────────────────────────────────── */
+    const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR
+    const rect = `<rect width="${width}" height="${height}"
+                     rx="${theme.BUBBLE_RADIUS_PX}" ry="${theme.BUBBLE_RADIUS_PX}"
+                     fill="${bubbleFill}"/>`
+  
+    /* ── 7.   Content markup ──────────────────────────────────────────── */
     const content =
-      item.contentType === "chart"
-        ? this._renderHorizontalBarChart(item, theme)
-        : this._renderBubbleText(item, theme, isMe);
-
-    /* tail ----------------------------------------------------------------- */
+      item.contentType === 'chart'
+        ? ChartRenderer.render(item, theme, bubbleFill) // <-- Pass bubbleFill to ChartRenderer
+        : this._renderBubbleText(item, theme, isMe)
+  
+    /* ── 8.   Tail geometry (mirrored for me / visitor) ───────────────── */
     const tail = isMe
-      ? `<path d="M${width},10 C${width + 4},14 ${width + 7},18 ${width + 6},22 C${width + 5},18 ${width + 2},14 ${width},16 Z" fill="${bubbleFill}"/>`
-      : `<path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z" fill="${bubbleFill}"/>`;
-
-    /* status (me only) ----------------------------------------------------- */
-    const status = isMe ? this._statusIndicators(item, width, height) : "";
-
-    /* reaction ------------------------------------------------------------ */
-    const reaction = ReactionRenderer.render(item, theme, width, isMe);
-
-    return `${avatar}<g class="msg ${isMe ? "me" : "them"}" transform="translate(${bubbleX},${item.y})" style="${delayCss}">${rect}${tail}${content}${status}${reaction}</g>`;
+      ? `<path d="M${width},10 C${width + 4},14 ${width + 7},18 ${width + 6},22
+                  C${width + 5},18 ${width + 2},14 ${width},16 Z"
+               fill="${bubbleFill}"/>`
+      : `<path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
+               fill="${bubbleFill}"/>`
+  
+    /* ── 9.   Status & reactions (same as before) ─────────────────────── */
+    const status   = isMe ? this._statusIndicators(item, width, height) : ''
+    const reaction = ReactionRenderer.render(item, theme, width, isMe)
+  
+    /* ── 10.  Group wrapper with transform & delay style ──────────────── */
+    return `
+      ${avatar}
+      <g class="msg ${isMe ? 'me' : 'them'}"
+         transform="translate(${bubbleX},${item.y})"
+         style="${delayCss}">
+        ${rect}${tail}${content}${status}${reaction}
+      </g>`
   }
 
   /**
@@ -262,129 +287,6 @@ ${fontFace}
         return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="${color}" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
       })
       .join("");
-  }
-
-  /**
-   * Render a horizontal bar chart inside a message bubble
-   * @param {ChatMessage} item - Chart message item 
-   * @param {Object} theme - Current theme styles
-   * @returns {string} - SVG markup for chart content
-   */
-  _renderHorizontalBarChart(item, theme) {
-    const cs = theme.CHART_STYLES;
-    const { chartData } = item;
-
-    const padX = cs.CHART_PADDING_X_PX;
-    const padY = cs.CHART_PADDING_Y_PX;
-    const titleH = chartData.title ? cs.TITLE_FONT_SIZE_PX + 14 : 0;
-
-    /* ---- 1) Dynamic label column ------------------------------------ */
-    const rawLabelW = chartData.items.map((d) => TextProcessor.measureTextWidth(d.label));
-    const labelCol = Math.min(Math.max(...rawLabelW) + 8, cs.LABEL_MAX_WIDTH_PX); // +8px breathing room
-
-    /* ---- 2) Dynamic value column ------------------------------------ */
-    const biggestVal = chartData.maxValue || Math.max(...chartData.items.map((d) => d.value));
-    const valueCol = Math.max(TextProcessor.measureTextWidth(String(biggestVal)) + 8, 28); // ≥28px
-
-    /* ---- 3) Bar track ---------------------------------------------- */
-    const gap = 8; // space between label col and bar
-    const barTrackW = item.layout.width - padX * 2 - labelCol - valueCol - gap;
-
-    const parts = [];
-
-    /* Title ----------------------------------------------------------- */
-    if (chartData.title) {
-      parts.push(
-        `<text x="${padX}" y="${padY + cs.TITLE_FONT_SIZE_PX}" 
-              font-family="${cs.TITLE_FONT_FAMILY}" 
-              font-size="${cs.TITLE_FONT_SIZE_PX}px" 
-              font-weight="bold" 
-              fill="${cs.TITLE_COLOR}">
-          ${TextProcessor.escapeXML(chartData.title)}
-        </text>`
-      );
-    }
-
-    /* Rows ------------------------------------------------------------ */
-    chartData.items.forEach((d, i) => {
-      const barY = padY + titleH + i * (cs.BAR_HEIGHT_PX + cs.BAR_SPACING_PX);
-      const labelY = barY + cs.BAR_HEIGHT_PX / 2 + cs.LABEL_FONT_SIZE_PX / 3;
-
-      // Scaled bar width (touches 6px gutter inside bubble)
-      const barW = ((d.value / biggestVal) * barTrackW).toFixed(2);
-      const barX = padX + labelCol + gap;
-
-      // Add label
-      parts.push(
-        `<text x="${padX}" y="${labelY}" 
-              font-family="${cs.LABEL_FONT_FAMILY}" 
-              font-size="${cs.LABEL_FONT_SIZE_PX}px" 
-              fill="${cs.LABEL_COLOR}" 
-              dominant-baseline="middle">
-          ${TextProcessor.escapeXML(d.label)}
-        </text>`
-      );
-
-      // Calculate animation timing 
-      const begin = (
-        item.startTime / 1000 + i * config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC
-      ).toFixed(2);
-
-      // Add bar with animation
-      parts.push(
-        `<rect x="${barX}" y="${barY}" 
-              width="0" 
-              height="${cs.BAR_HEIGHT_PX}" 
-              rx="2" ry="2" 
-              fill="${d.color || cs.BAR_DEFAULT_COLOR}" 
-              opacity="0.7">
-          <animate 
-            attributeName="width" 
-            from="0" 
-            to="${barW}" 
-            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
-            begin="${begin}s" 
-            fill="freeze"
-            calcMode="spline"
-            keySplines="0.25 0.1 0.25 1" />
-          <animate 
-            attributeName="opacity" 
-            from="0.7" 
-            to="1" 
-            dur="${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC}s" 
-            begin="${begin}s" 
-            fill="freeze" />
-        </rect>`
-      );
-
-      // Calculate value text animation timing
-      const valAppear = (+begin + config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC).toFixed(2);
-      
-      // Value text positioned right-aligned at fixed position
-      const valX = padX + labelCol + gap + barTrackW + 6; // right‑aligned
-
-      // Add value text
-      parts.push(
-        `<text x="${valX}" y="${labelY}" 
-              font-family="${cs.VALUE_TEXT_FONT_FAMILY}" 
-              font-size="${cs.VALUE_TEXT_FONT_SIZE_PX}px" 
-              fill="${cs.VALUE_TEXT_COLOR}"
-              text-anchor="end"
-              dominant-baseline="middle" 
-              opacity="0">
-          ${d.value}
-          <animate 
-            attributeName="opacity" 
-            from="0" 
-            to="1" 
-            dur="0.4s" 
-            begin="${valAppear}s" 
-            fill="freeze" />
-        </text>`
-      );
-    });
-
-    return parts.join("\n");
   }
 
   /**

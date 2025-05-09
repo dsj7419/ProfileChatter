@@ -22,12 +22,13 @@
     "chartData": {
       "type": "horizontalBar",
       "title": "Skills Distribution",
+      "maxValue": 100,
       "items": [
-        { "label": "JavaScript", "value": 85 },
-        { "label": "React", "value": 75 },
-        { "label": "Node.js", "value": 80 },
-        { "label": "CSS", "value": 70 },
-        { "label": "Python", "value": 60 }
+        { "label": "JavaScript", "value": 85, "color": "#4285F4" },
+        { "label": "React", "value": 75, "color": "#4285F4" },
+        { "label": "Node.js", "value": 80, "color": "#4285F4" },
+        { "label": "CSS", "value": 70, "color": "#4285F4" },
+        { "label": "Python", "value": 60, "color": "#4285F4" }
       ]
     }
   },
@@ -54,6 +55,7 @@
     "chartData": {
       "type": "horizontalBar",
       "title": "My Coding Activity (Last 7 Days)",
+      "maxValue": 100,
       "items": [
         { "label": "JavaScript", "value": 42, "color": "#F7DF1E" },
         { "label": "TypeScript", "value": 28, "color": "#3178C6" },

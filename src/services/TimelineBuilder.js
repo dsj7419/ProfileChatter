@@ -1,8 +1,4 @@
-/**
- * TimelineBuilder.js
- * Responsible for building the animation timeline with correct positioning
- * Single Responsibility: Create and manage the timeline of chat events
- */
+// src/services/TimelineBuilder.js
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,239 +9,196 @@ import TextProcessor from '../utils/TextProcessor.js';
 class TimelineBuilder {
   constructor() {
     try {
-      // Load chat data
       const __dirname = dirname(fileURLToPath(import.meta.url));
       const chatDataPath = join(__dirname, '../../data/chatData.json');
       this.chatData = JSON.parse(readFileSync(chatDataPath, 'utf8'));
     } catch (error) {
       console.error('Error loading chat data:', error);
-      // Provide fallback minimal chat data
       this.chatData = [
         { id: "error-1", sender: "me", text: "Error loading chat data. Please check your configuration." }
       ];
     }
   }
   
-  /**
-   * Calculate appropriate typing time based on message length
-   * @param {string} text - Message text
-   * @returns {number} - Duration in milliseconds
-   */
   calculateTypingTime(text) {
-    // Typing time correlates with message length but has reasonable bounds
     return Math.min(
       config.layout.TYPING_MAX_MS,
       Math.max(config.layout.TYPING_MIN_MS, text.length * config.layout.TYPING_CHAR_MS)
     );
   }
   
-  /**
-   * Calculate reading time for a message based on content length
-   * @param {string} text - Message text
-   * @returns {number} - Duration in milliseconds
-   */
   calculateReadingTime(text) {
-    // Calculate reading time based on word count
     const wordCount = text.split(/\s+/).length;
     const baseReadingTime = config.layout.TIMING.MIN_READING_TIME_MS;
     const readingTime = Math.max(
       baseReadingTime, 
       wordCount * config.layout.TIMING.MS_PER_WORD
     );
-    
-    // Add random variation to make it feel more natural
     return readingTime + (Math.random() * config.layout.TIMING.READING_RANDOMNESS_MS);
   }
   
-  /**
-   * Calculate natural pause between messages based on sender change
-   * @param {string} currentSender - Current message sender
-   * @param {string} previousSender - Previous message sender
-   * @returns {number} - Pause duration in milliseconds
-   */
   calculateSenderTransitionDelay(currentSender, previousSender) {
-    // Add extra delay when sender changes (simulating conversation turn-taking)
     if (!previousSender || currentSender === previousSender) {
       return config.layout.TIMING.SAME_SENDER_DELAY_MS;
     }
     return config.layout.TIMING.SENDER_CHANGE_DELAY_MS;
   }
 
-  /**
-   * Calculate the available width for bubbles, accounting for avatars if enabled
-   * @returns {number} - Available width in pixels
-   */
   calculateAvailableBubbleWidth() {
     let maxWidth = config.layout.MAX_BUBBLE_W_PX;
-    
-    // If avatars are enabled, reduce available width by avatar size and offsets
     if (config.avatars && config.avatars.enabled) {
       maxWidth -= (config.avatars.sizePx + (config.avatars.xOffsetPx * 2));
     }
-    
     return maxWidth;
   }
 
-  /**
-   * Calculate dimensions for a chart message, accounting for avatars
-   * @param {Object} chartData - Chart data object
-   * @returns {Object} - Dimensions { width, height }
-   */
   _calculateChartDimensions(chartData) {
     const themeStyles = config.themes[config.activeTheme] || config.themes.ios;
-    const chartStyles = themeStyles.CHART_STYLES;
-    
-    // Initialize with padding
-    let totalHeight = chartStyles.CHART_PADDING_Y_PX * 2;
-    
-    // Add title height if present
+    const cs = themeStyles.CHART_STYLES;
+
+    let calculatedContentHeight = 0;
+
+    // Top padding for the chart content area
+    calculatedContentHeight += cs.CHART_PADDING_Y_PX;
+
+    // Title section height
     if (chartData.title) {
-      totalHeight += chartStyles.TITLE_FONT_SIZE_PX + 14; // Title + spacing
+        const contentAreaWidth = this.calculateAvailableBubbleWidth(); // Max width for bubble content
+        const barTrackW = contentAreaWidth - (cs.CHART_PADDING_X_PX * 2);
+        const titleMaxTextWidth = barTrackW; 
+        
+        const wrappedTitle = TextProcessor.wrapText(TextProcessor.escapeXML(chartData.title), titleMaxTextWidth);
+        const titleLineHeight = cs.TITLE_FONT_SIZE_PX * (cs.TITLE_LINE_HEIGHT_MULTIPLIER ?? 1.2);
+        
+        // Height of the actual text block for the title
+        const titleTextActualHeight = (wrappedTitle.lines.length * titleLineHeight) - (titleLineHeight - cs.TITLE_FONT_SIZE_PX) ;
+        calculatedContentHeight += titleTextActualHeight;
+        calculatedContentHeight += (cs.TITLE_BOTTOM_MARGIN_PX ?? 10); // Margin after title
     }
     
-    // Calculate height for all bars
     const itemCount = chartData.items?.length || 0;
     if (itemCount > 0) {
-      totalHeight += (itemCount * chartStyles.BAR_HEIGHT_PX) + 
-                     ((itemCount - 1) * chartStyles.BAR_SPACING_PX);
+        const labelHeight = cs.LABEL_FONT_SIZE_PX; 
+        // Assuming a small gap from label baseline to top of bar, then bar height
+        // This part matches the iteration logic in ChartRenderer more closely.
+        // Each item takes: label height + gap + bar height + gap to next item.
+        // The gapLabelToBar is implicit in how cursorY moves in ChartRenderer.
+        // Here, we sum explicit components.
+        
+        chartData.items.forEach((item, index) => {
+            calculatedContentHeight += labelHeight; // Label text height
+            // Add height for the bar itself and the gap below it.
+            // The gap between label and bar is small and part of the bar's conceptual row.
+            calculatedContentHeight += cs.BAR_HEIGHT_PX; 
+            if (index < itemCount - 1) {
+                calculatedContentHeight += cs.BAR_SPACING_PX;
+            }
+        });
+        // Add a bit more to account for the small gap between label and bar for each item
+        // This is an approximation. A more precise way would be to sum up exact cursorY movements from ChartRenderer.
+        calculatedContentHeight += itemCount * 2; // Approx 2px gap for each label-to-bar transition
     }
+
+    // Bottom padding for the chart content area
+    calculatedContentHeight += cs.CHART_PADDING_Y_PX;
     
-    // Get adjusted maximum width accounting for avatars if enabled
-    const maxWidth = this.calculateAvailableBubbleWidth();
+    const availableBubbleW = this.calculateAvailableBubbleWidth();
     
     return {
-      width: maxWidth,
-      height: totalHeight,
-      lineCount: itemCount // Equivalent to text line count for reading time calculation
+      width: availableBubbleW, // This is the inner content width the chart can use
+      height: calculatedContentHeight, // This is the height of the chart's drawing area
+      lineCount: itemCount 
     };
   }
 
-  /**
-   * Build the complete animation timeline 
-   * @param {Object} dynamicData - Data for placeholder replacement
-   * @returns {Object} - Timeline data with items and metadata
-   */
   buildTimeline(dynamicData) {
     const timelineItems = [];
     let currentTime = 0;
-    let currentY = 20; // Start with a top margin
+    let currentY = 20; 
     let previousSender = null;
     let totalTypingTime = 0;
     
-    // First pass: Create all message objects and calculate dimensions
     const processedMessages = [];
-    
-    // Get available bubble width, accounting for avatars if enabled
     const availableBubbleWidth = this.calculateAvailableBubbleWidth();
     
     for (const message of this.chatData) {
       const { sender, reaction, contentType = "text" } = message;
-      
       let text = null;
       let dimensions = null;
       let typingTime = 0;
-      let chartData = null;
+      let chartDataForMessage = null;
       
       if (contentType === "chart" && message.chartData) {
-        // Process chart message
-        chartData = message.chartData;
-        dimensions = this._calculateChartDimensions(chartData);
-        
-        // For chart messages, calculate typing time based on complexity
-        const itemCount = chartData.items?.length || 0;
+        chartDataForMessage = message.chartData;
+        dimensions = this._calculateChartDimensions(chartDataForMessage);
+        const itemCount = chartDataForMessage.items?.length || 0;
         typingTime = Math.min(
           config.layout.TYPING_MAX_MS,
-          Math.max(config.layout.TYPING_MIN_MS, itemCount * 400) // 400ms per chart item
+          Math.max(config.layout.TYPING_MIN_MS, itemCount * 400) 
         );
       } else {
-        // Process text message
         text = message.text.replace(/\{(\w+)\}/g, (_, key) => 
           dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
         );
-        
-        // Calculate dimensions using TextProcessor, passing the adjusted width
         dimensions = TextProcessor.wrapText(text, availableBubbleWidth);
-        
-        // Calculate typing time
         typingTime = this.calculateTypingTime(text);
       }
-      
       totalTypingTime += typingTime;
-      
-      // Store processed message
       processedMessages.push({
-        sender,
-        text,
-        dimensions,
-        typingTime,
-        reaction,
-        contentType,
-        chartData
+        sender, text, dimensions, typingTime, reaction, contentType, chartData: chartDataForMessage
       });
     }
     
-    // Second pass: Create timeline items with correct positioning and timing
     for (let i = 0; i < processedMessages.length; i++) {
       const { 
         sender, text, dimensions, typingTime, reaction, contentType, chartData 
       } = processedMessages[i];
       
-      // Add "reading time" for the previous message (if any)
       if (i > 0) {
         const prevMessage = processedMessages[i-1];
-        // Base reading time on line count for both text and chart messages
-        const lineCount = prevMessage.dimensions.lineCount;
+        const lineCount = prevMessage.dimensions.lineCount; 
+        const readingTimeMultiplier = prevMessage.contentType === 'chart' ? 2.5 : 4; 
         const readingTime = Math.max(
           config.layout.TIMING.MIN_READING_TIME_MS,
-          lineCount * config.layout.TIMING.MS_PER_WORD * 4 // Approximate 4 words per line
+          lineCount * config.layout.TIMING.MS_PER_WORD * readingTimeMultiplier 
         );
         currentTime += readingTime;
       }
       
-      // Add sender transition delay (different timing based on whether sender changes)
       const senderTransitionDelay = this.calculateSenderTransitionDelay(sender, previousSender);
       currentTime += senderTransitionDelay;
       
-      // Add typing indicator
-      timelineItems.push(new TypingIndicator(
-        sender,
-        currentTime,
-        currentY,
-        typingTime
-      ));
-      
-      // Advance time by typing duration
+      timelineItems.push(new TypingIndicator(sender, currentTime, currentY, typingTime));
       currentTime += typingTime;
       
-      // Add message (appears after typing)
+      // SvgRenderer._renderChatBubble adds BUBBLE_PAD_Y_PX * 2 to chart height.
+      // So, 'dimensions.height' for charts should be the chart's *internal content* height.
+      // 'dimensions.width' for charts is the *internal content* width.
       timelineItems.push(new ChatMessage(
-        sender,
-        currentTime,
-        currentY,
-        text,
-        dimensions,
-        reaction,
-        contentType,
-        chartData
+        sender, currentTime, currentY, text, dimensions, reaction, contentType, chartData
       ));
       
-      // Update Y position for next message based on this message's height
-      // Add extra spacing to separate messages visually
-      currentY += dimensions.height + config.layout.TIMING.MESSAGE_VERTICAL_SPACING; 
-      
-      // Remember sender for next message
+      // The 'height' for SvgRenderer's bubble includes its own padding for text messages.
+      // For chart messages, SvgRenderer adds its own padding around dimensions.height.
+      let bubbleDisplayHeight = dimensions.height;
+      if(contentType === 'chart'){
+          bubbleDisplayHeight += config.layout.BUBBLE_PAD_Y_PX * 2;
+      }
+
+      currentY += bubbleDisplayHeight + config.layout.TIMING.MESSAGE_VERTICAL_SPACING; 
       previousSender = sender;
     }
     
-    // Calculate scroll distance when messages exceed visible area
-    const totalContentHeight = currentY + config.layout.TIMING.BOTTOM_MARGIN;
-    const viewportHeight = config.layout.VISIBLE_MESSAGES * (config.layout.LINE_HEIGHT_PX * 2 + config.layout.BUBBLE_PAD_Y_PX * 2);
+    const totalContentHeight = currentY + config.layout.TIMING.BOTTOM_MARGIN - config.layout.TIMING.MESSAGE_VERTICAL_SPACING; // Adjusted to not double count last spacing
+    const viewportHeight = config.layout.CHAT_HEIGHT_PX; 
     const scrollDistance = Math.max(0, totalContentHeight - viewportHeight);
     
+    const scrollDurationSec = scrollDistance > 0 ? (scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC) : 0;
+
     return { 
       items: timelineItems,
       scrollDistance,
-      totalDuration: currentTime + config.layout.TIMING.ANIMATION_END_BUFFER_MS,
+      totalDuration: currentTime + config.layout.TIMING.ANIMATION_END_BUFFER_MS + (scrollDurationSec * 1000),
       totalTypingTime: totalTypingTime
     };
   }
