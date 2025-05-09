@@ -211,9 +211,9 @@ export const config = {
       SHADOW_OFFSET_X: 0,
       SHADOW_OFFSET_Y: 1,
       SHADOW_OPACITY: 0.15,
-      SCROLL_DELAY_BUFFER_SEC: 3.5,
+      SCROLL_DELAY_BUFFER_SEC: 3.2,
       MIN_SCROLL_DURATION_SEC: 1.2,
-      SCROLL_PIXELS_PER_SEC: 30,
+      SCROLL_PIXELS_PER_SEC: 28,
     }
   },
   

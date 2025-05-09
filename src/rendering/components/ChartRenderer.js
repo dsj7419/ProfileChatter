@@ -73,8 +73,8 @@ class ChartRenderer {
     // For text colors - always use the appropriate contrast for the bubble background
     // Always dark text for visitor (light background) and white for me (dark background)
     const valueTextColor = isMe 
-      ? cs.ME_VALUE_TEXT_COLOR  // White for me (dark blue bubble)
-      : '#333333';              // Dark for visitor (light bubble)
+        ? cs.ME_VALUE_TEXT_COLOR 
+        : cs.VISITOR_VALUE_TEXT_COLOR;             // Dark for visitor (light bubble)
     
     const defaultBarColor = isMe ? cs.BAR_DEFAULT_COLOR : cs.BAR_DEFAULT_COLOR;
     
