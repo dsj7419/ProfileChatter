@@ -16,6 +16,8 @@ class ChartRenderer {
     switch (item.chartData.type) {
       case 'horizontalBar':
         return this.#renderHorizontalBar(item, theme, bubbleBg)
+      case 'donut':
+        return this.#renderDonutChart(item, theme)
       default:
         console.warn(`Unsupported chart type: ${item.chartData.type}`)
         return ''
@@ -50,6 +52,10 @@ class ChartRenderer {
     }
   }
 
+  /**
+   * Render horizontal bar chart with labels, tracks, and value indicators
+   * @private
+   */
   #renderHorizontalBar(item, theme, bubbleBg) {
     const cs = theme.CHART_STYLES;
     const { chartData, sender } = item; 
@@ -179,6 +185,165 @@ class ChartRenderer {
     });
 
     return `${titleSVG}${rows.join('')}`;
+  }
+  
+  /**
+   * Render donut chart with segments, center text, and legend
+   * @private
+   */
+  #renderDonutChart(msg, theme) {
+    const cs = theme.CHART_STYLES;
+    const { chartData, sender } = msg;
+    const isMe = sender === 'me';
+
+    // Get text colors based on sender type
+    const titleColor = isMe ? cs.ME_TITLE_COLOR : cs.VISITOR_TITLE_COLOR;
+    const centerTextColor = isMe ? cs.ME_DONUT_CENTER_TEXT_COLOR : cs.VISITOR_DONUT_CENTER_TEXT_COLOR;
+    const legendTextColor = isMe ? cs.ME_DONUT_LEGEND_TEXT_COLOR : cs.VISITOR_DONUT_LEGEND_TEXT_COLOR;
+    
+    const padX = cs.CHART_PADDING_X_PX ?? 16;
+    const padY = cs.CHART_PADDING_Y_PX ?? 12;
+    
+    // Calculate dimensions
+    const contentAreaWidth = msg.layout.width;
+    const chartSize = Math.min(contentAreaWidth - padX * 2, 200); // Cap at 200px
+    
+    // Calculate title offset for chart positioning
+    const titleOffset = chartData.title ? cs.TITLE_FONT_SIZE_PX + cs.TITLE_BOTTOM_MARGIN_PX : 0;
+    
+    const centerX = padX + chartSize / 2;
+    const centerY = padY + titleOffset + chartSize / 2;
+    
+    // Donut chart parameters
+    const radius = chartSize / 2 - 10; // Leave some margin
+    const strokeWidth = cs.DONUT_STROKE_WIDTH_PX;
+    const innerRadius = radius - strokeWidth;
+    
+    // Calculate total value
+    let total = 0;
+    chartData.items.forEach(segment => {
+      total += segment.value;
+    });
+    
+    // Render chart title if present
+    let titleSVG = '';
+    if (chartData.title) {
+      const titleMaxTextWidth = contentAreaWidth - padX * 2;
+      const wrappedTitle = TextProcessor.wrapText(TextProcessor.escapeXML(chartData.title), titleMaxTextWidth);
+      const titleLineHeight = cs.TITLE_FONT_SIZE_PX * (cs.TITLE_LINE_HEIGHT_MULTIPLIER ?? 1.2);
+      let currentTitleY = padY + cs.TITLE_FONT_SIZE_PX;
+      
+      wrappedTitle.lines.forEach((line, index) => {
+        if (index > 0) currentTitleY += titleLineHeight;
+        titleSVG += `
+          <text x="${padX}" y="${currentTitleY}"
+                font-family="${cs.TITLE_FONT_FAMILY}"
+                font-size="${cs.TITLE_FONT_SIZE_PX}px"
+                font-weight="bold"
+                fill="${titleColor}">
+            ${line}
+          </text>
+        `;
+      });
+    }
+    
+    // Helper function to convert angle to SVG arc coordinates
+    const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+      return {
+        x: centerX + (radius * Math.cos(angleInRadians)),
+        y: centerY + (radius * Math.sin(angleInRadians))
+      };
+    };
+    
+    // Helper function to create an arc path
+    const describeArc = (x, y, radius, innerRadius, startAngle, endAngle) => {
+      // Handle edge cases to avoid invalid paths
+      if (isNaN(startAngle) || isNaN(endAngle) || startAngle === endAngle) {
+        return "";
+      }
+      
+      const start = polarToCartesian(x, y, radius, endAngle);
+      const end = polarToCartesian(x, y, radius, startAngle);
+      const innerStart = polarToCartesian(x, y, innerRadius, endAngle);
+      const innerEnd = polarToCartesian(x, y, innerRadius, startAngle);
+      
+      const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+      
+      return [
+        `M ${start.x} ${start.y}`,
+        `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+        `L ${innerEnd.x} ${innerEnd.y}`,
+        `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 1 ${innerStart.x} ${innerStart.y}`,
+        `L ${start.x} ${start.y}`,
+        "Z"
+      ].join(" ");
+    };
+    
+    // Create donut segments
+    let segments = '';
+    let legendItems = '';
+    let currentAngle = 0;
+    
+    // Calculate base animation delay from the message's startTime (not the segment's)
+    const baseDelay = msg.startTime / 1000 + (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3);
+    const delayFactor = cs.DONUT_SEGMENT_ANIMATION_DELAY_SEC || 0.1;
+    
+    chartData.items.forEach((segment, index) => {
+      const percentage = (segment.value / total) || 0;
+      const angle = percentage * 360;
+      const color = segment.color || cs.BAR_DEFAULT_COLOR;
+      
+      // Create segment path
+      const path = describeArc(centerX, centerY, radius, innerRadius, currentAngle, currentAngle + angle);
+      
+      if (path) {
+        // Calculate animation delay for this segment
+        const segmentDelay = (baseDelay + index * delayFactor).toFixed(2);
+        
+        segments += `
+          <path d="${path}" fill="${color}">
+            <animate attributeName="opacity"
+                    from="0" to="1"
+                    dur="${cs.DONUT_ANIMATION_DURATION_SEC || 1}s"
+                    begin="${segmentDelay}s"
+                    fill="freeze" />
+          </path>
+        `;
+      }
+      
+      // Create legend item
+      const legendY = centerY + radius + 30 + index * (cs.DONUT_LEGEND_FONT_SIZE_PX + cs.DONUT_LEGEND_ITEM_SPACING_PX);
+      const legendMarkerSize = cs.DONUT_LEGEND_MARKER_SIZE_PX;
+      legendItems += `
+        <rect x="${padX}" y="${legendY - legendMarkerSize + 2}" width="${legendMarkerSize}" height="${legendMarkerSize}" fill="${color}" />
+        <text x="${padX + legendMarkerSize + 5}" y="${legendY}" 
+              font-family="${cs.LABEL_FONT_FAMILY}"
+              font-size="${cs.DONUT_LEGEND_FONT_SIZE_PX}px"
+              fill="${legendTextColor}">
+          ${TextProcessor.escapeXML(segment.label)} (${Math.round(percentage * 100)}%)
+        </text>
+      `;
+      
+      currentAngle += angle;
+    });
+    
+    // Center text
+    let centerTextSVG = '';
+    if (chartData.centerText) {
+      centerTextSVG = `
+        <text x="${centerX}" y="${centerY}"
+              font-family="${cs.DONUT_CENTER_TEXT_FONT_FAMILY}"
+              font-size="${cs.DONUT_CENTER_TEXT_FONT_SIZE_PX}px"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              fill="${centerTextColor}">
+          ${TextProcessor.escapeXML(chartData.centerText)}
+        </text>
+      `;
+    }
+    
+    return `${titleSVG}${segments}${centerTextSVG}${legendItems}`;
   }
 }
 

@@ -155,16 +155,16 @@ function validateChartStyles(chartStyles, themeName) {
     'TITLE_FONT_FAMILY', 'TITLE_FONT_SIZE_PX', 'TITLE_LINE_HEIGHT_MULTIPLIER', 
     'TITLE_BOTTOM_MARGIN_PX', 'CHART_PADDING_X_PX', 'CHART_PADDING_Y_PX', 
     'AXIS_LINE_COLOR', 'GRID_LINE_COLOR',
-    // New sender-specific colors
+    // Sender-specific colors
     'ME_TITLE_COLOR', 'ME_LABEL_COLOR', 'ME_VALUE_TEXT_COLOR',
-    'VISITOR_TITLE_COLOR', 'VISITOR_LABEL_COLOR', 'VISITOR_VALUE_TEXT_COLOR'
-    // LABEL_MAX_WIDTH_PX is used by TextProcessor but not directly by ChartRenderer rendering loop,
-    // so we can consider it optional for basic validation here or handle its absence gracefully in TextProcessor.
-    // For now, keeping it optional to avoid breaking if it's not defined.
+    'VISITOR_TITLE_COLOR', 'VISITOR_LABEL_COLOR', 'VISITOR_VALUE_TEXT_COLOR',
+    // Donut chart specific styles
+    'DONUT_STROKE_WIDTH_PX', 'DONUT_CENTER_TEXT_FONT_SIZE_PX', 'DONUT_CENTER_TEXT_FONT_FAMILY',
+    'ME_DONUT_CENTER_TEXT_COLOR', 'VISITOR_DONUT_CENTER_TEXT_COLOR',
+    'ME_DONUT_LEGEND_TEXT_COLOR', 'VISITOR_DONUT_LEGEND_TEXT_COLOR',
+    'DONUT_LEGEND_FONT_SIZE_PX', 'DONUT_LEGEND_ITEM_SPACING_PX', 'DONUT_LEGEND_MARKER_SIZE_PX',
+    'DONUT_ANIMATION_DURATION_SEC', 'DONUT_SEGMENT_ANIMATION_DELAY_SEC'
   ];
-  // Temporarily remove LABEL_MAX_WIDTH_PX from required if it's causing issues and not strictly needed for rendering
-  // const requiredProps = requiredProps.filter(p => p !== 'LABEL_MAX_WIDTH_PX');
-
 
   if (!validateObjectWithProps(chartStyles, basePath, requiredProps)) return false;
   
@@ -201,6 +201,18 @@ function validateChartStyles(chartStyles, themeName) {
   isValid = isValidHexColor(chartStyles.VISITOR_TITLE_COLOR, `${basePath}.VISITOR_TITLE_COLOR`) && isValid;
   isValid = isValidHexColor(chartStyles.VISITOR_LABEL_COLOR, `${basePath}.VISITOR_LABEL_COLOR`) && isValid;
   isValid = isValidHexColor(chartStyles.VISITOR_VALUE_TEXT_COLOR, `${basePath}.VISITOR_VALUE_TEXT_COLOR`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_STROKE_WIDTH_PX, `${basePath}.DONUT_STROKE_WIDTH_PX`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_CENTER_TEXT_FONT_SIZE_PX, `${basePath}.DONUT_CENTER_TEXT_FONT_SIZE_PX`) && isValid;
+  isValid = isNonEmptyString(chartStyles.DONUT_CENTER_TEXT_FONT_FAMILY, `${basePath}.DONUT_CENTER_TEXT_FONT_FAMILY`) && isValid;
+  isValid = isValidHexColor(chartStyles.ME_DONUT_CENTER_TEXT_COLOR, `${basePath}.ME_DONUT_CENTER_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.VISITOR_DONUT_CENTER_TEXT_COLOR, `${basePath}.VISITOR_DONUT_CENTER_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.ME_DONUT_LEGEND_TEXT_COLOR, `${basePath}.ME_DONUT_LEGEND_TEXT_COLOR`) && isValid;
+  isValid = isValidHexColor(chartStyles.VISITOR_DONUT_LEGEND_TEXT_COLOR, `${basePath}.VISITOR_DONUT_LEGEND_TEXT_COLOR`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_LEGEND_FONT_SIZE_PX, `${basePath}.DONUT_LEGEND_FONT_SIZE_PX`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_LEGEND_ITEM_SPACING_PX, `${basePath}.DONUT_LEGEND_ITEM_SPACING_PX`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_LEGEND_MARKER_SIZE_PX, `${basePath}.DONUT_LEGEND_MARKER_SIZE_PX`) && isValid;
+  isValid = isPositiveNumber(chartStyles.DONUT_ANIMATION_DURATION_SEC, `${basePath}.DONUT_ANIMATION_DURATION_SEC`) && isValid;
+  isValid = isNonNegativeNumber(chartStyles.DONUT_SEGMENT_ANIMATION_DELAY_SEC, `${basePath}.DONUT_SEGMENT_ANIMATION_DELAY_SEC`) && isValid;
 
   return isValid;
 }

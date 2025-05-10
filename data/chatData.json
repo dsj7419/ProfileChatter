@@ -33,6 +33,23 @@
     }
   },
   {
+    "id": "msg-chart-donut",
+    "sender": "visitor",
+    "reaction": "💪",
+    "contentType": "chart",
+    "chartData": {
+      "type": "donut",
+      "title": "Project Breakdown",
+      "centerText": "100%",
+      "items": [
+        { "label": "Frontend", "value": 40, "color": "#34A853" },
+        { "label": "Backend", "value": 35, "color": "#4285F4" },
+        { "label": "Testing", "value": 15, "color": "#FBBC05" },
+        { "label": "Docs", "value": 10, "color": "#EA4335" }
+      ]
+    }
+  },
+  {
     "id": "msg-5",
     "sender": "me",
     "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub.",
@@ -56,13 +73,7 @@
       "type": "horizontalBar",
       "title": "My Coding Activity (Last 7 Days)",
       "maxValue": 100,
-      "items": [
-        { "label": "JavaScript", "value": 42, "color": "#F7DF1E" },
-        { "label": "TypeScript", "value": 28, "color": "#3178C6" },
-        { "label": "HTML", "value": 15, "color": "#E34C26" },
-        { "label": "CSS", "value": 10, "color": "#563D7C" },
-        { "label": "Markdown", "value": 5, "color": "#083fa1" }
-      ]
+      "items": "{wakatime_chart_data}"
     }
   },
   {

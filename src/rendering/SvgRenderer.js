@@ -40,10 +40,10 @@ class SvgRenderer {
    * @returns {string} - Complete SVG markup
    */
   renderSVG(timelineData) {
-    const { items, scrollDistance, totalTypingTime } = timelineData;
+    const { items } = timelineData;
     
     return [
-      this._header(scrollDistance, totalTypingTime),
+      this._header(timelineData),
       ...items.map((it) =>
         it.type === "typing"
           ? this._renderTypingIndicator(it)
@@ -55,12 +55,12 @@ class SvgRenderer {
   
   /**
    * Generate SVG header with styles
-   * @param {number} scrollDistance - Distance to scroll in pixels
-   * @param {number} totalTypingTime - Total time spent typing in ms
+   * @param {Object} timelineData - Complete timeline data including timing profile
    * @returns {string} SVG header with styles
    */
-  _header(scrollDistance, totalTypingTime) {
+  _header(timelineData) {
     const theme = this.getActiveThemeStyles();
+    const timingProfile = timelineData.timings;
 
     /* ---------- font‑face --------------------------------------------- */
     const fontFace = INTER_FONT_BASE64 
@@ -68,13 +68,19 @@ class SvgRenderer {
       : '';
     
     /* ---------- animation timing -------------------------------------- */
+    // Get scroll distance from the timing profile or fall back to the original value
+    const scrollDistance = timingProfile?.scrollDistance ?? timelineData.scrollDistance;
+    
     // Add delay before scrolling starts (wait for last message to be read)
+    const totalTypingTime = timelineData.totalTypingTime;
     const scrollDelay = (totalTypingTime / 1000) + config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC;
     
-    // Calculate scroll duration based on distance to scroll, with a minimum duration
-    const scrollDuration = Math.max(
-      config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
-      scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
+    // Calculate scroll duration based on timing profile or fall back to old calculation
+    const scrollDuration = (timingProfile?.scrollDurationSec ?? 
+      Math.max(
+        config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
+        scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
+      )
     ).toFixed(2);
     
     /* ---------- CSS ---------------------------------------------------- */
