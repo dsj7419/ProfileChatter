@@ -80,5 +80,10 @@
     "id": "msg-9",
     "sender": "me",
     "text": "Feel free to reach out if you want to collaborate! {emoji}"
+  },
+  {
+    "id": "msg-social",
+    "sender": "me",
+    "text": "You can also find me on X/Twitter, where I have {twitterFollowers} followers!"
   }
 ]

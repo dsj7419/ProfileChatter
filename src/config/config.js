@@ -154,12 +154,14 @@ export const config = {
     CURRENT_PROJECT: "ProfileChatter SVG Generator",
     WORK_START_DATE: makeDate(2007, 4, 16),
     GITHUB_USERNAME: "dsj7419",
-    WAKATIME_USERNAME: "dsj7419"
+    WAKATIME_USERNAME: "dsj7419",
+    TWITTER_USERNAME: "dsj7419"
   },
   
   cache: {
     WEATHER_CACHE_TTL_MS: 1800000,
-    GITHUB_CACHE_TTL_MS: 3600000
+    GITHUB_CACHE_TTL_MS: 3600000,
+    TWITTER_CACHE_TTL_MS: 3600000 // 1 hour
   },
   
   apiDefaults: {
@@ -167,7 +169,8 @@ export const config = {
     WEATHER_DESCRIPTION: "partly cloudy",
     WEATHER_EMOJI: "⛅",
     GITHUB_PUBLIC_REPOS: "12",
-    GITHUB_FOLLOWERS: "48"
+    GITHUB_FOLLOWERS: "48",
+    TWITTER_FOLLOWERS: "120"
   },
   
   layout: {
