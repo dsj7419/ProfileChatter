@@ -98,6 +98,11 @@ class TimelineBuilder {
         if (chartDataFormatted.items === '{wakatime_chart_data}' && dynamicData.wakatime_chart_data) {
           chartDataFormatted.items = dynamicData.wakatime_chart_data;
         }
+
+        if (!Array.isArray(chartDataFormatted.items)) {
+          chartDataFormatted.items = [];
+        }
+        
         if (typeof chartDataFormatted.title === 'string') {
           chartDataFormatted.title = chartDataFormatted.title.replace(/\{(\w+)\}/g, (_, k) =>
             dynamicData[k] !== undefined ? dynamicData[k] : `{${k}}`);

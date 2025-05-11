@@ -1,106 +1,86 @@
 name: ProfileChatter Build
 
-# ── Triggers ──────────────────────────────────────────────────────────────
+# Triggers
 on:
-  # Regenerate the SVG every 6 hours
   schedule:
     - cron: '0 */6 * * *'
-
-  # Rebuild when relevant files change on main
   push:
     branches: [main]
     paths:
       - 'src/**'
       - 'data/**'
-      - 'assets/**'  # Include assets directory for avatar images
+      - 'assets/**'
       - '.github/workflows/**'
       - 'package.json'
       - 'package-lock.json'
-
-  # PR safety net
   pull_request:
     branches: [main]
     paths:
       - 'src/**'
       - 'data/**'
-      - 'assets/**'  # Include assets directory for avatar images
-
-  # Manual trigger
+      - 'assets/**'
   workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Enable debug logging'
-        required: false
-        default: 'false'
 
-# ── Repo write permission (needed for commit step) ────────────────────────
 permissions:
   contents: write
 
-# ── Global environment vars ───────────────────────────────────────────────
 env:
-  NODE_VERSION: '20.x'        # Node 20 required for modern syntax
+  NODE_VERSION: '20.x'
 
-# ── Jobs ──────────────────────────────────────────────────────────────────
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout full history (for commit step & diff)
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # 2) Node + npm cache
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      # 3) Install exact deps from lock‑file
       - name: Install dependencies
         run: npm ci
 
-      # 4) Lint for code quality
       - name: Lint
         run: npm run lint
 
-      # 5) Generate (or overwrite) SVG
       - name: Generate SVG
         run: node src/build-profile.js
-
-      # 6) Timestamp for cache‑busting in README
       - name: Record timestamp
         id: ts
         run: echo "ts=$(date +%s)" >> "$GITHUB_OUTPUT"
 
-      # 7) Update README reference to the fresh SVG
       - name: Update README timestamp
         run: |
           TS=${{ steps.ts.outputs.ts }}
-          # Replace existing param or add one
           sed -i "s|profile-chat.svg?ts=[0-9]*|profile-chat.svg?ts=${TS}|g" README.md || true
           sed -i "s|profile-chat.svg)|profile-chat.svg?ts=${TS})|g" README.md || true
 
-      # 8) Detect whether anything actually changed
       - name: Detect changes
         id: diff
         run: |
           git diff --quiet || echo "changed=true" >> "$GITHUB_OUTPUT"
 
-      # 9) Commit & push only when there are changes
+      - name: Pull latest changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git pull --rebase --autostash origin main
+
       - name: Commit & push updated SVG
         if: steps.diff.outputs.changed == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'dist/profile-chat.svg README.md'
-          message: "Auto‑update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
+          message: "Auto-update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
           push: true
 
-      # 10) Job summary
       - name: Done
         run: |
           if [[ "${{ steps.diff.outputs.changed }}" == "true" ]]; then

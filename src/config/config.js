@@ -252,7 +252,8 @@ export const config = {
     defaults: {
       wakatime_summary: "No coding activity data available",
       wakatime_top_language: "N/A",
-      wakatime_top_language_percent: "0"
+      wakatime_top_language_percent: "0",
+      wakatime_chart_data: []
     },
     cacheTtlMs: 7200000
   }
