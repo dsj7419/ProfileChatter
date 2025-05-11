@@ -66,6 +66,11 @@
     "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
   },
   {
+    "id": "msg-codestats",
+    "sender": "visitor",
+    "text": "You've also accumulated {codestatsXP} XP on Code::Stats! Impressive!"
+  },
+  {
     "id": "msg-8",
     "sender": "me",
     "contentType": "chart",

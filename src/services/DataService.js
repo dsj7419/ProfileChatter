@@ -8,6 +8,7 @@ import { getGitHubData }   from './data_sources/githubDataSource.js'
 import { getWeatherData }  from './data_sources/weatherDataSource.js'
 import { getWakaTimeData } from './data_sources/wakatimeDataSource.js'
 import { getTwitterData }  from './data_sources/twitterDataSource.js'
+import { getCodeStatsData } from './data_sources/codestatsDataSource.js'
 
 /* ---------- local helpers ------------------------------------------------ */
 const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -43,6 +44,7 @@ class DataService {
       githubPublicRepos:  config.apiDefaults.GITHUB_PUBLIC_REPOS,
       githubFollowers:    config.apiDefaults.GITHUB_FOLLOWERS,
       twitterFollowers:   config.apiDefaults.TWITTER_FOLLOWERS,
+      codestatsXP:        config.apiDefaults.CODESTATS_XP,
       // static profile
       name:           config.profile.NAME,
       profession:     config.profile.PROFESSION,
@@ -64,13 +66,14 @@ class DataService {
 
       /* remote */
       try {
-        const [weather, github, wakatime, twitter] = await Promise.all([
+        const [weather, github, wakatime, twitter, codestats] = await Promise.all([
           getWeatherData(),
           getGitHubData(),
           getWakaTimeData(),
-          getTwitterData()
+          getTwitterData(),
+          getCodeStatsData()
         ])
-        Object.assign(baseData, weather, github, wakatime, twitter)
+        Object.assign(baseData, weather, github, wakatime, twitter, codestats)
       } catch (apiErr) {
         console.error('Error fetching APIs:', apiErr.message)
         console.info('Using defaults already in baseData.')

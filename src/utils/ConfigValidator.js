@@ -253,7 +253,7 @@ function validateTheme(theme, themeName) {
 }
 
 function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
-  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME'];
+  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME', 'CODESTATS_USERNAME'];
   if (!validateObjectWithProps(profileConfig, pathPrefix, requiredProps)) return false;
   let isValid = true;
   isValid = isNonEmptyString(profileConfig.NAME, `${pathPrefix}.NAME`) && isValid;
@@ -264,22 +264,28 @@ function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
   isValid = isValidDate(profileConfig.WORK_START_DATE, `${pathPrefix}.WORK_START_DATE`) && isValid;
   isValid = isNonEmptyString(profileConfig.GITHUB_USERNAME, `${pathPrefix}.GITHUB_USERNAME`) && isValid;
   isValid = isNonEmptyString(profileConfig.WAKATIME_USERNAME, `${pathPrefix}.WAKATIME_USERNAME`) && isValid;
+  if (profileConfig.TWITTER_USERNAME !== '') {
   isValid = isNonEmptyString(profileConfig.TWITTER_USERNAME, `${pathPrefix}.TWITTER_USERNAME`) && isValid;
+  }
+  if (profileConfig.CODESTATS_USERNAME !== '') {
+    isValid = isNonEmptyString(profileConfig.CODESTATS_USERNAME, `${pathPrefix}.CODESTATS_USERNAME`) && isValid;
+  }
   return isValid;
 }
 
 function validateCacheConfig(cacheConfig, pathPrefix = 'config.cache') {
-  const requiredProps = ['WEATHER_CACHE_TTL_MS', 'GITHUB_CACHE_TTL_MS', 'TWITTER_CACHE_TTL_MS'];
+  const requiredProps = ['WEATHER_CACHE_TTL_MS', 'GITHUB_CACHE_TTL_MS', 'TWITTER_CACHE_TTL_MS', 'CODESTATS_CACHE_TTL_MS'];
   if (!validateObjectWithProps(cacheConfig, pathPrefix, requiredProps)) return false;
   let isValid = true;
   isValid = isPositiveNumber(cacheConfig.WEATHER_CACHE_TTL_MS, `${pathPrefix}.WEATHER_CACHE_TTL_MS`) && isValid;
   isValid = isPositiveNumber(cacheConfig.GITHUB_CACHE_TTL_MS, `${pathPrefix}.GITHUB_CACHE_TTL_MS`) && isValid;
   isValid = isPositiveNumber(cacheConfig.TWITTER_CACHE_TTL_MS, `${pathPrefix}.TWITTER_CACHE_TTL_MS`) && isValid;
+  isValid = isPositiveNumber(cacheConfig.CODESTATS_CACHE_TTL_MS, `${pathPrefix}.CODESTATS_CACHE_TTL_MS`) && isValid;
   return isValid;
 }
 
 function validateApiDefaultsConfig(apiDefaultsConfig, pathPrefix = 'config.apiDefaults') {
-  const requiredProps = ['TEMPERATURE', 'WEATHER_DESCRIPTION', 'WEATHER_EMOJI', 'GITHUB_PUBLIC_REPOS', 'GITHUB_FOLLOWERS', 'TWITTER_FOLLOWERS'];
+  const requiredProps = ['TEMPERATURE', 'WEATHER_DESCRIPTION', 'WEATHER_EMOJI', 'GITHUB_PUBLIC_REPOS', 'GITHUB_FOLLOWERS', 'TWITTER_FOLLOWERS', 'CODESTATS_XP'];
   if (!validateObjectWithProps(apiDefaultsConfig, pathPrefix, requiredProps)) return false;
   let isValid = true;
   isValid = isNonEmptyString(apiDefaultsConfig.TEMPERATURE, `${pathPrefix}.TEMPERATURE`) && isValid;
@@ -288,6 +294,7 @@ function validateApiDefaultsConfig(apiDefaultsConfig, pathPrefix = 'config.apiDe
   isValid = isStringRepresentingNumber(apiDefaultsConfig.GITHUB_PUBLIC_REPOS, `${pathPrefix}.GITHUB_PUBLIC_REPOS`) && isValid;
   isValid = isStringRepresentingNumber(apiDefaultsConfig.GITHUB_FOLLOWERS, `${pathPrefix}.GITHUB_FOLLOWERS`) && isValid;
   isValid = isStringRepresentingNumber(apiDefaultsConfig.TWITTER_FOLLOWERS, `${pathPrefix}.TWITTER_FOLLOWERS`) && isValid;
+  isValid = isStringRepresentingNumber(apiDefaultsConfig.CODESTATS_XP, `${pathPrefix}.CODESTATS_XP`) && isValid;
   return isValid;
 }
 

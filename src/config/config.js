@@ -41,10 +41,10 @@ export const config = {
       REACTION_OFFSET_Y_PX: -12,
       
       CHART_STYLES: {
-        BAR_DEFAULT_COLOR: '#007AFF',       // Default for items without specific color
-        BAR_TRACK_COLOR:   '#E5E5EA',       // Track for all bars
+        BAR_DEFAULT_COLOR: '#007AFF',
+        BAR_TRACK_COLOR:   '#E5E5EA',
         BAR_CORNER_RADIUS_PX: 8,
-        VALUE_TEXT_INSIDE_COLOR: '#FFFFFF', // Value text when it fits inside the bar (universal)
+        VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
         BAR_HEIGHT_PX: 18,
         BAR_SPACING_PX: 10,
         LABEL_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
@@ -75,11 +75,11 @@ export const config = {
         // Sender-specific text colors for charts
         ME_TITLE_COLOR: '#FFFFFF',
         ME_LABEL_COLOR: '#FFFFFF',
-        ME_VALUE_TEXT_COLOR: '#FFFFFF',       // For values outside the bar on 'me' charts
+        ME_VALUE_TEXT_COLOR: '#FFFFFF',
       
         VISITOR_TITLE_COLOR: '#000000',
         VISITOR_LABEL_COLOR: '#000000',
-        VISITOR_VALUE_TEXT_COLOR: '#333333',  // For values outside the bar on 'visitor' charts
+        VISITOR_VALUE_TEXT_COLOR: '#333333',
       }
     },
     
@@ -105,7 +105,7 @@ export const config = {
       
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#4285F4',
-        BAR_TRACK_COLOR:   '#E0E0E0',       // Make sure this is consistently defined
+        BAR_TRACK_COLOR:   '#E0E0E0',
         BAR_CORNER_RADIUS_PX: 7,
         VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
         BAR_HEIGHT_PX: 16,
@@ -141,7 +141,7 @@ export const config = {
   
         VISITOR_TITLE_COLOR: '#000000',
         VISITOR_LABEL_COLOR: '#000000',
-        VISITOR_VALUE_TEXT_COLOR: '#424242',  // Dark gray for better contrast
+        VISITOR_VALUE_TEXT_COLOR: '#424242',
       }
     }
   },
@@ -155,13 +155,15 @@ export const config = {
     WORK_START_DATE: makeDate(2007, 4, 16),
     GITHUB_USERNAME: "dsj7419",
     WAKATIME_USERNAME: "dsj7419",
-    TWITTER_USERNAME: "dsj7419"
+    TWITTER_USERNAME: "",
+    CODESTATS_USERNAME: "dsj7419"
   },
   
   cache: {
     WEATHER_CACHE_TTL_MS: 1800000,
     GITHUB_CACHE_TTL_MS: 3600000,
-    TWITTER_CACHE_TTL_MS: 3600000 // 1 hour
+    TWITTER_CACHE_TTL_MS: 3600000, // 1 hour
+    CODESTATS_CACHE_TTL_MS: 7200000 // 2 hours
   },
   
   apiDefaults: {
@@ -170,7 +172,8 @@ export const config = {
     WEATHER_EMOJI: "⛅",
     GITHUB_PUBLIC_REPOS: "12",
     GITHUB_FOLLOWERS: "48",
-    TWITTER_FOLLOWERS: "120"
+    TWITTER_FOLLOWERS: "120",
+    CODESTATS_XP: "0"
   },
   
   layout: {
