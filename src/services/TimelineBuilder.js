@@ -6,6 +6,7 @@ import { TypingIndicator, ChatMessage } from '../models/TimelineItem.js';
 import TimingProfile from '../models/TimingProfile.js';
 import { config } from '../config/config.js';
 import TextProcessor from '../utils/TextProcessor.js';
+import ChartRenderer from '../rendering/components/ChartRenderer.js';
 
 class TimelineBuilder {
   constructor() {
@@ -63,73 +64,11 @@ class TimelineBuilder {
     return maxWidth;
   }
 
-  _calculateChartDimensions(chartData) {
+  _calculateChartDimensions(chartDataFormatted) {
     const themeStyles = config.themes[config.activeTheme] || config.themes.ios;
-    const cs = themeStyles.CHART_STYLES;
-  
-    let calculatedContentHeight = 0;
-  
-    // Top padding for the chart content area
-    calculatedContentHeight += cs.CHART_PADDING_Y_PX;
-  
-    // Title section height
-    if (chartData.title) {
-      const contentAreaWidth = this.calculateAvailableBubbleWidth();
-      const barTrackW = contentAreaWidth - (cs.CHART_PADDING_X_PX * 2);
-      const titleMaxTextWidth = barTrackW; 
-      
-      const wrappedTitle = TextProcessor.wrapText(TextProcessor.escapeXML(chartData.title), titleMaxTextWidth);
-      const titleLineHeight = cs.TITLE_FONT_SIZE_PX * (cs.TITLE_LINE_HEIGHT_MULTIPLIER ?? 1.2);
-      
-      // Height of the actual text block for the title
-      const titleTextActualHeight = (wrappedTitle.lines.length * titleLineHeight) - (titleLineHeight - cs.TITLE_FONT_SIZE_PX);
-      calculatedContentHeight += titleTextActualHeight;
-      calculatedContentHeight += (cs.TITLE_BOTTOM_MARGIN_PX ?? 10); // Margin after title
-    }
+    const availableBubbleWidth = this.calculateAvailableBubbleWidth();
     
-    // Handle specific chart types
-    if (chartData.type === 'donut') {
-      const contentAreaWidth = this.calculateAvailableBubbleWidth();
-      const chartSize = Math.min(contentAreaWidth - (cs.CHART_PADDING_X_PX * 2), 200); // Cap at 200px
-      
-      // Add chart size
-      calculatedContentHeight += chartSize;
-      
-      // Add legend height
-      const itemCount = chartData.items?.length || 0;
-      if (itemCount > 0) {
-        const legendItemHeight = cs.DONUT_LEGEND_FONT_SIZE_PX + cs.DONUT_LEGEND_ITEM_SPACING_PX;
-        calculatedContentHeight += 30; // Space between chart and legend
-        calculatedContentHeight += itemCount * legendItemHeight;
-      }
-    }
-    else if (chartData.type === 'horizontalBar') {
-      const itemCount = chartData.items?.length || 0;
-      if (itemCount > 0) {
-        const labelHeight = cs.LABEL_FONT_SIZE_PX; 
-        
-        chartData.items.forEach((item, index) => {
-          calculatedContentHeight += labelHeight; // Label text height
-          calculatedContentHeight += cs.BAR_HEIGHT_PX; 
-          if (index < itemCount - 1) {
-            calculatedContentHeight += cs.BAR_SPACING_PX;
-          }
-        });
-        // Account for small gaps between label and bar
-        calculatedContentHeight += itemCount * 2;
-      }
-    }
-  
-    // Bottom padding for the chart content area
-    calculatedContentHeight += cs.CHART_PADDING_Y_PX;
-    
-    const availableBubbleW = this.calculateAvailableBubbleWidth();
-    
-    return {
-      width: availableBubbleW,
-      height: calculatedContentHeight,
-      lineCount: chartData.items?.length || 0
-    };
+    return ChartRenderer.calculateDimensions(chartDataFormatted, themeStyles, availableBubbleWidth);
   }
 
   buildTimeline(dynamicData) {
