@@ -55,8 +55,8 @@
   </div>
   
   <!-- Theme Preview -->
-  <div class="mt-3">
-    <label class="block text-sm font-medium text-gray-700 mb-2">Theme Preview</label>
+<div class="mt-3">
+    <h3 class="block text-sm font-medium text-gray-700 mb-2">Theme Preview</h3>
     <div class="bg-gray-50 p-3 rounded-md">
       <!-- User message bubble -->
       <div class="flex justify-end mb-2">
