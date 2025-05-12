@@ -10,7 +10,9 @@
       "format": "prettier --write .",
       "generate": "node -e \"import('node:fs').then(fs=>{import('./src/main.js').then(m=>{fs.mkdirSync('dist',{recursive:true});fs.writeFileSync('dist/profile-chat.svg',m.generateChatSVG());console.log('✔ SVG written to dist/profile-chat.svg');});});\"",
       "build": "node src/build-profile.js",
-      "preview": "npm run build && cmd /c start test.html"
+      "preview": "npm run build && cmd /c start test.html",
+      "config:dev": "npm run dev --prefix configurator-ui",
+      "config:build": "npm run build --prefix configurator-ui"
     },
   
     "keywords": [
