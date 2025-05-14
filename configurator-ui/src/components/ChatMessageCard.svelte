@@ -42,7 +42,7 @@
     class:drag-over={dragOverIndex === index && draggedIndex !== index}
     class:dragging={draggedIndex === index}
   >
-    <!-- Drag handle -->
+    <!-- Drag handle - Updated color to text-gray-400 -->
     <div class="drag-handle absolute left-2 top-0 bottom-0 flex items-center justify-center w-6 cursor-move" title="Drag to reorder">
       <svg class="w-4 h-8 text-gray-400" viewBox="0 0 16 16" fill="currentColor">
         <path d="M4 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4-8a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4-8a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4 4a1 1 0 11-2 0 1 1 0 012 0z"/>
@@ -58,7 +58,7 @@
           class:bg-secondary={message.sender !== 'me'}>
         </span>
         
-        <!-- Sender with Toggle Button -->
+        <!-- Sender with Toggle Button - Updated with text-gray-500 hover:text-gray-700 -->
         <div class="flex items-center">
           <span class="font-medium">{message.sender === 'me' ? 'Me' : 'Visitor'}</span>
           <button 

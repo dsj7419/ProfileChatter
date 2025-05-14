@@ -4,11 +4,16 @@
     import ChatList from './components/ChatList.svelte';
     import ProfileEditor from './components/ProfileEditor.svelte';
     import ThemeSelector from './components/ThemeSelector.svelte';
+    import AvatarSettingsEditor from './components/AvatarSettingsEditor.svelte';
     import ConfigManager from './components/ConfigManager.svelte';
+    import SvgPreviewRenderer from './components/SvgPreviewRenderer.svelte';
+    import ServerTest from './components/ServerTest.svelte';
     
     // State for loading status and errors
     let isLoading = true;
     let error = null;
+    // State for showing the test component
+    let showTestComponent = false;
     
     /**
      * Add a new text message to the chat sequence
@@ -25,6 +30,12 @@
       
       // Update the chat messages store by adding the new message
       chatMessages.update(messages => [...messages, newMessage]);
+    }
+    
+    // Toggle test component visibility
+    function toggleTestComponent() {
+      showTestComponent = !showTestComponent;
+      console.log(`Test component visibility set to: ${showTestComponent}`);
     }
     
     // Fetch chat data on component mount
@@ -51,9 +62,22 @@
   
   <main class="w-full h-screen flex flex-col overflow-hidden">
     <!-- Header -->
-    <header class="bg-gray-800 text-white p-4 shadow-md">
+    <header class="bg-gray-800 text-white p-4 shadow-md flex justify-between items-center">
       <h1 class="text-xl font-semibold">ProfileChatter Configurator</h1>
+      <button 
+        class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+        on:click={toggleTestComponent}
+      >
+        {showTestComponent ? 'Hide Test Tool' : 'Show Test Tool'}
+      </button>
     </header>
+    
+    <!-- Testing Component (Conditionally Shown) -->
+    {#if showTestComponent}
+      <div class="bg-gray-100 p-4 border-b">
+        <ServerTest />
+      </div>
+    {/if}
     
     <!-- Main Content - Three Column Layout -->
     <div class="flex flex-1 overflow-hidden">
@@ -62,6 +86,7 @@
         <div class="space-y-4 p-4">
           <ProfileEditor />
           <ThemeSelector />
+          <AvatarSettingsEditor />
           <ConfigManager />
         </div>
       </aside>
@@ -104,12 +129,10 @@
         {/if}
       </section>
       
-      <!-- Right Sidebar (Preview Pane) -->
-      <aside class="w-80 bg-gray-100 border-l overflow-y-auto p-4">
-        <h2 class="text-lg font-medium mb-4">SVG Preview Pane</h2>
-        <div class="text-sm text-gray-600">
-          The SVG preview will appear here.
-        </div>
+      <!-- Right Sidebar (Preview Pane) - Increased width from w-80 to w-96 -->
+      <aside class="w-96 bg-gray-100 border-l overflow-y-auto">
+        <h2 class="text-lg font-medium mb-4 p-4">SVG Preview</h2>
+        <SvgPreviewRenderer />
       </aside>
     </div>
   </main>

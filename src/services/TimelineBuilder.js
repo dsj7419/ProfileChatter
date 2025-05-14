@@ -9,11 +9,23 @@ import TextProcessor from '../utils/TextProcessor.js';
 import ChartRenderer from '../rendering/components/ChartRenderer.js';
 
 class TimelineBuilder {
-  constructor() {
+  /**
+   * Constructor - now accepts custom chat data
+   * @param {Array|null} customChatData - Optional custom chat data to use instead of file
+   */
+  constructor(customChatData = null) {
     try {
-      const __dirname = dirname(fileURLToPath(import.meta.url));
-      const chatDataPath = join(__dirname, '../../data/chatData.json');
-      this.chatData = JSON.parse(readFileSync(chatDataPath, 'utf8'));
+      // Use provided custom chat data if available
+      if (customChatData && Array.isArray(customChatData)) {
+        console.log(`Using custom chat data (${customChatData.length} messages)`);
+        this.chatData = customChatData;
+      } else {
+        // Otherwise, read from file as before
+        const __dirname = dirname(fileURLToPath(import.meta.url));
+        const chatDataPath = join(__dirname, '../../data/chatData.json');
+        console.log('Loading chat data from file:', chatDataPath);
+        this.chatData = JSON.parse(readFileSync(chatDataPath, 'utf8'));
+      }
     } catch (error) {
       console.error('Error loading chat data:', error);
       this.chatData = [
@@ -228,4 +240,5 @@ class TimelineBuilder {
   }
 }
 
-export default new TimelineBuilder();
+// Export the class itself instead of a singleton instance
+export default TimelineBuilder;

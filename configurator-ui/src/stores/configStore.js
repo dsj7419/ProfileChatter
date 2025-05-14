@@ -13,10 +13,21 @@ const initialProfileConfig = {
   CODESTATS_USERNAME: ""
 };
 
+// Initial avatar configuration that mirrors the structure in config.js
+const initialAvatarsConfig = {
+  enabled: true,
+  me: { imageUrl: "", fallbackText: "ME" }, // Default to "ME" or user's initials if available
+  visitor: { imageUrl: "", fallbackText: "?" },
+  sizePx: 32, // Could be configurable later, for now use default
+  shape: "circle", // 'circle' or 'square'
+  // xOffsetPx and yOffsetPx are layout details, less critical for user UI in MVP
+};
+
 // Main configuration store
 export const userConfig = writable({
   profile: { ...initialProfileConfig },
   activeTheme: "ios", // Default theme
+  avatars: { ...initialAvatarsConfig }, // Add avatar config
   // other config sections will be added later
 });
 

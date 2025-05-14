@@ -33,8 +33,8 @@
             }
           },
           activeTheme: $userConfig.activeTheme,
+          avatars: $userConfig.avatars, // Include avatar settings
           chatMessages: $chatMessages
-          // Future sections (e.g., avatarConfig) can be added here
         };
         
         if (exportFormat === 'json') {
@@ -49,7 +49,8 @@
   
   export const customUserSelections = {
     profile: ${JSON.stringify(configData.profile, null, 2)},
-    activeTheme: "${configData.activeTheme}"
+    activeTheme: "${configData.activeTheme}",
+    avatars: ${JSON.stringify(configData.avatars, null, 2)}
   };
   
   // Note: This file does not include chat messages. For a complete backup including messages,
@@ -63,6 +64,7 @@
   //      ...originalConfig,
   //      profile: { ...originalConfig.profile, ...customUserSelections.profile },
   //      activeTheme: customUserSelections.activeTheme || originalConfig.activeTheme,
+  //      avatars: { ...originalConfig.avatars, ...customUserSelections.avatars },
   //    };
   `;
           downloadFile(jsContent, 'profileChatter.custom.js', 'application/javascript');
@@ -252,6 +254,31 @@
         return false;
       }
       
+      // Check avatars if present
+      if (data.avatars && typeof data.avatars === 'object') {
+        if (typeof data.avatars.enabled !== 'boolean') {
+          showStatusMessage('Invalid configuration: avatars.enabled must be a boolean.', true);
+          return false;
+        }
+        
+        // Check me and visitor avatar objects 
+        if (data.avatars.me && typeof data.avatars.me !== 'object') {
+          showStatusMessage('Invalid configuration: avatars.me must be an object.', true);
+          return false;
+        }
+        
+        if (data.avatars.visitor && typeof data.avatars.visitor !== 'object') {
+          showStatusMessage('Invalid configuration: avatars.visitor must be an object.', true);
+          return false;
+        }
+        
+        // Validate shape value if present
+        if (data.avatars.shape && !['circle', 'square'].includes(data.avatars.shape)) {
+          showStatusMessage('Invalid configuration: avatars.shape must be "circle" or "square".', true);
+          return false;
+        }
+      }
+      
       // Check chat messages if present
       if (data.chatMessages !== undefined) {
         if (!Array.isArray(data.chatMessages)) {
@@ -277,8 +304,8 @@
      * @param {Object} data - The validated configuration data
      */
     function updateStoresFromConfig(data) {
-      // Update profile and theme if present
-      if (data.profile || data.activeTheme) {
+      // Update profile, theme, and avatars if present
+      if (data.profile || data.activeTheme || data.avatars) {
         userConfig.update(currentConfig => {
           const newConfig = { ...currentConfig };
           
@@ -302,6 +329,14 @@
           // Update theme if present
           if (data.activeTheme) {
             newConfig.activeTheme = data.activeTheme;
+          }
+          
+          // Update avatars if present
+          if (data.avatars) {
+            newConfig.avatars = {
+              ...currentConfig.avatars,
+              ...data.avatars
+            };
           }
           
           return newConfig;
