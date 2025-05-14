@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { userConfig, workStartDate, chatMessages } from '../stores/configStore.js';
+    import { userConfig, workStartDate, chatMessages, editableTheme } from '../stores/configStore.js';
     
     // State for SVG preview
     let generatedSvgMarkup = '';
@@ -14,6 +14,12 @@
     
     // Add a manual toggle for testing
     let manualRefreshCount = 0;
+    
+    // Reference to the SVG container div
+    let svgContainerDiv;
+    
+    // Content hash for tracking non-theme changes
+    let prevContentHash = '';
     
     // Preview sizing options - GitHub README column widths
     let previewSizes = [
@@ -184,6 +190,11 @@
         if (svgText && svgText.includes('<svg')) {
           generatedSvgMarkup = svgText;
           debug('Updated SVG preview successfully');
+          
+          // After setting the SVG markup, we'll apply theme styles in the next tick
+          setTimeout(() => {
+            applyThemeStyles();
+          }, 10);
         } else {
           throw new Error('Received invalid SVG content from server');
         }
@@ -196,10 +207,89 @@
       }
     }
     
-    // Create debounced version of fetchPreview with 500ms delay
-    // We've verified this is an effective debounce time that balances
-    // responsiveness with preventing excessive server calls
+    // Function to apply theme styles to the SVG element dynamically
+    function applyThemeStyles() {
+      if (!svgContainerDiv || !generatedSvgMarkup) return;
+      
+      const svgElement = svgContainerDiv.querySelector('svg');
+      if (!svgElement) {
+        debug('SVG element not found in container');
+        return;
+      }
+      
+      debug('Applying theme styles to SVG element');
+      
+      // Apply base theme properties
+      svgElement.style.setProperty('--me-bubble-color', $editableTheme.ME_BUBBLE_COLOR);
+      svgElement.style.setProperty('--visitor-bubble-color', $editableTheme.VISITOR_BUBBLE_COLOR);
+      svgElement.style.setProperty('--me-text-color', $editableTheme.ME_TEXT_COLOR);
+      svgElement.style.setProperty('--visitor-text-color', $editableTheme.VISITOR_TEXT_COLOR);
+      svgElement.style.setProperty('--background-light', $editableTheme.BACKGROUND_LIGHT);
+      svgElement.style.setProperty('--background-dark', $editableTheme.BACKGROUND_DARK);
+      svgElement.style.setProperty('--bubble-radius-px', `${$editableTheme.BUBBLE_RADIUS_PX}px`);
+      svgElement.style.setProperty('--font-family', $editableTheme.FONT_FAMILY);
+      
+      // Apply reaction properties
+      svgElement.style.setProperty('--reaction-font-size-px', `${$editableTheme.REACTION_FONT_SIZE_PX}px`);
+      svgElement.style.setProperty('--reaction-bg-color', $editableTheme.REACTION_BG_COLOR);
+      svgElement.style.setProperty('--reaction-bg-opacity', $editableTheme.REACTION_BG_OPACITY);
+      svgElement.style.setProperty('--reaction-text-color', $editableTheme.REACTION_TEXT_COLOR);
+      svgElement.style.setProperty('--reaction-padding-x-px', `${$editableTheme.REACTION_PADDING_X_PX}px`);
+      svgElement.style.setProperty('--reaction-padding-y-px', `${$editableTheme.REACTION_PADDING_Y_PX}px`);
+      svgElement.style.setProperty('--reaction-border-radius-px', `${$editableTheme.REACTION_BORDER_RADIUS_PX}px`);
+      svgElement.style.setProperty('--reaction-offset-y-px', `${$editableTheme.REACTION_OFFSET_Y_PX}px`);
+      
+      // Apply chart styles
+      const chartStyles = $editableTheme.CHART_STYLES;
+      if (chartStyles) {
+        svgElement.style.setProperty('--bar-default-color', chartStyles.BAR_DEFAULT_COLOR);
+        svgElement.style.setProperty('--bar-track-color', chartStyles.BAR_TRACK_COLOR);
+        svgElement.style.setProperty('--bar-corner-radius-px', `${chartStyles.BAR_CORNER_RADIUS_PX}px`);
+        svgElement.style.setProperty('--bar-height-px', `${chartStyles.BAR_HEIGHT_PX}px`);
+        svgElement.style.setProperty('--bar-spacing-px', `${chartStyles.BAR_SPACING_PX}px`);
+        
+        svgElement.style.setProperty('--label-font-family', chartStyles.LABEL_FONT_FAMILY);
+        svgElement.style.setProperty('--label-font-size-px', `${chartStyles.LABEL_FONT_SIZE_PX}px`);
+        svgElement.style.setProperty('--value-text-font-family', chartStyles.VALUE_TEXT_FONT_FAMILY);
+        svgElement.style.setProperty('--value-text-font-size-px', `${chartStyles.VALUE_TEXT_FONT_SIZE_PX}px`);
+        
+        svgElement.style.setProperty('--title-font-family', chartStyles.TITLE_FONT_FAMILY);
+        svgElement.style.setProperty('--title-font-size-px', `${chartStyles.TITLE_FONT_SIZE_PX}px`);
+        svgElement.style.setProperty('--title-line-height-multiplier', chartStyles.TITLE_LINE_HEIGHT_MULTIPLIER);
+        svgElement.style.setProperty('--title-bottom-margin-px', `${chartStyles.TITLE_BOTTOM_MARGIN_PX}px`);
+        
+        svgElement.style.setProperty('--chart-padding-x-px', `${chartStyles.CHART_PADDING_X_PX}px`);
+        svgElement.style.setProperty('--chart-padding-y-px', `${chartStyles.CHART_PADDING_Y_PX}px`);
+        
+        svgElement.style.setProperty('--me-title-color', chartStyles.ME_TITLE_COLOR);
+        svgElement.style.setProperty('--me-label-color', chartStyles.ME_LABEL_COLOR);
+        svgElement.style.setProperty('--me-value-text-color', chartStyles.ME_VALUE_TEXT_COLOR);
+        
+        svgElement.style.setProperty('--visitor-title-color', chartStyles.VISITOR_TITLE_COLOR);
+        svgElement.style.setProperty('--visitor-label-color', chartStyles.VISITOR_LABEL_COLOR);
+        svgElement.style.setProperty('--visitor-value-text-color', chartStyles.VISITOR_VALUE_TEXT_COLOR);
+        
+        // Donut chart styles
+        svgElement.style.setProperty('--donut-stroke-width-px', `${chartStyles.DONUT_STROKE_WIDTH_PX}px`);
+        svgElement.style.setProperty('--donut-center-text-font-size-px', `${chartStyles.DONUT_CENTER_TEXT_FONT_SIZE_PX}px`);
+        svgElement.style.setProperty('--donut-center-text-font-family', chartStyles.DONUT_CENTER_TEXT_FONT_FAMILY);
+        svgElement.style.setProperty('--me-donut-center-text-color', chartStyles.ME_DONUT_CENTER_TEXT_COLOR);
+        svgElement.style.setProperty('--visitor-donut-center-text-color', chartStyles.VISITOR_DONUT_CENTER_TEXT_COLOR);
+        svgElement.style.setProperty('--me-donut-legend-text-color', chartStyles.ME_DONUT_LEGEND_TEXT_COLOR);
+        svgElement.style.setProperty('--visitor-donut-legend-text-color', chartStyles.VISITOR_DONUT_LEGEND_TEXT_COLOR);
+        svgElement.style.setProperty('--donut-legend-font-size-px', `${chartStyles.DONUT_LEGEND_FONT_SIZE_PX}px`);
+        svgElement.style.setProperty('--donut-legend-item-spacing-px', `${chartStyles.DONUT_LEGEND_ITEM_SPACING_PX}px`);
+        svgElement.style.setProperty('--donut-legend-marker-size-px', `${chartStyles.DONUT_LEGEND_MARKER_SIZE_PX}px`);
+        svgElement.style.setProperty('--donut-animation-duration-sec', `${chartStyles.DONUT_ANIMATION_DURATION_SEC}s`);
+        svgElement.style.setProperty('--donut-segment-animation-delay-sec', `${chartStyles.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s`);
+      }
+      
+      debug('Theme styles applied to SVG element');
+    }
+    
+    // Create debounced versions
     const debouncedFetchPreview = debounce(fetchPreview, 500);
+    const debouncedApplyThemeStyles = debounce(applyThemeStyles, 200);
     
     // Initialize after component mounted
     onMount(() => {
@@ -220,11 +310,45 @@
       });
     });
     
-    // Watch for store changes and update SVG with debounced fetch
+    // REPLACED: The old reactive statement that watched everything
+    // $: {
+    //   if ($userConfig && $chatMessages && $chatMessages.length > 0) {
+    //     debug('Stores updated, triggering debounced preview');
+    //     debouncedFetchPreview();
+    //   }
+    // }
+    
+    // NEW: Watch for content/structure changes (non-theme) and update SVG with server fetch
     $: {
-      if ($userConfig && $chatMessages && $chatMessages.length > 0) {
-        debug('Stores updated, triggering debounced preview');
-        debouncedFetchPreview();
+      if ($userConfig && $chatMessages) { // Ensure stores are populated
+        // Create a hash of just the content/structure parts that require server rendering
+        const contentHash = JSON.stringify({
+          profile: $userConfig.profile,
+          avatars: $userConfig.avatars, // Structure affects SVG (enabled, shape)
+          work_start_date: $workStartDate,
+          messages: $chatMessages
+        });
+        
+        // Only fetch if content has changed AND there are messages
+        if (contentHash !== prevContentHash && $chatMessages.length > 0) {
+          debug('CONTENT CHANGED - Triggering server fetch for new SVG', { 
+            contentChanged: true,
+            oldHash: prevContentHash.substring(0, 20) + '...',
+            newHash: contentHash.substring(0, 20) + '...'
+          });
+          prevContentHash = contentHash;
+          debouncedFetchPreview();
+        }
+      }
+    }
+    
+    // Watch for theme changes ONLY and apply style updates client-side
+    $: {
+      if ($editableTheme && svgContainerDiv && generatedSvgMarkup) {
+        debug('THEME ONLY CHANGED - Applying styles client-side', {
+          themeId: $userConfig.activeTheme
+        });
+        debouncedApplyThemeStyles();
       }
     }
     
@@ -318,7 +442,7 @@
     </div>
     
     <!-- SVG wrapper to improve responsive display with width: 100% -->
-    <div class="svg-wrapper" style="max-width: {currentPreviewWidth}px; width: 100%; margin: 0 auto;">
+    <div class="svg-wrapper" style="max-width: {currentPreviewWidth}px; width: 100%; margin: 0 auto;" bind:this={svgContainerDiv}>
       {#if isLoading && !generatedSvgMarkup}
         <div class="loading-indicator">
           <div class="spinner"></div>
@@ -354,7 +478,7 @@
       </div>
     {/if}
   </div>
-  
+
   <style>
     .svg-preview-container {
       height: 100%;

@@ -54,38 +54,112 @@ class SvgRenderer {
   }
   
   /**
-   * Generate SVG header with styles
-   * @param {Object} timelineData - Complete timeline data including timing profile
-   * @returns {string} SVG header with styles
-   */
-  _header(timelineData) {
-    const theme = this.getActiveThemeStyles();
-    const timingProfile = timelineData.timings;
+ * Generate SVG header with styles
+ * @param {Object} timelineData - Complete timeline data including timing profile
+ * @returns {string} SVG header with styles
+ */
+_header(timelineData) {
+  const theme = this.getActiveThemeStyles();
+  const timingProfile = timelineData.timings;
 
-    /* ---------- font‑face --------------------------------------------- */
-    const fontFace = INTER_FONT_BASE64 
-      ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
-      : '';
-    
-    /* ---------- animation timing -------------------------------------- */
-    // Get scroll distance from the timing profile or fall back to the original value
-    const scrollDistance = timingProfile?.scrollDistance ?? timelineData.scrollDistance;
-    
-    // Add delay before scrolling starts (wait for last message to be read)
-    const totalTypingTime = timelineData.totalTypingTime;
-    const scrollDelay = (totalTypingTime / 1000) + config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC;
-    
-    // Calculate scroll duration based on timing profile or fall back to old calculation
-    const scrollDuration = (timingProfile?.scrollDurationSec ?? 
-      Math.max(
-        config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
-        scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
-      )
-    ).toFixed(2);
-    
-    /* ---------- CSS ---------------------------------------------------- */
-    const css = `
+  /* ---------- font‑face --------------------------------------------- */
+  const fontFace = INTER_FONT_BASE64 
+    ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
+    : '';
+  
+  /* ---------- animation timing -------------------------------------- */
+  // Get scroll distance from the timing profile or fall back to the original value
+  const scrollDistance = timingProfile?.scrollDistance ?? timelineData.scrollDistance;
+  
+  // Add delay before scrolling starts (wait for last message to be read)
+  const totalTypingTime = timelineData.totalTypingTime;
+  const scrollDelay = (totalTypingTime / 1000) + config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC;
+  
+  // Calculate scroll duration based on timing profile or fall back to old calculation
+  const scrollDuration = (timingProfile?.scrollDurationSec ?? 
+    Math.max(
+      config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
+      scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
+    )
+  ).toFixed(2);
+  
+  /* ---------- CSS Variables ---------------------------------------- */
+  const cssVars = `
+    :root {
+      /* Bubble Colors */
+      --me-bubble-color: ${theme.ME_BUBBLE_COLOR};
+      --visitor-bubble-color: ${theme.VISITOR_BUBBLE_COLOR};
+      
+      /* Text Colors */
+      --me-text-color: ${theme.ME_TEXT_COLOR};
+      --visitor-text-color: ${theme.VISITOR_TEXT_COLOR};
+      
+      /* Background */
+      --background-light: ${theme.BACKGROUND_LIGHT};
+      --background-dark: ${theme.BACKGROUND_DARK};
+      
+      /* Styling */
+      --bubble-radius-px: ${theme.BUBBLE_RADIUS_PX}px;
+      --font-family: ${theme.FONT_FAMILY};
+      
+      /* Reaction */
+      --reaction-font-size-px: ${theme.REACTION_FONT_SIZE_PX}px;
+      --reaction-bg-color: ${theme.REACTION_BG_COLOR};
+      --reaction-bg-opacity: ${theme.REACTION_BG_OPACITY};
+      --reaction-text-color: ${theme.REACTION_TEXT_COLOR};
+      --reaction-padding-x-px: ${theme.REACTION_PADDING_X_PX}px;
+      --reaction-padding-y-px: ${theme.REACTION_PADDING_Y_PX}px;
+      --reaction-border-radius-px: ${theme.REACTION_BORDER_RADIUS_PX}px;
+      --reaction-offset-y-px: ${theme.REACTION_OFFSET_Y_PX}px;
+      
+      /* Chart Styles */
+      --bar-default-color: ${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
+      --bar-track-color: ${theme.CHART_STYLES.BAR_TRACK_COLOR};
+      --bar-corner-radius-px: ${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
+      --bar-height-px: ${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
+      --bar-spacing-px: ${theme.CHART_STYLES.BAR_SPACING_PX}px;
+      
+      --label-font-family: ${theme.CHART_STYLES.LABEL_FONT_FAMILY};
+      --label-font-size-px: ${theme.CHART_STYLES.LABEL_FONT_SIZE_PX}px;
+      --value-text-font-family: ${theme.CHART_STYLES.VALUE_TEXT_FONT_FAMILY};
+      --value-text-font-size-px: ${theme.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX}px;
+      
+      --title-font-family: ${theme.CHART_STYLES.TITLE_FONT_FAMILY};
+      --title-font-size-px: ${theme.CHART_STYLES.TITLE_FONT_SIZE_PX}px;
+      --title-line-height-multiplier: ${theme.CHART_STYLES.TITLE_LINE_HEIGHT_MULTIPLIER};
+      --title-bottom-margin-px: ${theme.CHART_STYLES.TITLE_BOTTOM_MARGIN_PX}px;
+      
+      --chart-padding-x-px: ${theme.CHART_STYLES.CHART_PADDING_X_PX}px;
+      --chart-padding-y-px: ${theme.CHART_STYLES.CHART_PADDING_Y_PX}px;
+      
+      --me-title-color: ${theme.CHART_STYLES.ME_TITLE_COLOR};
+      --me-label-color: ${theme.CHART_STYLES.ME_LABEL_COLOR};
+      --me-value-text-color: ${theme.CHART_STYLES.ME_VALUE_TEXT_COLOR};
+      
+      --visitor-title-color: ${theme.CHART_STYLES.VISITOR_TITLE_COLOR};
+      --visitor-label-color: ${theme.CHART_STYLES.VISITOR_LABEL_COLOR};
+      --visitor-value-text-color: ${theme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR};
+      
+      /* Donut Chart */
+      --donut-stroke-width-px: ${theme.CHART_STYLES.DONUT_STROKE_WIDTH_PX}px;
+      --donut-center-text-font-size-px: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_SIZE_PX}px;
+      --donut-center-text-font-family: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_FAMILY};
+      --me-donut-center-text-color: ${theme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR};
+      --visitor-donut-center-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR};
+      --me-donut-legend-text-color: ${theme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR};
+      --visitor-donut-legend-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR};
+      --donut-legend-font-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_FONT_SIZE_PX}px;
+      --donut-legend-item-spacing-px: ${theme.CHART_STYLES.DONUT_LEGEND_ITEM_SPACING_PX}px;
+      --donut-legend-marker-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
+      --donut-animation-duration-sec: ${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
+      --donut-segment-animation-delay-sec: ${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
+    }
+  `;
+
+  /* ---------- CSS ---------------------------------------------------- */
+  const css = `
 ${fontFace}
+${cssVars}
 @keyframes bubbleIn{0%{scale:${config.layout.ANIMATION.BUBBLE_START_SCALE};opacity:0}100%{scale:1;opacity:1}}
 @keyframes typingDot1{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
 @keyframes typingDot2{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
@@ -104,27 +178,46 @@ ${fontFace}
 .typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:0s}
 .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
 .typing-dot3{animation:typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_3}s}
-@media(prefers-color-scheme:dark){svg{background:${theme.BACKGROUND_DARK}}}
-@media(prefers-color-scheme:light){svg{background:${theme.BACKGROUND_LIGHT}}}`;
+@media(prefers-color-scheme:dark){svg{background:var(--background-dark)}}
+@media(prefers-color-scheme:light){svg{background:var(--background-light)}}
 
-    /* ---------- SVG shell -------------------------------------------- */
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
-  <defs>
-    <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
-      <feOffset dx="${config.layout.ANIMATION.SHADOW_OFFSET_X}" dy="${config.layout.ANIMATION.SHADOW_OFFSET_Y}" result="offsetblur"/>
-      <feComponentTransfer><feFuncA type="linear" slope="${config.layout.ANIMATION.SHADOW_OPACITY}"/></feComponentTransfer>
-      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
+/* Use CSS variables for themed elements */
+.msg.me rect { fill: var(--me-bubble-color); }
+.msg.them rect { fill: var(--visitor-bubble-color); }
+.msg.me text { fill: var(--me-text-color); }
+.msg.them text { fill: var(--visitor-text-color); }
+svg { font-family: var(--font-family); }
 
-    <!-- avatar masks -->
-    <clipPath id="avatarCircle"><circle cx="${config.avatars.sizePx / 2}" cy="${config.avatars.sizePx / 2}" r="${config.avatars.sizePx / 2}"/></clipPath>
-    <clipPath id="avatarSquare"><rect width="${config.avatars.sizePx}" height="${config.avatars.sizePx}" rx="4" ry="4"/></clipPath>
-  </defs>
-  <style>${css}</style>
-  <rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
-  <g class="track">`;
-  }
+/* Reaction styling */
+.reaction rect {
+  fill: var(--reaction-bg-color);
+  fill-opacity: var(--reaction-bg-opacity);
+  rx: var(--reaction-border-radius-px);
+  ry: var(--reaction-border-radius-px);
+}
+.reaction text {
+  fill: var(--reaction-text-color);
+  font-size: var(--reaction-font-size-px);
+}`;
+
+  /* ---------- SVG shell -------------------------------------------- */
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
+<defs>
+  <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
+    <feOffset dx="${config.layout.ANIMATION.SHADOW_OFFSET_X}" dy="${config.layout.ANIMATION.SHADOW_OFFSET_Y}" result="offsetblur"/>
+    <feComponentTransfer><feFuncA type="linear" slope="${config.layout.ANIMATION.SHADOW_OPACITY}"/></feComponentTransfer>
+    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+
+  <!-- avatar masks -->
+  <clipPath id="avatarCircle"><circle cx="${config.avatars.sizePx / 2}" cy="${config.avatars.sizePx / 2}" r="${config.avatars.sizePx / 2}"/></clipPath>
+  <clipPath id="avatarSquare"><rect width="${config.avatars.sizePx}" height="${config.avatars.sizePx}" rx="4" ry="4"/></clipPath>
+</defs>
+<style>${css}</style>
+<rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
+<g class="track">`;
+}
 
   /**
    * Render a typing indicator with proper iOS styling
