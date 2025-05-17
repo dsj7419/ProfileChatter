@@ -111,6 +111,7 @@ _header(timelineData) {
       --reaction-padding-y-px: ${theme.REACTION_PADDING_Y_PX}px;
       --reaction-border-radius-px: ${theme.REACTION_BORDER_RADIUS_PX}px;
       --reaction-offset-y-px: ${theme.REACTION_OFFSET_Y_PX}px;
+      --reaction-offset-x-px: ${theme.REACTION_OFFSET_X_PX || 0}px;
       
       /* Chart Styles */
       --bar-default-color: ${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
@@ -153,6 +154,13 @@ _header(timelineData) {
       --donut-legend-marker-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
       --donut-animation-duration-sec: ${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
       --donut-segment-animation-delay-sec: ${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
+      
+      /* Value text inside color */
+      --value-text-inside-color: ${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
+      
+      /* Animation durations */
+      --chart-bar-animation-duration-sec: ${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
+      --chart-animation-delay-sec: ${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
     }
   `;
 
@@ -178,26 +186,67 @@ ${cssVars}
 .typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:0s}
 .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
 .typing-dot3{animation:typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_3}s}
-@media(prefers-color-scheme:dark){svg{background:var(--background-dark)}}
-@media(prefers-color-scheme:light){svg{background:var(--background-light)}}
+.donut-segment {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
 
-/* Use CSS variables for themed elements */
-.msg.me rect { fill: var(--me-bubble-color); }
-.msg.them rect { fill: var(--visitor-bubble-color); }
-.msg.me text { fill: var(--me-text-color); }
-.msg.them text { fill: var(--visitor-text-color); }
-svg { font-family: var(--font-family); }
+.chart-content .donut-legend-marker {
+  width: var(--donut-legend-marker-size-px, 10px);
+  height: var(--donut-legend-marker-size-px, 10px);
+}
+
+/* Direct background application instead of using media queries */
+svg{background:var(--background-light, ${theme.BACKGROUND_LIGHT});}
+
+/* Use CSS variables for themed elements - Apply to specific elements only */
+.msg.me > rect:first-child, 
+.typing.me > rect:first-child { 
+  fill: var(--me-bubble-color, ${theme.ME_BUBBLE_COLOR}); 
+  rx: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
+  ry: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
+}
+
+.msg.them > rect:first-child, 
+.typing.them > rect:first-child { 
+  fill: var(--visitor-bubble-color, ${theme.VISITOR_BUBBLE_COLOR}); 
+  rx: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
+  ry: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
+}
+
+.msg.me text:not(.chart-content text) { fill: var(--me-text-color, ${theme.ME_TEXT_COLOR}); }
+.msg.them text:not(.chart-content text) { fill: var(--visitor-text-color, ${theme.VISITOR_TEXT_COLOR}); }
+svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
+
+/* Chart-specific styles - only style the track bar */
+.chart-track-bar { fill: var(--bar-track-color, ${theme.CHART_STYLES.BAR_TRACK_COLOR}); }
+
+/* Donut chart styling */
+.donut-segment {
+  opacity: 1 !important; /* Force segments to always be visible */
+  fill-opacity: 1 !important; /* Force fill to always be visible */
+  visibility: visible !important; /* Ensure visibility */
+  transition: transform 0.2s ease-out; /* Smooth hover transitions if interactive */
+}
+
+.donut-legend-item:hover ~ .donut-segment {
+  opacity: 0.7; /* Dim other segments on hover */
+}
+
+.donut-legend-item:hover {
+  cursor: pointer; /* Optional interactive styling */
+}
 
 /* Reaction styling */
 .reaction rect {
-  fill: var(--reaction-bg-color);
-  fill-opacity: var(--reaction-bg-opacity);
-  rx: var(--reaction-border-radius-px);
-  ry: var(--reaction-border-radius-px);
+  fill: var(--reaction-bg-color, ${theme.REACTION_BG_COLOR});
+  fill-opacity: var(--reaction-bg-opacity, ${theme.REACTION_BG_OPACITY});
+  rx: var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px);
+  ry: var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px);
 }
 .reaction text {
-  fill: var(--reaction-text-color);
-  font-size: var(--reaction-font-size-px);
+  fill: var(--reaction-text-color, ${theme.REACTION_TEXT_COLOR});
+  font-size: var(--reaction-font-size-px, ${theme.REACTION_FONT_SIZE_PX}px);
 }`;
 
   /* ---------- SVG shell -------------------------------------------- */
@@ -249,7 +298,7 @@ svg { font-family: var(--font-family); }
     return `
       <g class="typing ${isMe ? "me" : "them"}" transform="translate(${x},${item.y})">
         <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="${start}s" dur="${dur}s" fill="freeze"/>
-        <rect width="${bw}" height="${bh}" rx="${theme.BUBBLE_RADIUS_PX}" ry="${theme.BUBBLE_RADIUS_PX}" fill="${bubbleFill}"/>
+        <rect width="${bw}" height="${bh}" rx="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" ry="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" fill="${bubbleFill}"/>
         ${this._typingDots(bw, bh, textColor)}
       </g>`;
   }
@@ -337,7 +386,8 @@ svg { font-family: var(--font-family); }
     /* ── 6.   Bubble fill + shell ─────────────────────────────────────── */
     const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR
     const rect = `<rect width="${width}" height="${height}"
-                     rx="${theme.BUBBLE_RADIUS_PX}" ry="${theme.BUBBLE_RADIUS_PX}"
+                     rx="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" 
+                     ry="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)"
                      fill="${bubbleFill}"/>`
   
     /* ── 7.   Content markup ──────────────────────────────────────────── */
@@ -350,9 +400,9 @@ svg { font-family: var(--font-family); }
     const tail = isMe
       ? `<path d="M${width},10 C${width + 4},14 ${width + 7},18 ${width + 6},22
                   C${width + 5},18 ${width + 2},14 ${width},16 Z"
-               fill="${bubbleFill}"/>`
+               fill="var(--me-bubble-color, ${bubbleFill})"/>`
       : `<path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
-               fill="${bubbleFill}"/>`
+               fill="var(--visitor-bubble-color, ${bubbleFill})"/>`
   
     /* ── 9.   Status & reactions (same as before) ─────────────────────── */
     const status   = isMe ? this._statusIndicators(item, width, height) : ''
@@ -383,7 +433,7 @@ svg { font-family: var(--font-family); }
           config.layout.BUBBLE_PAD_Y_PX +
           (i + 1) * config.layout.LINE_HEIGHT_PX -
           6;
-        return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="${color}" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
+        return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="var(--${isMe ? 'me' : 'visitor'}-text-color, ${color})" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
       })
       .join("");
   }

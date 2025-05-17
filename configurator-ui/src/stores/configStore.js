@@ -47,7 +47,7 @@ const clientSideThemes = {
     
     CHART_STYLES: {
       BAR_DEFAULT_COLOR: '#007AFF',
-      BAR_TRACK_COLOR: '#E5E5EA',
+      BAR_TRACK_COLOR: '#D3D3D8',
       BAR_CORNER_RADIUS_PX: 8,
       VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
       BAR_HEIGHT_PX: 18,

@@ -42,7 +42,7 @@ export const config = {
       
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#007AFF',
-        BAR_TRACK_COLOR:   '#E5E5EA',
+        BAR_TRACK_COLOR: '#D3D3D8',
         BAR_CORNER_RADIUS_PX: 8,
         VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
         BAR_HEIGHT_PX: 18,
@@ -57,7 +57,7 @@ export const config = {
         TITLE_BOTTOM_MARGIN_PX: 10,
         CHART_PADDING_X_PX: 16,
         CHART_PADDING_Y_PX: 14,
-        AXIS_LINE_COLOR: '#E5E5EA',
+        AXIS_LINE_COLOR: '#D3D3D8',
         GRID_LINE_COLOR: '#F5F5F5',
         DONUT_STROKE_WIDTH_PX: 30,
         DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
@@ -72,22 +72,21 @@ export const config = {
         DONUT_ANIMATION_DURATION_SEC: 1.0,
         DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
       
-        // Sender-specific text colors for charts
         ME_TITLE_COLOR: '#FFFFFF',
-        ME_LABEL_COLOR: '#FFFFFF',
+        ME_LABEL_COLOR: '#E2F0FF',
         ME_VALUE_TEXT_COLOR: '#FFFFFF',
       
         VISITOR_TITLE_COLOR: '#000000',
-        VISITOR_LABEL_COLOR: '#000000',
-        VISITOR_VALUE_TEXT_COLOR: '#333333',
+        VISITOR_LABEL_COLOR: '#444444',
+        VISITOR_VALUE_TEXT_COLOR: '#000000',
       }
     },
     
     android: {
       ME_BUBBLE_COLOR: '#D1E6FF',
       VISITOR_BUBBLE_COLOR: '#F0F0F0',
-      ME_TEXT_COLOR: '#000000',
-      VISITOR_TEXT_COLOR: '#000000',
+      ME_TEXT_COLOR: '#0D47A1',
+      VISITOR_TEXT_COLOR: '#212121',
       BACKGROUND_LIGHT: '#FFFFFF',
       BACKGROUND_DARK: '#121212',
       BUBBLE_RADIUS_PX: 8,
@@ -105,7 +104,7 @@ export const config = {
       
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#4285F4',
-        BAR_TRACK_COLOR:   '#E0E0E0',
+        BAR_TRACK_COLOR: '#CCCCCC',
         BAR_CORNER_RADIUS_PX: 7,
         VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
         BAR_HEIGHT_PX: 16,
@@ -120,28 +119,28 @@ export const config = {
         TITLE_BOTTOM_MARGIN_PX: 10,
         CHART_PADDING_X_PX: 16,
         CHART_PADDING_Y_PX: 14,
-        AXIS_LINE_COLOR: '#E0E0E0',
+        AXIS_LINE_COLOR: '#CCCCCC',
         GRID_LINE_COLOR: '#F5F5F5',
         DONUT_STROKE_WIDTH_PX: 28,
         DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
         DONUT_CENTER_TEXT_FONT_FAMILY: "'Roboto', sans-serif",
-        ME_DONUT_CENTER_TEXT_COLOR: '#000000',
-        VISITOR_DONUT_CENTER_TEXT_COLOR: '#000000',
-        ME_DONUT_LEGEND_TEXT_COLOR: '#000000',
-        VISITOR_DONUT_LEGEND_TEXT_COLOR: '#000000',
+        ME_DONUT_CENTER_TEXT_COLOR: '#0D47A1',
+        VISITOR_DONUT_CENTER_TEXT_COLOR: '#212121',
+        ME_DONUT_LEGEND_TEXT_COLOR: '#0D47A1',
+        VISITOR_DONUT_LEGEND_TEXT_COLOR: '#212121',
         DONUT_LEGEND_FONT_SIZE_PX: 12,
         DONUT_LEGEND_ITEM_SPACING_PX: 8,
         DONUT_LEGEND_MARKER_SIZE_PX: 10,
         DONUT_ANIMATION_DURATION_SEC: 1.0,
         DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
   
-        ME_TITLE_COLOR: '#000000',
-        ME_LABEL_COLOR: '#000000',
-        ME_VALUE_TEXT_COLOR: '#222222',
+        ME_TITLE_COLOR: '#0D47A1',
+        ME_LABEL_COLOR: '#1976D2',
+        ME_VALUE_TEXT_COLOR: '#0D47A1',
   
-        VISITOR_TITLE_COLOR: '#000000',
-        VISITOR_LABEL_COLOR: '#000000',
-        VISITOR_VALUE_TEXT_COLOR: '#424242',
+        VISITOR_TITLE_COLOR: '#212121',
+        VISITOR_LABEL_COLOR: '#616161',
+        VISITOR_VALUE_TEXT_COLOR: '#212121',
       }
     }
   },
@@ -162,8 +161,8 @@ export const config = {
   cache: {
     WEATHER_CACHE_TTL_MS: 1800000,
     GITHUB_CACHE_TTL_MS: 3600000,
-    TWITTER_CACHE_TTL_MS: 3600000, // 1 hour
-    CODESTATS_CACHE_TTL_MS: 7200000 // 2 hours
+    TWITTER_CACHE_TTL_MS: 3600000,
+    CODESTATS_CACHE_TTL_MS: 7200000
   },
   
   apiDefaults: {
@@ -243,7 +242,7 @@ export const config = {
       SHADOW_OPACITY: 0.15,
       SCROLL_DELAY_BUFFER_SEC: 2.2,
       MIN_SCROLL_DURATION_SEC: 1.2,
-      SCROLL_PIXELS_PER_SEC: 13,
+      SCROLL_PIXELS_PER_SEC: 18,
     }
   },
   
@@ -256,5 +255,18 @@ export const config = {
       wakatime_chart_data: []
     },
     cacheTtlMs: 7200000
+  },
+
+  fontOptions: {
+    standard: [
+      "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "'Roboto', sans-serif",
+      "'Roboto Medium', 'Roboto', sans-serif",
+      "'Helvetica Neue', Helvetica, Arial, sans-serif",
+      "'Arial', sans-serif",
+      "'Georgia', serif",
+      "'Courier New', monospace"
+    ]
   }
 };

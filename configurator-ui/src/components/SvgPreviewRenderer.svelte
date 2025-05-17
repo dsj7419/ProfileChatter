@@ -238,29 +238,36 @@
       svgElement.style.setProperty('--reaction-padding-y-px', `${$editableTheme.REACTION_PADDING_Y_PX}px`);
       svgElement.style.setProperty('--reaction-border-radius-px', `${$editableTheme.REACTION_BORDER_RADIUS_PX}px`);
       svgElement.style.setProperty('--reaction-offset-y-px', `${$editableTheme.REACTION_OFFSET_Y_PX}px`);
+      svgElement.style.setProperty('--reaction-offset-x-px', `${$editableTheme.REACTION_OFFSET_X_PX || 0}px`);
       
       // Apply chart styles
       const chartStyles = $editableTheme.CHART_STYLES;
       if (chartStyles) {
+        // General chart properties
         svgElement.style.setProperty('--bar-default-color', chartStyles.BAR_DEFAULT_COLOR);
         svgElement.style.setProperty('--bar-track-color', chartStyles.BAR_TRACK_COLOR);
         svgElement.style.setProperty('--bar-corner-radius-px', `${chartStyles.BAR_CORNER_RADIUS_PX}px`);
         svgElement.style.setProperty('--bar-height-px', `${chartStyles.BAR_HEIGHT_PX}px`);
         svgElement.style.setProperty('--bar-spacing-px', `${chartStyles.BAR_SPACING_PX}px`);
         
+        // Font properties
         svgElement.style.setProperty('--label-font-family', chartStyles.LABEL_FONT_FAMILY);
         svgElement.style.setProperty('--label-font-size-px', `${chartStyles.LABEL_FONT_SIZE_PX}px`);
         svgElement.style.setProperty('--value-text-font-family', chartStyles.VALUE_TEXT_FONT_FAMILY);
         svgElement.style.setProperty('--value-text-font-size-px', `${chartStyles.VALUE_TEXT_FONT_SIZE_PX}px`);
+        svgElement.style.setProperty('--value-text-inside-color', chartStyles.VALUE_TEXT_INSIDE_COLOR);
         
+        // Title properties
         svgElement.style.setProperty('--title-font-family', chartStyles.TITLE_FONT_FAMILY);
         svgElement.style.setProperty('--title-font-size-px', `${chartStyles.TITLE_FONT_SIZE_PX}px`);
         svgElement.style.setProperty('--title-line-height-multiplier', chartStyles.TITLE_LINE_HEIGHT_MULTIPLIER);
         svgElement.style.setProperty('--title-bottom-margin-px', `${chartStyles.TITLE_BOTTOM_MARGIN_PX}px`);
         
+        // Padding
         svgElement.style.setProperty('--chart-padding-x-px', `${chartStyles.CHART_PADDING_X_PX}px`);
         svgElement.style.setProperty('--chart-padding-y-px', `${chartStyles.CHART_PADDING_Y_PX}px`);
         
+        // Text colors
         svgElement.style.setProperty('--me-title-color', chartStyles.ME_TITLE_COLOR);
         svgElement.style.setProperty('--me-label-color', chartStyles.ME_LABEL_COLOR);
         svgElement.style.setProperty('--me-value-text-color', chartStyles.ME_VALUE_TEXT_COLOR);
@@ -269,7 +276,7 @@
         svgElement.style.setProperty('--visitor-label-color', chartStyles.VISITOR_LABEL_COLOR);
         svgElement.style.setProperty('--visitor-value-text-color', chartStyles.VISITOR_VALUE_TEXT_COLOR);
         
-        // Donut chart styles
+        // Donut chart specific properties
         svgElement.style.setProperty('--donut-stroke-width-px', `${chartStyles.DONUT_STROKE_WIDTH_PX}px`);
         svgElement.style.setProperty('--donut-center-text-font-size-px', `${chartStyles.DONUT_CENTER_TEXT_FONT_SIZE_PX}px`);
         svgElement.style.setProperty('--donut-center-text-font-family', chartStyles.DONUT_CENTER_TEXT_FONT_FAMILY);
@@ -282,6 +289,14 @@
         svgElement.style.setProperty('--donut-legend-marker-size-px', `${chartStyles.DONUT_LEGEND_MARKER_SIZE_PX}px`);
         svgElement.style.setProperty('--donut-animation-duration-sec', `${chartStyles.DONUT_ANIMATION_DURATION_SEC}s`);
         svgElement.style.setProperty('--donut-segment-animation-delay-sec', `${chartStyles.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s`);
+        
+        // Axis and grid colors
+        svgElement.style.setProperty('--axis-line-color', chartStyles.AXIS_LINE_COLOR);
+        svgElement.style.setProperty('--grid-line-color', chartStyles.GRID_LINE_COLOR);
+        
+        // Animation durations
+        svgElement.style.setProperty('--chart-bar-animation-duration-sec', `${$userConfig?.layout?.ANIMATION?.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s`);
+        svgElement.style.setProperty('--chart-animation-delay-sec', `${$userConfig?.layout?.ANIMATION?.CHART_ANIMATION_DELAY_SEC || 0.3}s`);
       }
       
       debug('Theme styles applied to SVG element');
@@ -310,15 +325,7 @@
       });
     });
     
-    // REPLACED: The old reactive statement that watched everything
-    // $: {
-    //   if ($userConfig && $chatMessages && $chatMessages.length > 0) {
-    //     debug('Stores updated, triggering debounced preview');
-    //     debouncedFetchPreview();
-    //   }
-    // }
-    
-    // NEW: Watch for content/structure changes (non-theme) and update SVG with server fetch
+    // Watch for content/structure changes (non-theme) and update SVG with server fetch
     $: {
       if ($userConfig && $chatMessages) { // Ensure stores are populated
         // Create a hash of just the content/structure parts that require server rendering

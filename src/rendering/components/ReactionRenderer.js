@@ -26,9 +26,13 @@ class ReactionRenderer {
     const py = theme.REACTION_PADDING_Y_PX;
     const pillW = sz + px * 2;
     const pillH = sz + py * 2;
+    const offsetX = theme.REACTION_OFFSET_X_PX || 0;
 
-    // Position reaction pill relative to bubble
-    const rx = isMe ? -pillW / 2 : bubbleWidth - pillW / 2;
+    // Position reaction pill relative to bubble with offset customization
+    const rx = isMe ? 
+      -pillW / 2 + offsetX : 
+      bubbleWidth - pillW / 2 + offsetX;
+    
     const ry = theme.REACTION_OFFSET_Y_PX;
 
     // Calculate animation delay
@@ -41,8 +45,16 @@ class ReactionRenderer {
     const delay = base + extra + config.layout.ANIMATION.REACTION_ANIMATION_DELAY_FACTOR_SEC;
 
     return `<g class="reaction" style="animation-delay:${delay.toFixed(2)}s" transform="translate(${rx},${ry})">
-      <rect width="${pillW}" height="${pillH}" rx="${theme.REACTION_BORDER_RADIUS_PX}" ry="${theme.REACTION_BORDER_RADIUS_PX}" fill="${theme.REACTION_BG_COLOR}" fill-opacity="${theme.REACTION_BG_OPACITY}"/>
-      <text x="${pillW / 2}" y="${pillH / 2}" text-anchor="middle" dominant-baseline="middle" font-size="${sz}px" fill="${theme.REACTION_TEXT_COLOR}">${TextProcessor.escapeXML(item.reaction)}</text>
+      <rect width="${pillW}" height="${pillH}" 
+            rx="var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px)" 
+            ry="var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px)" 
+            fill="var(--reaction-bg-color, ${theme.REACTION_BG_COLOR})" 
+            fill-opacity="var(--reaction-bg-opacity, ${theme.REACTION_BG_OPACITY})"/>
+      <text x="${pillW / 2}" y="${pillH / 2}" 
+            text-anchor="middle" 
+            dominant-baseline="middle" 
+            font-size="var(--reaction-font-size-px, ${sz}px)" 
+            fill="var(--reaction-text-color, ${theme.REACTION_TEXT_COLOR})">${TextProcessor.escapeXML(item.reaction)}</text>
     </g>`;
   }
 }
