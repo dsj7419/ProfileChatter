@@ -1,30 +1,7 @@
 import { writable } from 'svelte/store';
 
-// Initial profile configuration that mirrors the structure in config.js
-const initialProfileConfig = {
-  NAME: "Your Name",
-  PROFESSION: "Your Profession",
-  LOCATION: "Your City",
-  COMPANY: "Your Company",
-  CURRENT_PROJECT: "ProfileChatter SVG Generator",
-  GITHUB_USERNAME: "your_github",
-  WAKATIME_USERNAME: "your_wakatime",
-  TWITTER_USERNAME: "",
-  CODESTATS_USERNAME: ""
-};
-
-// Initial avatar configuration that mirrors the structure in config.js
-const initialAvatarsConfig = {
-  enabled: true,
-  me: { imageUrl: "", fallbackText: "ME" }, // Default to "ME" or user's initials if available
-  visitor: { imageUrl: "", fallbackText: "?" },
-  sizePx: 32, // Could be configurable later, for now use default
-  shape: "circle", // 'circle' or 'square'
-  // xOffsetPx and yOffsetPx are layout details, less critical for user UI in MVP
-};
-
-// Client-side safe version of the themes from config.js
-const clientSideThemes = {
+// Initial default values
+const defaultThemes = {
   ios: {
     ME_BUBBLE_COLOR: '#0B93F6',
     VISITOR_BUBBLE_COLOR: '#E5E5EA',
@@ -44,10 +21,12 @@ const clientSideThemes = {
     REACTION_BORDER_RADIUS_PX: 14,
     REACTION_OFFSET_X_PX: 0,
     REACTION_OFFSET_Y_PX: -12,
+    REACTION_ANIMATION_DURATION_SEC: 0.3,
+    REACTION_ANIMATION_DELAY_SEC: 0.2,
     
     CHART_STYLES: {
       BAR_DEFAULT_COLOR: '#007AFF',
-      BAR_TRACK_COLOR: '#D3D3D8', // Fixed to ensure correct value
+      BAR_TRACK_COLOR: '#D3D3D8',
       BAR_CORNER_RADIUS_PX: 8,
       VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
       BAR_HEIGHT_PX: 18,
@@ -62,7 +41,7 @@ const clientSideThemes = {
       TITLE_BOTTOM_MARGIN_PX: 10,
       CHART_PADDING_X_PX: 16,
       CHART_PADDING_Y_PX: 14,
-      AXIS_LINE_COLOR: '#E5E5EA',
+      AXIS_LINE_COLOR: '#D3D3D8',
       GRID_LINE_COLOR: '#F5F5F5',
       DONUT_STROKE_WIDTH_PX: 30,
       DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
@@ -76,22 +55,24 @@ const clientSideThemes = {
       DONUT_LEGEND_MARKER_SIZE_PX: 10,
       DONUT_ANIMATION_DURATION_SEC: 1.0,
       DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
+      CHART_BAR_ANIMATION_DURATION_SEC: 0.8,
+      CHART_ANIMATION_DELAY_SEC: 0.3,
+      BAR_ANIMATION_DURATION_SEC: 0.8,
     
       ME_TITLE_COLOR: '#FFFFFF',
-      ME_LABEL_COLOR: '#FFFFFF',
+      ME_LABEL_COLOR: '#E2F0FF',
       ME_VALUE_TEXT_COLOR: '#FFFFFF',
     
       VISITOR_TITLE_COLOR: '#000000',
-      VISITOR_LABEL_COLOR: '#000000',
-      VISITOR_VALUE_TEXT_COLOR: '#333333',
+      VISITOR_LABEL_COLOR: '#444444',
+      VISITOR_VALUE_TEXT_COLOR: '#000000',
     }
   },
-  
   android: {
     ME_BUBBLE_COLOR: '#D1E6FF',
     VISITOR_BUBBLE_COLOR: '#F0F0F0',
-    ME_TEXT_COLOR: '#000000',
-    VISITOR_TEXT_COLOR: '#000000',
+    ME_TEXT_COLOR: '#0D47A1',
+    VISITOR_TEXT_COLOR: '#212121',
     BACKGROUND_LIGHT: '#FFFFFF',
     BACKGROUND_DARK: '#121212',
     BUBBLE_RADIUS_PX: 8,
@@ -106,10 +87,12 @@ const clientSideThemes = {
     REACTION_BORDER_RADIUS_PX: 12,
     REACTION_OFFSET_X_PX: 0,
     REACTION_OFFSET_Y_PX: -10,
+    REACTION_ANIMATION_DURATION_SEC: 0.3,
+    REACTION_ANIMATION_DELAY_SEC: 0.2,
     
     CHART_STYLES: {
       BAR_DEFAULT_COLOR: '#4285F4',
-      BAR_TRACK_COLOR: '#E0E0E0',
+      BAR_TRACK_COLOR: '#CCCCCC',
       BAR_CORNER_RADIUS_PX: 7,
       VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
       BAR_HEIGHT_PX: 16,
@@ -124,47 +107,154 @@ const clientSideThemes = {
       TITLE_BOTTOM_MARGIN_PX: 10,
       CHART_PADDING_X_PX: 16,
       CHART_PADDING_Y_PX: 14,
-      AXIS_LINE_COLOR: '#E0E0E0',
+      AXIS_LINE_COLOR: '#CCCCCC',
       GRID_LINE_COLOR: '#F5F5F5',
       DONUT_STROKE_WIDTH_PX: 28,
       DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
       DONUT_CENTER_TEXT_FONT_FAMILY: "'Roboto', sans-serif",
-      ME_DONUT_CENTER_TEXT_COLOR: '#000000',
-      VISITOR_DONUT_CENTER_TEXT_COLOR: '#000000',
-      ME_DONUT_LEGEND_TEXT_COLOR: '#000000',
-      VISITOR_DONUT_LEGEND_TEXT_COLOR: '#000000',
+      ME_DONUT_CENTER_TEXT_COLOR: '#0D47A1',
+      VISITOR_DONUT_CENTER_TEXT_COLOR: '#212121',
+      ME_DONUT_LEGEND_TEXT_COLOR: '#0D47A1',
+      VISITOR_DONUT_LEGEND_TEXT_COLOR: '#212121',
       DONUT_LEGEND_FONT_SIZE_PX: 12,
       DONUT_LEGEND_ITEM_SPACING_PX: 8,
       DONUT_LEGEND_MARKER_SIZE_PX: 10,
       DONUT_ANIMATION_DURATION_SEC: 1.0,
-      DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.2,
-    
-      ME_TITLE_COLOR: '#000000',
-      ME_LABEL_COLOR: '#000000',
-      ME_VALUE_TEXT_COLOR: '#222222',
-    
-      VISITOR_TITLE_COLOR: '#000000',
-      VISITOR_LABEL_COLOR: '#000000',
-      VISITOR_VALUE_TEXT_COLOR: '#424242',
+      DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
+      CHART_BAR_ANIMATION_DURATION_SEC: 0.8,
+      CHART_ANIMATION_DELAY_SEC: 0.3,
+      BAR_ANIMATION_DURATION_SEC: 0.8,
+
+      ME_TITLE_COLOR: '#0D47A1',
+      ME_LABEL_COLOR: '#1976D2',
+      ME_VALUE_TEXT_COLOR: '#0D47A1',
+
+      VISITOR_TITLE_COLOR: '#212121',
+      VISITOR_LABEL_COLOR: '#616161',
+      VISITOR_VALUE_TEXT_COLOR: '#212121',
     }
   }
 };
 
-// Main configuration store
+// Default font options
+const defaultFontOptions = {
+  standard: [
+    "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    "'Roboto', sans-serif",
+    "'Roboto Medium', 'Roboto', sans-serif",
+    "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    "'Arial', sans-serif",
+    "'Georgia', serif",
+    "'Courier New', monospace"
+  ]
+};
+
+// Initial profile configuration
+const initialProfileConfig = {
+  NAME: "Your Name",
+  PROFESSION: "Your Profession",
+  LOCATION: "Your City",
+  COMPANY: "Your Company",
+  CURRENT_PROJECT: "ProfileChatter SVG Generator",
+  GITHUB_USERNAME: "your_github",
+  WAKATIME_USERNAME: "your_wakatime",
+  TWITTER_USERNAME: "",
+  CODESTATS_USERNAME: ""
+};
+
+// Initial avatar configuration
+const initialAvatarsConfig = {
+  enabled: true,
+  me: { imageUrl: "", fallbackText: "ME" },
+  visitor: { imageUrl: "", fallbackText: "?" },
+  sizePx: 32,
+  shape: "circle",
+};
+
+// Function to load config from the server API (async)
+async function loadConfigFromServer() {
+  try {
+    const response = await fetch('http://localhost:3001/api/initial-config-data');
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to load config from server:', error);
+    // Return null on error, we'll fall back to defaults
+    return null;
+  }
+}
+
+// Deep clone helper
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+// Create stores with default values
 export const userConfig = writable({
-  profile: { ...initialProfileConfig },
-  activeTheme: "ios", // Default theme
-  avatars: { ...initialAvatarsConfig }, // Add avatar config
-  // other config sections will be added later
+  profile: deepClone(initialProfileConfig),
+  activeTheme: "ios",
+  avatars: deepClone(initialAvatarsConfig),
 });
 
-// Create a new editable theme store that tracks the current theme object
-export const editableTheme = writable(JSON.parse(JSON.stringify(clientSideThemes.ios))); // Default to iOS
+// Source of themes with defaults
+export const themes = writable(deepClone(defaultThemes));
 
-// Subscribe to userConfig changes to update the editableTheme
+// Source of font options
+export const fontOptions = writable(deepClone(defaultFontOptions));
+
+// Create a store for the editable theme based on the active theme
+export const editableTheme = writable(deepClone(defaultThemes.ios));
+
+// When userConfig changes, update the editableTheme
 userConfig.subscribe(value => {
-  if (value.activeTheme && clientSideThemes[value.activeTheme]) {
-    editableTheme.set(JSON.parse(JSON.stringify(clientSideThemes[value.activeTheme])));
+  if (value.activeTheme) {
+    themes.subscribe(allThemes => {
+      if (allThemes[value.activeTheme]) {
+        editableTheme.set(deepClone(allThemes[value.activeTheme]));
+      }
+    });
+  }
+});
+
+// Try to load config from server (non-blocking)
+loadConfigFromServer().then(serverConfig => {
+  if (serverConfig) {
+    // Update stores with server data
+    if (serverConfig.themes) {
+      themes.set(deepClone(serverConfig.themes));
+    }
+    
+    if (serverConfig.fontOptions) {
+      fontOptions.set(deepClone(serverConfig.fontOptions));
+    }
+    
+    if (serverConfig.defaultProfile) {
+      userConfig.update(cfg => ({
+        ...cfg,
+        profile: deepClone(serverConfig.defaultProfile)
+      }));
+    }
+    
+    if (serverConfig.defaultAvatars) {
+      userConfig.update(cfg => ({
+        ...cfg,
+        avatars: deepClone(serverConfig.defaultAvatars)
+      }));
+    }
+    
+    if (serverConfig.activeTheme) {
+      userConfig.update(cfg => ({
+        ...cfg,
+        activeTheme: serverConfig.activeTheme
+      }));
+    }
+    
+    console.log('Loaded configuration from server');
+  } else {
+    console.log('Using default configuration');
   }
 });
 
@@ -177,3 +267,34 @@ export const workStartDate = writable({
 
 // Store for chat messages
 export const chatMessages = writable([]);
+
+// Get a complete configuration object for the preview
+export function getPreviewConfiguration() {
+  // Get current values from stores
+  let currentConfig;
+  let currentTheme;
+  let currentMessages;
+  let currentWorkDate;
+  
+  userConfig.subscribe(value => { currentConfig = value; })();
+  editableTheme.subscribe(value => { currentTheme = value; })();
+  chatMessages.subscribe(value => { currentMessages = value; })();
+  workStartDate.subscribe(value => { currentWorkDate = value; })();
+  
+  return {
+    profile: {
+      ...currentConfig.profile,
+      // Include the date components formatted in the way the preview server expects
+      WORK_START_DATE: {
+        year: currentWorkDate.year,
+        month: currentWorkDate.month,
+        day: currentWorkDate.day
+      }
+    },
+    activeTheme: currentConfig.activeTheme,
+    avatars: currentConfig.avatars,
+    chatMessages: currentMessages,
+    // Include theme overrides
+    themeOverrides: currentTheme
+  };
+}

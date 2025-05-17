@@ -1,6 +1,12 @@
 <script>
-    import { onMount } from 'svelte';
-    import { userConfig, workStartDate, chatMessages, editableTheme } from '../stores/configStore.js';
+    import { onMount, onDestroy } from 'svelte';
+    import { 
+      userConfig, 
+      workStartDate, 
+      chatMessages, 
+      editableTheme,
+      getPreviewConfiguration 
+    } from '../stores/configStore.js';
     
     // State for SVG preview
     let generatedSvgMarkup = '';
@@ -12,14 +18,21 @@
     let isCopying = false;
     let copyButtonText = "Copy SVG Markup";
     
-    // Add a manual toggle for testing
+    // Add a manual toggle for tracking refreshes
     let manualRefreshCount = 0;
+    
+    // Add a mode toggle (light/dark)
+    let previewMode = 'light'; // Default to light mode
     
     // Reference to the SVG container div
     let svgContainerDiv;
     
     // Content hash for tracking non-theme changes
     let prevContentHash = '';
+    let prevThemeHash = '';
+    
+    // Flag to track if we've loaded configuration from the server
+    let configLoaded = false;
     
     // Preview sizing options - GitHub README column widths
     let previewSizes = [
@@ -36,9 +49,10 @@
     $: currentPreviewWidth = previewSizes.find(s => s.id === selectedSizeId)?.width || customWidth;
     $: if (selectedSizeId === 'custom') currentPreviewWidth = customWidth;
     
-    // Debug console output
+    // Debug console output with timestamp
     function debug(message, data = null) {
-      console.log(`[SVG Preview] ${message}`, data || '');
+      const timestamp = new Date().toISOString().substr(11, 12);
+      console.log(`[SVG Preview ${timestamp}] ${message}`, data || '');
     }
     
     // Debounce function to prevent too many requests
@@ -49,7 +63,7 @@
         timeout = setTimeout(() => func.apply(this, args), wait);
       };
     }
-
+  
     // Copy SVG markup to clipboard
     async function copySvgMarkup() {
       if (!generatedSvgMarkup || isCopying) return;
@@ -79,6 +93,32 @@
       }
     }
     
+    // Load initial configuration from server
+    async function loadInitialConfig() {
+      debug('Loading initial configuration from server');
+      
+      try {
+        const response = await fetch(`${previewServer}/api/initial-config-data`);
+        
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status} ${response.statusText}`);
+        }
+        
+        const configData = await response.json();
+        debug('Received configuration data:', Object.keys(configData));
+        
+        // Here we could initialize our stores with the server data if needed
+        // This is useful if we want to ensure we're always in sync with the server
+        
+        configLoaded = true;
+        return true;
+      } catch (err) {
+        debug('Failed to load configuration from server:', err.message);
+        error = `Failed to load configuration: ${err.message}`;
+        return false;
+      }
+    }
+    
     // Add a direct HTTP test function
     async function testServerConnection() {
       try {
@@ -90,6 +130,7 @@
         if (testResponse.ok) {
           const text = await testResponse.text();
           debug('Server connection test successful', { status: testResponse.status });
+          error = null; // Clear any previous errors
           return true;
         } else {
           debug('Server connection test failed', { status: testResponse.status });
@@ -98,7 +139,7 @@
         }
       } catch (err) {
         debug('Server connection test threw an error', { error: err.message });
-        error = `Cannot connect to preview server: ${err.message}`;
+        error = `Cannot connect to preview server at ${previewServer}: ${err.message}`;
         return false;
       }
     }
@@ -112,42 +153,34 @@
         return;
       }
       
+      // Ensure we have required data
       if (!$userConfig?.profile?.NAME) {
         debug('No profile data available yet, skipping request');
+        error = "Profile data is missing or incomplete. Please fill in your profile information.";
         return;
       }
       
       if (!$chatMessages || $chatMessages.length === 0) {
         debug('No chat messages available yet, skipping request');
+        error = "No chat messages available. Please add at least one message.";
         return;
       }
       
       isLoading = true;
-      error = null;
+      error = null; // Clear any previous errors
       manualRefreshCount++;
       
       try {
-        // Prepare data for POST request
-        const fullConfigData = { 
-          profile: {
-            ...$userConfig.profile,
-            // Store date components explicitly
-            WORK_START_DATE: {
-              year: $workStartDate.year,
-              month: $workStartDate.month,
-              day: $workStartDate.day
-            }
-          },
-          activeTheme: $userConfig.activeTheme,
-          avatars: $userConfig.avatars, // Include avatar configuration
-          chatMessages: $chatMessages
-        };
+        // Get a complete configuration object using our helper function
+        const fullConfigData = getPreviewConfiguration();
         
         debug('Sending request to server', {
           url: `${previewServer}/generate-preview`,
           activeTheme: fullConfigData.activeTheme,
           messagesCount: fullConfigData.chatMessages.length,
           avatarsEnabled: fullConfigData.avatars?.enabled,
+          profileName: fullConfigData.profile.NAME, 
+          hasThemeOverrides: !!fullConfigData.themeOverrides,
           timestamp: new Date().toISOString()
         });
         
@@ -226,6 +259,9 @@
       svgElement.style.setProperty('--visitor-text-color', $editableTheme.VISITOR_TEXT_COLOR);
       svgElement.style.setProperty('--background-light', $editableTheme.BACKGROUND_LIGHT);
       svgElement.style.setProperty('--background-dark', $editableTheme.BACKGROUND_DARK);
+      svgElement.style.setProperty('--active-background', 
+        previewMode === 'light' ? $editableTheme.BACKGROUND_LIGHT : $editableTheme.BACKGROUND_DARK
+      );
       svgElement.style.setProperty('--bubble-radius-px', `${$editableTheme.BUBBLE_RADIUS_PX}px`);
       svgElement.style.setProperty('--font-family', $editableTheme.FONT_FAMILY);
       
@@ -239,6 +275,15 @@
       svgElement.style.setProperty('--reaction-border-radius-px', `${$editableTheme.REACTION_BORDER_RADIUS_PX}px`);
       svgElement.style.setProperty('--reaction-offset-y-px', `${$editableTheme.REACTION_OFFSET_Y_PX}px`);
       svgElement.style.setProperty('--reaction-offset-x-px', `${$editableTheme.REACTION_OFFSET_X_PX || 0}px`);
+      
+      // Apply animation properties if available
+      if ($editableTheme.REACTION_ANIMATION_DURATION_SEC) {
+        svgElement.style.setProperty('--reaction-animation-duration-sec', `${$editableTheme.REACTION_ANIMATION_DURATION_SEC}s`);
+      }
+      
+      if ($editableTheme.REACTION_ANIMATION_DELAY_SEC) {
+        svgElement.style.setProperty('--reaction-animation-delay-sec', `${$editableTheme.REACTION_ANIMATION_DELAY_SEC}s`);
+      }
       
       // Apply chart styles
       const chartStyles = $editableTheme.CHART_STYLES;
@@ -294,9 +339,26 @@
         svgElement.style.setProperty('--axis-line-color', chartStyles.AXIS_LINE_COLOR);
         svgElement.style.setProperty('--grid-line-color', chartStyles.GRID_LINE_COLOR);
         
-        // Animation durations
-        svgElement.style.setProperty('--chart-bar-animation-duration-sec', `${$userConfig?.layout?.ANIMATION?.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s`);
-        svgElement.style.setProperty('--chart-animation-delay-sec', `${$userConfig?.layout?.ANIMATION?.CHART_ANIMATION_DELAY_SEC || 0.3}s`);
+        // Chart animation settings
+        // First check chart-specific settings
+        if (chartStyles.BAR_ANIMATION_DURATION_SEC) {
+          svgElement.style.setProperty('--chart-bar-animation-duration-sec', `${chartStyles.BAR_ANIMATION_DURATION_SEC}s`);
+        }
+        else if (chartStyles.CHART_BAR_ANIMATION_DURATION_SEC) {
+          svgElement.style.setProperty('--chart-bar-animation-duration-sec', `${chartStyles.CHART_BAR_ANIMATION_DURATION_SEC}s`);
+        }
+        else {
+          // Fallback to defaults
+          svgElement.style.setProperty('--chart-bar-animation-duration-sec', '0.8s');
+        }
+        
+        // Add animation delay properties
+        if (chartStyles.CHART_ANIMATION_DELAY_SEC) {
+          svgElement.style.setProperty('--chart-animation-delay-sec', `${chartStyles.CHART_ANIMATION_DELAY_SEC}s`);
+        } else {
+          // Fallback
+          svgElement.style.setProperty('--chart-animation-delay-sec', '0.3s');
+        }
       }
       
       debug('Theme styles applied to SVG element');
@@ -307,34 +369,56 @@
     const debouncedApplyThemeStyles = debounce(applyThemeStyles, 200);
     
     // Initialize after component mounted
-    onMount(() => {
+    onMount(async () => {
       debug('Component mounted');
-      // Test server connection first
-      testServerConnection().then(connected => {
-        if (connected) {
-          debug('Server connection verified, attempting initial fetch');
-          // Allow time for stores to be populated
-          setTimeout(() => {
-            debug('Attempting initial fetch', {
-              hasProfile: !!$userConfig?.profile,
-              chatMessagesCount: $chatMessages?.length || 0
-            });
-            fetchPreview();
-          }, 1000);
-        }
-      });
+      
+      // First test server connection
+      const connected = await testServerConnection();
+      if (!connected) {
+        debug('Server connection failed, will retry when requested');
+        return;
+      }
+      
+      // Try to load initial config from server
+      await loadInitialConfig();
+      
+      // Initial fetch after a short delay to ensure stores are populated
+      setTimeout(() => {
+        debug('Attempting initial fetch', {
+          hasProfile: !!$userConfig?.profile,
+          chatMessagesCount: $chatMessages?.length || 0
+        });
+        fetchPreview();
+      }, 1000);
     });
+    
+    // Cleanup on destroy
+    onDestroy(() => {
+      debug('Component destroyed, cleaning up');
+      // Any cleanup needed
+    });
+    
+    // Create a computed hash of the content/structure for change tracking
+    function computeContentHash() {
+      return JSON.stringify({
+        profile: $userConfig.profile,
+        avatars: $userConfig.avatars,
+        work_start_date: $workStartDate,
+        messages: $chatMessages,
+        activeTheme: $userConfig.activeTheme // Include theme name to trigger refresh on theme change
+      });
+    }
+    
+    // Create a computed hash of just the theme settings for change tracking
+    function computeThemeHash() {
+      return JSON.stringify($editableTheme);
+    }
     
     // Watch for content/structure changes (non-theme) and update SVG with server fetch
     $: {
       if ($userConfig && $chatMessages) { // Ensure stores are populated
         // Create a hash of just the content/structure parts that require server rendering
-        const contentHash = JSON.stringify({
-          profile: $userConfig.profile,
-          avatars: $userConfig.avatars, // Structure affects SVG (enabled, shape)
-          work_start_date: $workStartDate,
-          messages: $chatMessages
-        });
+        const contentHash = computeContentHash();
         
         // Only fetch if content has changed AND there are messages
         if (contentHash !== prevContentHash && $chatMessages.length > 0) {
@@ -352,10 +436,14 @@
     // Watch for theme changes ONLY and apply style updates client-side
     $: {
       if ($editableTheme && svgContainerDiv && generatedSvgMarkup) {
-        debug('THEME ONLY CHANGED - Applying styles client-side', {
-          themeId: $userConfig.activeTheme
-        });
-        debouncedApplyThemeStyles();
+        const themeHash = computeThemeHash();
+        if (themeHash !== prevThemeHash) {
+          debug('THEME ONLY CHANGED - Applying styles client-side', {
+            themeId: $userConfig.activeTheme
+          });
+          prevThemeHash = themeHash;
+          debouncedApplyThemeStyles();
+        }
       }
     }
     
@@ -363,6 +451,33 @@
     function handleSizeChange(event) {
       selectedSizeId = event.target.value;
       debug('Preview size changed', { size: selectedSizeId, width: currentPreviewWidth });
+    }
+    
+    // Toggle between light and dark mode
+    function setPreviewMode(mode) {
+      if (mode === previewMode) return; // Already in that mode
+      
+      previewMode = mode;
+      debug(`Switching to ${mode} mode`);
+      
+      if (svgContainerDiv && generatedSvgMarkup) {
+        const svgElement = svgContainerDiv.querySelector('svg');
+        if (svgElement) {
+          // Update background directly
+          svgElement.style.setProperty('--active-background', 
+            mode === 'light' ? $editableTheme.BACKGROUND_LIGHT : $editableTheme.BACKGROUND_DARK
+          );
+          
+          // Add a class to the SVG for additional styling if needed
+          if (mode === 'dark') {
+            svgElement.classList.add('dark-mode');
+            svgElement.classList.remove('light-mode');
+          } else {
+            svgElement.classList.add('light-mode');
+            svgElement.classList.remove('dark-mode');
+          }
+        }
+      }
     }
     
     // Handle custom width change
@@ -383,7 +498,7 @@
           disabled={isLoading}
         >
           {#if isLoading}
-            Refreshing...
+            <span class="loading-spinner"></span> Refreshing...
           {:else}
             Refresh Preview
           {/if}
@@ -410,6 +525,27 @@
             <option value={size.id}>{size.name} ({size.width}px)</option>
           {/each}
         </select>
+        
+        <!-- Dark Mode Toggle -->
+        <div class="dark-mode-toggle">
+          <span class="size-label mr-2" id="theme-mode-label">Theme Mode:</span>
+          <div role="group" aria-labelledby="theme-mode-label">
+            <button 
+              class="mode-button {previewMode === 'light' ? 'active' : ''}"
+              on:click={() => setPreviewMode('light')}
+              aria-pressed={previewMode === 'light'}
+            >
+              Light
+            </button>
+            <button 
+              class="mode-button {previewMode === 'dark' ? 'active' : ''}"
+              on:click={() => setPreviewMode('dark')}
+              aria-pressed={previewMode === 'dark'}
+            >
+              Dark
+            </button>
+          </div>
+        </div>
         
         {#if selectedSizeId === 'custom'}
           <div class="custom-size-control">
@@ -441,6 +577,7 @@
       <div class="debug-info">
         <span>Server: {previewServer}</span>
         <span>Theme: {$userConfig?.activeTheme || 'none'}</span>
+        <span>Mode: {previewMode}</span>
         <span>Messages: {$chatMessages?.length || 0}</span>
         <span>Avatars: {$userConfig?.avatars?.enabled ? 'Enabled' : 'Disabled'} ({$userConfig?.avatars?.shape || 'N/A'})</span>
         <span>Profile: {$userConfig?.profile?.NAME}</span>
@@ -485,7 +622,7 @@
       </div>
     {/if}
   </div>
-
+  
   <style>
     .svg-preview-container {
       height: 100%;
@@ -518,6 +655,20 @@
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
     }
     
     .test-button {
@@ -685,6 +836,52 @@
     .copy-button:disabled {
       background-color: #6b7280;
       cursor: not-allowed;
+    }
+    
+    .preview-note {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      padding: 0.5rem;
+      background-color: #f3f4f6;
+      border-radius: 0.375rem;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .mode-button {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      border: 1px solid #d1d5db;
+      background-color: #f9fafb;
+      color: #4b5563;
+      transition: all 0.2s ease;
+    }
+    
+    .mode-button:first-of-type {
+      border-top-left-radius: 0.375rem;
+      border-bottom-left-radius: 0.375rem;
+    }
+    
+    .mode-button:last-of-type {
+      border-top-right-radius: 0.375rem;
+      border-bottom-right-radius: 0.375rem;
+    }
+    
+    .mode-button.active {
+      background-color: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+    
+    .dark-mode-toggle {
+      display: flex;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    
+    .mr-2 {
+      margin-right: 0.5rem;
     }
     
     :global(.svg-wrapper svg) {

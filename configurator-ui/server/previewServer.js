@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 
+// Import the config for the new API endpoint
+import { config } from '../../src/config/config.js';
+
 // Calculate base paths for imports
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -88,7 +91,7 @@ const server = http.createServer(async (req, res) => {
     
     // Set CORS headers to allow requests from the Vite dev server
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
     // Handle preflight request
@@ -109,11 +112,40 @@ const server = http.createServer(async (req, res) => {
           <body>
             <h1>ProfileChatter Preview Server</h1>
             <p>Server is running. Use POST to /generate-preview to generate SVG previews.</p>
+            <p>Available endpoints:</p>
+            <ul>
+              <li><code>POST /generate-preview</code> - Generate SVG preview from configuration</li>
+              <li><code>GET /api/initial-config-data</code> - Get initial configuration data</li>
+            </ul>
             <p>Testing with cURL:</p>
             <pre>curl -X POST -H "Content-Type: application/json" -d '{"profile":{"NAME":"Test User"},"activeTheme":"ios","chatMessages":[{"id":"1","sender":"me","text":"Hello"}]}' http://localhost:3001/generate-preview</pre>
           </body>
         </html>
       `);
+      return;
+    }
+    
+    // NEW ENDPOINT: Configuration data API
+    if (req.method === 'GET' && req.url === '/api/initial-config-data') {
+      console.log('Handling GET request to /api/initial-config-data');
+      
+      // Prepare the configuration data
+      const configData = {
+        themes: config.themes,
+        fontOptions: config.fontOptions,
+        defaultProfile: config.profile,
+        defaultAvatars: config.avatars,
+        layout: config.layout,
+        activeTheme: config.activeTheme
+      };
+      
+      // Send the configuration data
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.end(JSON.stringify(configData));
+      console.log('Config data sent successfully');
       return;
     }
     
@@ -162,7 +194,9 @@ const server = http.createServer(async (req, res) => {
           // If we have work start date components, recreate the date
           workStartDate: workStartObj ? new Date(workStartObj.year, workStartObj.month - 1, workStartObj.day) : null,
           // Include avatar configuration if provided
-          avatars: configData.avatars
+          avatars: configData.avatars,
+          // Include any theme overrides if provided
+          themeOverrides: configData.themeOverrides || null
         };
         
         // Log avatar configuration if present
@@ -173,6 +207,11 @@ const server = http.createServer(async (req, res) => {
             hasMeConfig: !!customContext.avatars.me,
             hasVisitorConfig: !!customContext.avatars.visitor
           });
+        }
+        
+        // Log if theme overrides are present
+        if (customContext.themeOverrides) {
+          console.log('Theme overrides received for theme:', customContext.activeTheme);
         }
         
         console.log('Generating SVG with custom context...');
@@ -224,7 +263,10 @@ const server = http.createServer(async (req, res) => {
 // Start the server
 server.listen(PORT, () => {
   console.log(`Preview server running at http://localhost:${PORT}`);
-  console.log(`Serving /generate-preview endpoint for SVG generation`);
+  console.log(`Serving endpoints:`);
+  console.log(`- GET / - Homepage`);
+  console.log(`- GET /api/initial-config-data - Configuration API`);
+  console.log(`- POST /generate-preview - SVG generation`);
 });
 
 // Handle server errors

@@ -4,6 +4,7 @@
  * Single Responsibility: WakaTime data acquisition
  */
 import { config } from '../../config/config.js';
+import { getLanguageColor } from '../utils/languageColors.js';
 
 // Initialize module-level cache store
 let wakatimeCache = { data: null, expiresAt: 0 };
@@ -93,7 +94,7 @@ async function getWakaTimeData() {
           result.wakatime_chart_data = stats.languages.slice(0, 5).map(lang => ({
             label: lang.name,
             value: Math.round(lang.percent),
-            color: getLanguageColor(lang.name) // Helper to assign consistent colors
+            color: getLanguageColor(lang.name) // Using imported helper
           }));
         }
 
@@ -165,7 +166,7 @@ async function getWakaTimeData() {
             result.wakatime_chart_data = stats.languages.slice(0, 5).map(lang => ({
               label: lang.name,
               value: Math.round(lang.percent),
-              color: getLanguageColor(lang.name) // Helper to assign consistent colors
+              color: getLanguageColor(lang.name) // Using imported helper
             }));
           }
 
@@ -189,38 +190,6 @@ async function getWakaTimeData() {
     console.info('Using default WakaTime data due to API error.');
     return config.wakatime.defaults;
   }
-}
-
-/**
- * Gets a consistent color for programming languages
- * @param {string} language - Programming language name
- * @returns {string} - Hex color code
- */
-function getLanguageColor(language) {
-  // Common language colors (loosely based on GitHub's language colors)
-  const colorMap = {
-    'JavaScript': '#F7DF1E',
-    'TypeScript': '#3178C6',
-    'Python': '#3776AB',
-    'Java': '#B07219',
-    'C#': '#178600',
-    'PHP': '#4F5D95',
-    'C++': '#F34B7D',
-    'C': '#555555',
-    'HTML': '#E34C26',
-    'CSS': '#563D7C',
-    'Ruby': '#CC342D',
-    'Go': '#00ADD8',
-    'Swift': '#F05138',
-    'Kotlin': '#A97BFF',
-    'Rust': '#DEA584',
-    'Dart': '#00B4AB',
-    'Shell': '#89E051',
-    'PowerShell': '#012456'
-  };
-  
-  // Return the mapped color or a default
-  return colorMap[language] || '#607D8B'; // Default to a neutral blue-gray
 }
 
 export { getWakaTimeData };
