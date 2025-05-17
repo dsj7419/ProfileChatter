@@ -13,6 +13,7 @@ import TextProcessor from '../utils/TextProcessor.js';
 import AvatarRenderer from './components/AvatarRenderer.js';
 import ReactionRenderer from './components/ReactionRenderer.js';
 import ChartRenderer from './components/ChartRenderer.js';
+import ScrollAnimationEngine from './ScrollAnimationEngine.js';
 
 // Import font data
 let INTER_FONT_BASE64 = '';
@@ -61,6 +62,7 @@ class SvgRenderer {
 _header(timelineData) {
   const theme = this.getActiveThemeStyles();
   const timingProfile = timelineData.timings;
+  const scrollKeyframeData = timelineData.scrollKeyframeData || [];
 
   /* ---------- font‑face --------------------------------------------- */
   const fontFace = INTER_FONT_BASE64 
@@ -68,20 +70,19 @@ _header(timelineData) {
     : '';
   
   /* ---------- animation timing -------------------------------------- */
-  // Get scroll distance from the timing profile or fall back to the original value
-  const scrollDistance = timingProfile?.scrollDistance ?? timelineData.scrollDistance;
-  
-  // Add delay before scrolling starts (wait for last message to be read)
+  // Start scrolling with adjusted timing for better flow
   const totalTypingTime = timelineData.totalTypingTime;
-  const scrollDelay = (totalTypingTime / 1000) + config.layout.ANIMATION.SCROLL_DELAY_BUFFER_SEC;
+  // Slightly longer delay before starting, but faster initial movement
+  const scrollDelay = (totalTypingTime / 1000) * 0.6 + 1.0; // 60% of typing time + 1s buffer
   
-  // Calculate scroll duration based on timing profile or fall back to old calculation
-  const scrollDuration = (timingProfile?.scrollDurationSec ?? 
-    Math.max(
-      config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC,
-      scrollDistance / config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC
-    )
-  ).toFixed(2);
+  // Calculate scroll duration based on timing profile
+  const totalDurationSec = timingProfile.getTotalDuration() / 1000;
+
+  // Generate dynamic scroll keyframes using ScrollAnimationEngine
+  const scrollKeyframesCSS = ScrollAnimationEngine.generateScrollKeyframesCSS(
+    scrollKeyframeData,
+    totalDurationSec
+  );
   
   /* ---------- CSS Variables ---------------------------------------- */
   const cssVars = `
@@ -174,10 +175,10 @@ ${cssVars}
 @keyframes typingDot3{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
 @keyframes reactionIn{0%{scale:.5;opacity:0}100%{scale:1;opacity:1}}
 @keyframes avatarIn{0%{scale:.8;opacity:0}100%{scale:1;opacity:1}}
-@keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-${scrollDistance}px)}}
+${scrollKeyframesCSS}
 @keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
 @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
-.track{animation:scrollUp ${scrollDuration}s linear forwards;animation-delay:${scrollDelay.toFixed(2)}s;transform:translate3d(0,0,0);will-change:transform}
+.track{animation:scrollUp ${totalDurationSec.toFixed(2)}s cubic-bezier(0.25, 0.1, 0.25, 0.85) forwards;animation-delay:${scrollDelay.toFixed(2)}s;transform:translate3d(0,0,0);will-change:transform}
 .msg{animation:bubbleIn ${config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION}s ${config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE} forwards;opacity:0;filter:url(#shadowEffect)}
 .typing{opacity:0;filter:url(#shadowEffect)}
 .reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}

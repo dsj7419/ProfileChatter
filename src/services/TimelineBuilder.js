@@ -86,9 +86,10 @@ class TimelineBuilder {
   buildTimeline(dynamicData) {
     const timelineItems = [];
     const perMessageTimings = []; // Store timing info for each message
+    const scrollKeyframeData = []; // Store scroll keyframe data for ScrollAnimationEngine
 
     let currentTime = 0;
-    let currentY = 20; 
+    let currentY = 10; // Start higher in the viewport
     let previousSender = null;
     
     const processedMessages = [];
@@ -138,6 +139,7 @@ class TimelineBuilder {
         typingTime = this.calculateTypingTime(text);
       }
       
+      // For charts, we'll use a simplified approach
       processedMessages.push({
         sender, text, dimensions, typingTime, reaction, contentType, chartData: chartDataFormatted
       });
@@ -173,6 +175,23 @@ class TimelineBuilder {
         sender, currentTime, currentY, text, dimensions, reaction, contentType, chartData
       ));
       
+      // Track scroll keyframe data for each message with special handling for charts
+      if (timelineItems[timelineItems.length - 1] instanceof ChatMessage) {
+        // Regular message position and timing
+        scrollKeyframeData.push({
+          y: currentY,
+          startTime: currentTime
+        });
+        
+        // For charts, add a quick "push" 300ms later to create stronger scroll momentum
+        if (contentType === 'chart') {
+          scrollKeyframeData.push({
+            y: currentY + 60, // Push it further up by 60px
+            startTime: currentTime + 300 // 300ms after the chart appears
+          });
+        }
+      }
+      
       // Track per-message timings
       perMessageTimings.push({ 
         typingMs: typingTime, 
@@ -191,7 +210,7 @@ class TimelineBuilder {
     }
     
     // Calculate final scroll metrics
-    const totalContentHeight = currentY + config.layout.TIMING.BOTTOM_MARGIN - config.layout.TIMING.MESSAGE_VERTICAL_SPACING;
+    const totalContentHeight = currentY + config.layout.TIMING.BOTTOM_MARGIN;
     const viewportHeight = config.layout.CHAT_HEIGHT_PX; 
     const scrollDistance = Math.max(0, totalContentHeight - viewportHeight);
     
@@ -235,7 +254,8 @@ class TimelineBuilder {
       items: timelineItems,
       timings: timingProfile,
       totalDuration: timingProfile.getTotalDuration(config.layout.TIMING.ANIMATION_END_BUFFER_MS),
-      totalTypingTime: timingProfile.getTotalTypingTime()
+      totalTypingTime: timingProfile.getTotalTypingTime(),
+      scrollKeyframeData: scrollKeyframeData // Include the scroll keyframe data
     };
   }
 }
