@@ -188,8 +188,9 @@ ${scrollKeyframesCSS}
 .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
 .typing-dot3{animation:typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_3}s}
 .donut-segment {
-  opacity: 1;
-  transition: opacity 0.2s ease;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease-out;
 }
 
 .chart-content .donut-legend-marker {
@@ -222,20 +223,13 @@ svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
 /* Chart-specific styles - only style the track bar */
 .chart-track-bar { fill: var(--bar-track-color, ${theme.CHART_STYLES.BAR_TRACK_COLOR}); }
 
-/* Donut chart styling */
-.donut-segment {
-  opacity: 1 !important; /* Force segments to always be visible */
-  fill-opacity: 1 !important; /* Force fill to always be visible */
-  visibility: visible !important; /* Ensure visibility */
-  transition: transform 0.2s ease-out; /* Smooth hover transitions if interactive */
-}
-
+/* Donut chart hover styling */
 .donut-legend-item:hover ~ .donut-segment {
-  opacity: 0.7; /* Dim other segments on hover */
+  opacity: 0.7;
 }
 
 .donut-legend-item:hover {
-  cursor: pointer; /* Optional interactive styling */
+  cursor: pointer;
 }
 
 /* Reaction styling */

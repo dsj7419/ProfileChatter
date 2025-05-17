@@ -4,6 +4,7 @@
  */
 import { config } from '../../config/config.js'
 import TextProcessor from '../../utils/TextProcessor.js'
+import ChartAnimationEngine from '../animations/ChartAnimationEngine.js'
 
 class ChartRenderer {
     /**
@@ -184,7 +185,7 @@ class ChartRenderer {
     // Create a group for chart content to isolate it from bubble styling
     rows.push(`<g class="chart-content">`);
 
-    chartData.items.forEach(d => {
+    chartData.items.forEach((d, itemIndex) => {
       const labelYBaseline = cursorY + cs.LABEL_FONT_SIZE_PX;
       const barY = labelYBaseline + 2; // Small gap from label baseline to bar top
       
@@ -218,16 +219,24 @@ class ChartRenderer {
       // Ensure barFillColor is always a valid color
       const barFillColor = d.color || defaultBarColor || '#007AFF';
       
+      // Use ChartAnimationEngine for bar animation
+      const barAnimDuration = 0.7; // Fixed faster duration
+      // Add slightly staggered delay based on item index for cascade effect
+      const staggerDelay = 0.03 * itemIndex; // Shorter stagger delay
+      const animDelay = (item.startTime / 1000) + (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3) + staggerDelay;
+      
+      // Specific class for animated bars to avoid style collisions
       rows.push(`
-        <rect class="chart-value-bar" x="${padX}" y="${barY}" width="0" 
+        <rect class="chart-value-bar animated-bar" 
+              x="${padX}" y="${barY}" 
+              width="0" 
               height="var(--bar-height-px, ${barH}px)"
               rx="var(--bar-corner-radius-px, ${cornerRadius}px)" 
               ry="var(--bar-corner-radius-px, ${cornerRadius}px)"
-              fill="${barFillColor}" stroke="none">
-          <animate attributeName="width"
-                   dur="${(config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8)}s"
-                   begin="${((item.startTime / 1000) + (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3)).toFixed(2)}s"
-                   from="0" to="${barW}" fill="freeze"/>
+              fill="${barFillColor}" 
+              stroke="none"
+              opacity="0.2">
+          ${ChartAnimationEngine.getBarGrowAnimation(barW, barAnimDuration, animDelay.toFixed(2))}
         </rect>
       `);
 
@@ -258,10 +267,7 @@ class ChartRenderer {
   
   /**
    * Render donut chart with segments, center text, and legend
-   * Themes are applied through:
-   * - Font family, size, and color from theme.CHART_STYLES
-   * - Animation timing from config.layout.ANIMATION
-   * - Segment colors from chartData.items[].color or theme.CHART_STYLES.BAR_DEFAULT_COLOR
+   * Using stroke-dashoffset animation for segment drawing effect
    * @private
    */
   #renderDonutChart(msg, theme) {
@@ -289,7 +295,7 @@ class ChartRenderer {
     
     // Donut chart parameters
     const radius = chartSize / 2 - 10; // Leave some margin
-    const strokeWidth = parseInt(cs.DONUT_STROKE_WIDTH_PX || 30, 10); // This is used to calculate innerRadius
+    const strokeWidth = parseInt(cs.DONUT_STROKE_WIDTH_PX || 30, 10);
     const innerRadius = Math.max(0, radius - strokeWidth); // The inner circle radius, ensure it's not negative
     
     // Calculate total value
@@ -326,19 +332,16 @@ class ChartRenderer {
     // Create a group for chart content
     let chartSVG = `<g class="chart-content">`;
     
-    // Create donut segments using simple wedges rather than arcs
+    // Create donut segments using stroked paths for animation
     let segments = '';
     let legendItems = '';
     let currentAngle = 0;
     
-    // Draw outer and inner circles as a base
+    // Draw background circle for clean base
     segments += `
-      <circle cx="${centerX}" cy="${centerY}" r="${radius}" 
-              fill="none" stroke="#ccc" stroke-width="1" />
       <circle cx="${centerX}" cy="${centerY}" r="${innerRadius}" 
               fill="${isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR}" 
-              stroke="none"
-              style="--donut-stroke-width-px: ${strokeWidth}px;" />
+              stroke="none" />
     `;
     
     chartData.items.forEach((segment, index) => {
@@ -354,54 +357,46 @@ class ChartRenderer {
       const startAngleRad = (currentAngle - 90) * (Math.PI / 180);
       const endAngleRad = (currentAngle + angle - 90) * (Math.PI / 180);
       
-      // Outer arc points
+      // Create SVG path for arc (not wedge)
+      const isLargeArc = angle > 180 ? 1 : 0;
+      
+      // Calculate arc points
       const x1 = centerX + radius * Math.cos(startAngleRad);
       const y1 = centerY + radius * Math.sin(startAngleRad);
       const x2 = centerX + radius * Math.cos(endAngleRad);
       const y2 = centerY + radius * Math.sin(endAngleRad);
       
-      // Inner arc points
-      const x3 = centerX + innerRadius * Math.cos(endAngleRad);
-      const y3 = centerY + innerRadius * Math.sin(endAngleRad);
-      const x4 = centerX + innerRadius * Math.cos(startAngleRad);
-      const y4 = centerY + innerRadius * Math.sin(startAngleRad);
-      
-      // Generate SVG path for the wedge
-      const isLargeArc = angle > 180 ? 1 : 0;
-      
-      const wedgePath = [
-        `M ${x1} ${y1}`, // Move to start of outer arc
-        `A ${radius} ${radius} 0 ${isLargeArc} 1 ${x2} ${y2}`, // Draw outer arc
-        `L ${x3} ${y3}`, // Line to inner arc
-        `A ${innerRadius} ${innerRadius} 0 ${isLargeArc} 0 ${x4} ${y4}`, // Draw inner arc
-        'Z' // Close path
-      ].join(' ');
-      
       // Create a segment ID for potential interactivity
       const segmentId = `donut-segment-${msg.id || 'chart'}-${index}`;
       
-      // Use theme-specific animation values for the donut chart
-      const donutAnimDuration = (cs.DONUT_ANIMATION_DURATION_SEC || 1.0).toFixed(2);
-      const donutSegmentDelay = (cs.DONUT_SEGMENT_ANIMATION_DELAY_SEC || 0.1);
+      // Create simple arc path (not wedge)
+      const arcPath = [
+        `M ${x1} ${y1}`, // Move to start of arc
+        `A ${radius} ${radius} 0 ${isLargeArc} 1 ${x2} ${y2}` // Draw arc
+      ].join(' ');
+      
+      // Calculate arc length (approximation)
+      const arcLength = 2 * Math.PI * radius * (angle / 360);
+      
+      // Use fixed faster duration for animations
+      const donutAnimDuration = 0.5; // Fixed faster duration
+      const donutSegmentDelay = 0.05; // Shorter delay between segments
       
       // Calculate animation timing based on theme settings
       const animDelay = ((msg.startTime / 1000) + (config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3) + (index * donutSegmentDelay)).toFixed(2);
       
+      // Create segment with stroke animation
       segments += `
-        <path id="${segmentId}" d="${wedgePath}" 
-              fill="${color}" 
-              stroke="none" 
+        <path id="${segmentId}" d="${arcPath}" 
+              fill="none"
+              stroke="${color}"
+              stroke-width="var(--donut-stroke-width-px, ${strokeWidth}px)"
+              stroke-linecap="round"
+              stroke-dasharray="${arcLength}"
+              stroke-dashoffset="${arcLength}"
               class="donut-segment"
-              opacity="1"
-              fill-opacity="1">
-          <!-- Use transform animation instead of opacity animation -->
-          <animate attributeName="transform" 
-                   type="scale"
-                   from="0.7" to="1" 
-                   additive="sum"
-                   dur="var(--donut-animation-duration-sec, ${donutAnimDuration}s)" 
-                   begin="${animDelay}s" 
-                   fill="freeze" />
+              opacity="0">
+          ${ChartAnimationEngine.getDonutSegmentDrawAnimation(segmentId, arcLength, donutAnimDuration, animDelay)}
         </path>
       `;
       

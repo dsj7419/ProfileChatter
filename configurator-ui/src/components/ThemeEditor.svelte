@@ -455,6 +455,7 @@
               max="50"
               class="w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
             />
+            <p class="text-xs text-gray-500 italic ml-1">(Requires Preview Refresh)</p>
           </div>
           
           <!-- DONUT_ANIMATION_DURATION_SEC -->
@@ -469,6 +470,7 @@
               step="0.1"
               class="w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
             />
+            <p class="text-xs text-gray-500 italic ml-1">(Requires Preview Refresh)</p>
           </div>
           
           <!-- DONUT_SEGMENT_ANIMATION_DELAY_SEC -->
@@ -483,6 +485,7 @@
               step="0.01"
               class="w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
             />
+            <p class="text-xs text-gray-500 italic ml-1">(Requires Preview Refresh)</p>
           </div>
         </div>
       </details>

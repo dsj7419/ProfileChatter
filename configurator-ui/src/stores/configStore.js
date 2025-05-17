@@ -47,7 +47,7 @@ const clientSideThemes = {
     
     CHART_STYLES: {
       BAR_DEFAULT_COLOR: '#007AFF',
-      BAR_TRACK_COLOR: '#D3D3D8',
+      BAR_TRACK_COLOR: '#D3D3D8', // Fixed to ensure correct value
       BAR_CORNER_RADIUS_PX: 8,
       VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
       BAR_HEIGHT_PX: 18,
@@ -137,7 +137,7 @@ const clientSideThemes = {
       DONUT_LEGEND_ITEM_SPACING_PX: 8,
       DONUT_LEGEND_MARKER_SIZE_PX: 10,
       DONUT_ANIMATION_DURATION_SEC: 1.0,
-      DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
+      DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.2,
     
       ME_TITLE_COLOR: '#000000',
       ME_LABEL_COLOR: '#000000',
