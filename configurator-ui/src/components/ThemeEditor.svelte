@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { editableTheme, fontOptions } from '../stores/configStore.js';
+    import { editableTheme, fontOptions, userConfig } from '../stores/configStore.js';
     
     // Tab state for top-level categories
     let activeTab = 'general';
@@ -80,69 +80,93 @@
     
     <!-- General Settings Tab -->
     {#if activeTab === 'general'}
-      <div class="theme-panel space-y-4">
-        <!-- Background Colors -->
-        <div class="section">
-          <h4 class="text-xs font-medium text-gray-700 mb-2">Background Colors</h4>
-          
-          <!-- BACKGROUND_LIGHT -->
-          <div class="mb-3">
-            <label for="bg-light" class="block text-xs font-medium text-gray-500 mb-1">Light Background</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="bg-light" 
-                bind:value={$editableTheme.BACKGROUND_LIGHT} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.BACKGROUND_LIGHT} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
+        <div class="theme-panel space-y-4">
+            <!-- Background Colors -->
+            <div class="section">
+            <h4 class="text-xs font-medium text-gray-700 mb-2">Background Colors</h4>
+            
+            <!-- BACKGROUND_LIGHT -->
+            <div class="mb-3">
+                <label for="bg-light" class="block text-xs font-medium text-gray-500 mb-1">Light Background</label>
+                <div class="flex gap-2">
+                <input 
+                    type="color" 
+                    id="bg-light" 
+                    bind:value={$editableTheme.BACKGROUND_LIGHT} 
+                    class="h-8 w-8 rounded border border-gray-300"
+                />
+                <input 
+                    type="text" 
+                    bind:value={$editableTheme.BACKGROUND_LIGHT} 
+                    class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
+                />
+                </div>
             </div>
-          </div>
-          
-          <!-- BACKGROUND_DARK -->
-          <div>
-            <label for="bg-dark" class="block text-xs font-medium text-gray-500 mb-1">Dark Background</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="bg-dark" 
-                bind:value={$editableTheme.BACKGROUND_DARK} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.BACKGROUND_DARK} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
+            
+            <!-- BACKGROUND_DARK -->
+            <div>
+                <label for="bg-dark" class="block text-xs font-medium text-gray-500 mb-1">Dark Background</label>
+                <div class="flex gap-2">
+                <input 
+                    type="color" 
+                    id="bg-dark" 
+                    bind:value={$editableTheme.BACKGROUND_DARK} 
+                    class="h-8 w-8 rounded border border-gray-300"
+                />
+                <input 
+                    type="text" 
+                    bind:value={$editableTheme.BACKGROUND_DARK} 
+                    class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
+                />
+                </div>
             </div>
-          </div>
+            </div>
+            
+            <!-- Typography -->
+            <div class="section">
+            <h4 class="text-xs font-medium text-gray-700 mb-2">Global Typography</h4>
+            
+            <!-- FONT_FAMILY -->
+            <div>
+                <label for="font-family" class="block text-xs font-medium text-gray-500 mb-1">Default Font Family</label>
+                <select 
+                id="font-family" 
+                bind:value={$editableTheme.FONT_FAMILY} 
+                class="w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
+                >
+                {#each $fontOptions.standard as fontString (fontString)}
+                    <option value={fontString} style="font-family: {fontString};">
+                    {cleanFontName(fontString)}
+                    </option>
+                {/each}
+                </select>
+            </div>
+            </div>
+            
+            <!-- Global Animation -->
+            <div class="section">
+            <h4 class="text-xs font-medium text-gray-700 mb-2">Global Animation</h4>
+            
+            <div>
+                <label for="scroll-speed-multiplier" class="block text-xs font-medium text-gray-500 mb-1">
+                Scroll Speed Multiplier (0.5x - 2x)
+                </label>
+                <input 
+                type="range" 
+                id="scroll-speed-multiplier" 
+                bind:value={$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER} 
+                min="0.5" 
+                max="2" 
+                step="0.1" 
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" 
+                />
+                <div class="text-xs text-gray-500 text-center">
+                Current: {$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER}x
+                </div>
+                <p class="text-xs text-gray-500 italic ml-1 mt-1">(Requires Preview Refresh)</p>
+            </div>
+            </div>
         </div>
-        
-        <!-- Typography -->
-        <div class="section">
-          <h4 class="text-xs font-medium text-gray-700 mb-2">Global Typography</h4>
-          
-          <!-- FONT_FAMILY -->
-          <div>
-            <label for="font-family" class="block text-xs font-medium text-gray-500 mb-1">Default Font Family</label>
-            <select 
-              id="font-family" 
-              bind:value={$editableTheme.FONT_FAMILY} 
-              class="w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-            >
-              {#each $fontOptions.standard as fontString (fontString)}
-                <option value={fontString} style="font-family: {fontString};">
-                  {cleanFontName(fontString)}
-                </option>
-              {/each}
-            </select>
-          </div>
-        </div>
-      </div>
     {/if}
     
     <!-- Chat Bubbles Tab -->

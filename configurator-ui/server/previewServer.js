@@ -196,7 +196,9 @@ const server = http.createServer(async (req, res) => {
           // Include avatar configuration if provided
           avatars: configData.avatars,
           // Include any theme overrides if provided
-          themeOverrides: configData.themeOverrides || null
+          themeOverrides: configData.themeOverrides || null,
+          // include animation adjustments
+          layoutAnimationOverrides: configData.layoutAnimationOverrides || null
         };
         
         // Log avatar configuration if present
@@ -212,6 +214,12 @@ const server = http.createServer(async (req, res) => {
         // Log if theme overrides are present
         if (customContext.themeOverrides) {
           console.log('Theme overrides received for theme:', customContext.activeTheme);
+        }
+
+        // Log if layout animation overrides are present
+        if (customContext.layoutAnimationOverrides) {
+            console.log('Layout animation overrides received:', 
+            JSON.stringify(customContext.layoutAnimationOverrides));
         }
         
         console.log('Generating SVG with custom context...');

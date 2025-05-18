@@ -194,10 +194,15 @@ function deepClone(obj) {
 
 // Create stores with default values
 export const userConfig = writable({
-  profile: deepClone(initialProfileConfig),
-  activeTheme: "ios",
-  avatars: deepClone(initialAvatarsConfig),
-});
+    profile: deepClone(initialProfileConfig),
+    activeTheme: "ios",
+    avatars: deepClone(initialAvatarsConfig),
+    layout: { 
+      ANIMATION: { 
+        SCROLL_SPEED_MULTIPLIER: 1.0 
+      } 
+    }
+  });
 
 // Source of themes with defaults
 export const themes = writable(deepClone(defaultThemes));
@@ -291,7 +296,6 @@ export function getPreviewConfiguration() {
     return {
       profile: {
         ...currentConfig.profile,
-        // Include the date components formatted in the way the preview server expects
         WORK_START_DATE: {
           year: currentWorkDate.year,
           month: currentWorkDate.month,
@@ -301,7 +305,9 @@ export function getPreviewConfiguration() {
       activeTheme: currentConfig.activeTheme,
       avatars: currentConfig.avatars,
       chatMessages: currentMessages,
-      // Include theme overrides
-      themeOverrides: currentTheme
+      themeOverrides: currentTheme,
+      layoutAnimationOverrides: {
+        SCROLL_SPEED_MULTIPLIER: currentConfig.layout?.ANIMATION?.SCROLL_SPEED_MULTIPLIER || 1.0
+      }
     };
   }

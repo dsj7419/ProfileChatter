@@ -11,13 +11,26 @@ import SvgRenderer from './rendering/SvgRenderer.js';
 import { validateConfiguration } from './utils/ConfigValidator.js';
 import { config } from './config/config.js';
 
+// Deep merge function for theme objects
+function deepMerge(target, source) {
+  for (const key in source) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (!target[key]) Object.assign(target, { [key]: {} });
+      deepMerge(target[key], source[key]);
+    } else {
+      Object.assign(target, { [key]: source[key] });
+    }
+  }
+  return target;
+}
+
 /**
  * ProfileChatter class - Orchestrates the generation of animated chat SVGs
  */
 class ProfileChatter {
   /**
    * Generate a complete chat SVG with animations
-   * @param {Object} customContext - Optional data overrides including profile, activeTheme, workStartDate, chatMessages, and avatars
+   * @param {Object} customContext - Optional data overrides including profile, activeTheme, workStartDate, chatMessages, avatars, themeOverrides, and layoutAnimationOverrides
    * @returns {Promise<string>} - SVG markup string
    */
   async generateChatSVG(customContext = {}) {
@@ -27,9 +40,11 @@ class ProfileChatter {
         activeTheme: customContext.activeTheme,
         hasChatMessages: Array.isArray(customContext.chatMessages),
         messageCount: Array.isArray(customContext.chatMessages) ? customContext.chatMessages.length : 0,
-        hasAvatars: !!customContext.avatars
+        hasAvatars: !!customContext.avatars,
+        hasThemeOverrides: !!customContext.themeOverrides,
+        hasLayoutAnimationOverrides: !!customContext.layoutAnimationOverrides
       });
-      
+    
       // Apply theme override if provided
       let originalTheme = null;
       if (customContext.activeTheme && config.themes[customContext.activeTheme]) {
@@ -37,7 +52,7 @@ class ProfileChatter {
         originalTheme = config.activeTheme;
         config.activeTheme = customContext.activeTheme;
       }
-      
+    
       // Apply avatars override if provided
       let originalAvatars = null;
       if (customContext.avatars) {
@@ -57,6 +72,33 @@ class ProfileChatter {
           }
         };
       }
+    
+      // Apply theme overrides if provided
+      let originalThemeObject = null;
+      let themeNameToOverride = customContext.activeTheme || config.activeTheme;
+    
+      if (customContext.themeOverrides && config.themes[themeNameToOverride]) {
+        console.log(`Applying themeOverrides for theme: ${themeNameToOverride}`);
+        originalThemeObject = JSON.parse(JSON.stringify(config.themes[themeNameToOverride])); // Deep clone original
+      
+        // Deep merge customContext.themeOverrides into a copy of the base theme
+        const baseTheme = JSON.parse(JSON.stringify(config.themes[themeNameToOverride]));
+        config.themes[themeNameToOverride] = deepMerge(baseTheme, customContext.themeOverrides);
+      }
+      
+      // Apply layout animation overrides if provided
+      let originalLayoutAnimation = null;
+      if (customContext.layoutAnimationOverrides) {
+        console.log('Temporarily applying layout animation overrides');
+        originalLayoutAnimation = JSON.parse(JSON.stringify(config.layout.ANIMATION));
+        
+        // Only override the properties that are provided
+        Object.keys(customContext.layoutAnimationOverrides).forEach(key => {
+          if (Object.prototype.hasOwnProperty.call(config.layout.ANIMATION, key)) {
+            config.layout.ANIMATION[key] = customContext.layoutAnimationOverrides[key];
+          }
+        });
+      }
       
       // 1. Validate configuration
       if (!validateConfiguration(config)) {
@@ -72,11 +114,16 @@ class ProfileChatter {
       // 2. Get dynamic data for chat messages
       console.log('Fetching dynamic data...');
       const dynamicData = await DataService.getDynamicData(customContext);
+      
+      // Pass layoutAnimationOverrides to dynamic data if present
+      if (customContext.layoutAnimationOverrides) {
+        dynamicData.layoutAnimationOverrides = customContext.layoutAnimationOverrides;
+      }
+      
       console.log('Dynamic data fetched successfully');
       
       // 3. Build animation timeline with typing and message events
       console.log('Building timeline...');
-      // Create a new TimelineBuilder instance with custom chat data if provided
       const timelineBuilder = new TimelineBuilder(customContext.chatMessages || null);
       const timelineData = timelineBuilder.buildTimeline(dynamicData);
       console.log('Timeline built successfully');
@@ -92,10 +139,22 @@ class ProfileChatter {
         config.activeTheme = originalTheme;
       }
       
+      // Restore original theme object if it was modified
+      if (originalThemeObject !== null) {
+        console.log(`Restoring original theme object for: ${themeNameToOverride}`);
+        config.themes[themeNameToOverride] = originalThemeObject;
+      }
+      
       // Restore original avatars if they were changed
       if (originalAvatars !== null) {
         console.log(`Restoring original avatar configuration`);
         config.avatars = originalAvatars;
+      }
+      
+      // Restore original layout animation if it was modified
+      if (originalLayoutAnimation !== null) {
+        console.log(`Restoring original layout animation configuration`);
+        config.layout.ANIMATION = originalLayoutAnimation;
       }
       
       return svgMarkup;

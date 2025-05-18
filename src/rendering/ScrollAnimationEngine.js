@@ -10,11 +10,11 @@ export default class ScrollAnimationEngine {
    * @param {Array<{y: number, startTime: number}>} scrollSteps - Y positions and appearance times
    * @param {number} totalDurationSec - Total animation duration in seconds
    * @param {string} animationName - Name for the keyframes rule (default: 'scrollUp')
+   * @param {number} scrollDistance - Total scroll distance in pixels
    * @returns {string} - Complete CSS keyframes rule
    */
-  static generateScrollKeyframesCSS(scrollSteps, totalDurationSec, animationName = 'scrollUp') {
+  static generateScrollKeyframesCSS(scrollSteps, totalDurationSec, animationName = 'scrollUp', scrollDistance = 0) {
     if (!scrollSteps || !scrollSteps.length) {
-      // Fallback for empty data
       return `@keyframes ${animationName}{0%{transform:translateY(0)}100%{transform:translateY(0)}}`;
     }
 
@@ -61,8 +61,10 @@ export default class ScrollAnimationEngine {
     const lastStep = scrollSteps[scrollSteps.length - 1];
     const lastPercent = Math.round((lastStep.startTime / (totalDurationSec * 1000)) * 100);
     
-    // Calculate the final translateY directly - this is the maximum scroll position we'll ever reach
-    const finalTranslateY = -Math.max(0, lastStep.y - 300); // Show last message with 300px space from top
+    // Calculate the final translateY using scrollDistance if provided
+    const finalTranslateY = scrollDistance > 0 
+      ? -scrollDistance 
+      : -Math.max(0, lastStep.y - 300); // Show last message with 300px space from top
     
     // Ensure all keyframes respect this maximum scroll - check and fix any overshooting
     for (let i = 0; i < keyframes.length; i++) {

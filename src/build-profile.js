@@ -58,8 +58,31 @@ if (config.avatars && config.avatars.enabled) {
   embedAvatar('visitor', visitorAvatarPath);
 }
 
+// Check for custom configuration file
+let customContext = {};
+const configFilePath = './profileChatterConfig.json';
+
+if (existsSync(configFilePath)) {
+  try {
+    const configFileContent = readFileSync(configFilePath, 'utf8');
+    const loadedUiConfig = JSON.parse(configFileContent);
+    console.log('✅ Found profileChatterConfig.json. Applying custom UI configuration.');
+    
+    customContext = {
+      profile: loadedUiConfig.profile,
+      activeTheme: loadedUiConfig.activeTheme,
+      avatars: loadedUiConfig.avatars,
+      chatMessages: loadedUiConfig.chatMessages,
+      themeOverrides: loadedUiConfig.themeOverrides
+    };
+  } catch (error) {
+    console.warn(`Failed to load custom configuration: ${error.message}`);
+    console.warn('Proceeding with default configuration.');
+  }
+}
+
 // Generate SVG with configured data
-generateChatSVG()
+generateChatSVG(customContext)
   .then(svg => {
     // Write SVG to file
     writeFileSync('dist/profile-chat.svg', svg);

@@ -10,17 +10,15 @@ import ChartRenderer from '../rendering/components/ChartRenderer.js';
 
 class TimelineBuilder {
   /**
-   * Constructor - now accepts custom chat data
+   * Constructor - accepts custom chat data
    * @param {Array|null} customChatData - Optional custom chat data to use instead of file
    */
   constructor(customChatData = null) {
     try {
-      // Use provided custom chat data if available
       if (customChatData && Array.isArray(customChatData)) {
         console.log(`Using custom chat data (${customChatData.length} messages)`);
         this.chatData = customChatData;
       } else {
-        // Otherwise, read from file as before
         const __dirname = dirname(fileURLToPath(import.meta.url));
         const chatDataPath = join(__dirname, '../../data/chatData.json');
         console.log('Loading chat data from file:', chatDataPath);
@@ -42,13 +40,8 @@ class TimelineBuilder {
   }
   
   calculateReadingTime(contentType, dimensions) {
-    // Base multiplier depends on content type
     const multiplier = contentType === 'chart' ? 2.5 : 4;
-    
-    // For text messages, count lines; for charts, count data items
     const lineCount = dimensions.lineCount || 1;
-    
-    // For charts, also consider the visual complexity based on height
     const complexityFactor = contentType === 'chart' 
       ? Math.max(1, dimensions.height / 100) 
       : 1;
@@ -85,11 +78,11 @@ class TimelineBuilder {
 
   buildTimeline(dynamicData) {
     const timelineItems = [];
-    const perMessageTimings = []; // Store timing info for each message
-    const scrollKeyframeData = []; // Store scroll keyframe data for ScrollAnimationEngine
+    const perMessageTimings = [];
+    const scrollKeyframeData = [];
 
     let currentTime = 0;
-    let currentY = 10; // Start higher in the viewport
+    let currentY = 10;
     let previousSender = null;
     
     const processedMessages = [];
@@ -107,7 +100,6 @@ class TimelineBuilder {
       if (contentType === "chart" && message.chartData) {
         chartDataFormatted = JSON.parse(JSON.stringify(message.chartData));
         
-        // Placeholder substitution
         if (chartDataFormatted.items === '{wakatime_chart_data}' && dynamicData.wakatime_chart_data) {
           chartDataFormatted.items = dynamicData.wakatime_chart_data;
         }
@@ -124,14 +116,12 @@ class TimelineBuilder {
         dimensions = this._calculateChartDimensions(chartDataFormatted);
         const itemCount = chartDataFormatted.items?.length || 0;
         
-        // For charts, typing time scales with number of items
-        const chartComplexity = Math.max(1, dimensions.height / 100); // Visual complexity factor
+        const chartComplexity = Math.max(1, dimensions.height / 100);
         typingTime = Math.min(
           config.layout.TYPING_MAX_MS,
           Math.max(config.layout.TYPING_MIN_MS, itemCount * 400 * chartComplexity)
         );
       } else {
-        // Text message
         text = message.text.replace(/\{(\w+)\}/g, (_, key) => 
           dynamicData[key] !== undefined ? dynamicData[key] : `{${key}}`
         );
@@ -139,7 +129,6 @@ class TimelineBuilder {
         typingTime = this.calculateTypingTime(text);
       }
       
-      // For charts, we'll use a simplified approach
       processedMessages.push({
         sender, text, dimensions, typingTime, reaction, contentType, chartData: chartDataFormatted
       });
@@ -177,17 +166,15 @@ class TimelineBuilder {
       
       // Track scroll keyframe data for each message with special handling for charts
       if (timelineItems[timelineItems.length - 1] instanceof ChatMessage) {
-        // Regular message position and timing
         scrollKeyframeData.push({
           y: currentY,
           startTime: currentTime
         });
         
-        // For charts, add a quick "push" 300ms later to create stronger scroll momentum
         if (contentType === 'chart') {
           scrollKeyframeData.push({
-            y: currentY + 60, // Push it further up by 60px
-            startTime: currentTime + 300 // 300ms after the chart appears
+            y: currentY + 60,
+            startTime: currentTime + 300
           });
         }
       }
@@ -214,6 +201,12 @@ class TimelineBuilder {
     const viewportHeight = config.layout.CHAT_HEIGHT_PX; 
     const scrollDistance = Math.max(0, totalContentHeight - viewportHeight);
     
+    // Get scroll speed multiplier from dynamicData or config
+    const scrollSpeedMultiplier = (dynamicData.layoutAnimationOverrides && 
+      typeof dynamicData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER === 'number')
+      ? dynamicData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER
+      : config.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER || 1.0;
+    
     // Calculate adaptive scrolling speed based on content complexity
     let scrollPixelsPerSec = config.layout.ANIMATION.SCROLL_PIXELS_PER_SEC;
     
@@ -222,7 +215,6 @@ class TimelineBuilder {
     const chartCount = chartMessages.length;
     
     if (chartCount > 0) {
-      // Calculate average chart complexity based on item count and dimensions
       const totalChartComplexity = chartMessages.reduce((sum, msg) => {
         const itemCount = msg.chartData?.items?.length || 0;
         const heightFactor = msg.dimensions.height / 100;
@@ -231,20 +223,26 @@ class TimelineBuilder {
       
       const avgComplexity = totalChartComplexity / chartCount;
       
-      // Progressive speed adjustment using sigmoid-like function for smoother scaling
-      // This provides more gradual increases for moderate content and caps at reasonable limits
       const speedupFactor = Math.min(2.0, 1 + (chartCount * 0.1) + (avgComplexity * 0.05));
       scrollPixelsPerSec *= speedupFactor;
     }
     
-    // Calculate scroll duration with adaptive speed
+    // Apply the multiplier to the scrolling speed
+    const effectivePixelsPerSec = scrollPixelsPerSec * scrollSpeedMultiplier * 0.5;
+    
+    // Calculate scroll duration with adaptive speed and multiplier
     const scrollDurationSec = scrollDistance > 0 
-      ? Math.max(config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC, scrollDistance / scrollPixelsPerSec)
+      ? Math.max(config.layout.ANIMATION.MIN_SCROLL_DURATION_SEC, scrollDistance / effectivePixelsPerSec)
       : 0;
+    
+    // Calculate messaging time for correct keyframe percentages
+    const totalMessagingTimeMs = perMessageTimings.reduce(
+      (sum, t) => sum + t.typingMs + t.readingMs + t.senderDelayMs, 0
+    );
     
     // Build comprehensive timing profile
     const timingProfile = new TimingProfile(
-      scrollPixelsPerSec, 
+      effectivePixelsPerSec, 
       scrollDurationSec, 
       scrollDistance,
       perMessageTimings
@@ -255,10 +253,10 @@ class TimelineBuilder {
       timings: timingProfile,
       totalDuration: timingProfile.getTotalDuration(config.layout.TIMING.ANIMATION_END_BUFFER_MS),
       totalTypingTime: timingProfile.getTotalTypingTime(),
-      scrollKeyframeData: scrollKeyframeData // Include the scroll keyframe data
+      scrollKeyframeData: scrollKeyframeData,
+      totalMessagingTimeSec: totalMessagingTimeMs / 1000
     };
   }
 }
 
-// Export the class itself instead of a singleton instance
 export default TimelineBuilder;

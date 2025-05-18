@@ -243,6 +243,7 @@ export const config = {
       SCROLL_DELAY_BUFFER_SEC: 2.2,
       MIN_SCROLL_DURATION_SEC: 1.2,
       SCROLL_PIXELS_PER_SEC: 18,
+      SCROLL_SPEED_MULTIPLIER: 1.0,
     }
   },
   

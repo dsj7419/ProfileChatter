@@ -2,11 +2,6 @@
  * SvgRenderer.js
  * Responsible for rendering the timeline into SVG
  * Single Responsibility: Create SVG markup from timeline data
- * 
- * ✨ Optimizations:
- *   • Dynamic label and value columns in charts for better space utilization
- *   • Text bubbles auto-size to the longest line (up to MAX_BUBBLE_W_PX)
- *   • No wasted whitespace in either text or chart bubbles
  */
 import { config } from '../config/config.js';
 import TextProcessor from '../utils/TextProcessor.js';
@@ -55,118 +50,122 @@ class SvgRenderer {
   }
   
   /**
- * Generate SVG header with styles
- * @param {Object} timelineData - Complete timeline data including timing profile
- * @returns {string} SVG header with styles
- */
-_header(timelineData) {
-  const theme = this.getActiveThemeStyles();
-  const timingProfile = timelineData.timings;
-  const scrollKeyframeData = timelineData.scrollKeyframeData || [];
+   * Generate SVG header with styles
+   * @param {Object} timelineData - Complete timeline data including timing profile
+   * @returns {string} SVG header with styles
+   */
+  _header(timelineData) {
+    const theme = this.getActiveThemeStyles();
+    const timingProfile = timelineData.timings;
+    const scrollKeyframeData = timelineData.scrollKeyframeData || [];
 
-  /* ---------- font‑face --------------------------------------------- */
-  const fontFace = INTER_FONT_BASE64 
-    ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
-    : '';
-  
-  /* ---------- animation timing -------------------------------------- */
-  // Start scrolling with adjusted timing for better flow
-  const totalTypingTime = timelineData.totalTypingTime;
-  // Slightly longer delay before starting, but faster initial movement
-  const scrollDelay = (totalTypingTime / 1000) * 0.6 + 1.0; // 60% of typing time + 1s buffer
-  
-  // Calculate scroll duration based on timing profile
-  const totalDurationSec = timingProfile.getTotalDuration() / 1000;
+    /* ---------- font‑face --------------------------------------------- */
+    const fontFace = INTER_FONT_BASE64 
+      ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
+      : '';
+    
+    /* ---------- animation timing -------------------------------------- */
+    const totalTypingTime = timelineData.totalTypingTime;
+    const scrollDelay = (totalTypingTime / 1000) * 0.6 + 1.0; // 60% of typing time + 1s buffer
+    
+    // Use adjusted scroll duration from timing profile
+    const scrollDuration = timingProfile.scrollDurationSec.toFixed(2);
+    
+    // Use the separate messaging duration for keyframe percentages
+    const totalMessagingTimeSec = timelineData.totalMessagingTimeSec || 
+      (timingProfile.getTotalDuration() - (timingProfile.scrollDurationSec * 1000)) / 1000;
+    
+    // Generate dynamic scroll keyframes using ScrollAnimationEngine
+    const scrollKeyframesCSS = ScrollAnimationEngine.generateScrollKeyframesCSS(
+      scrollKeyframeData,
+      totalMessagingTimeSec,
+      'scrollUp',
+      timingProfile.scrollDistance
+    );
+    
+    /* ---------- CSS Variables ---------------------------------------- */
+    const cssVars = `
+      :root {
+        /* Bubble Colors */
+        --me-bubble-color: ${theme.ME_BUBBLE_COLOR};
+        --visitor-bubble-color: ${theme.VISITOR_BUBBLE_COLOR};
+        
+        /* Text Colors */
+        --me-text-color: ${theme.ME_TEXT_COLOR};
+        --visitor-text-color: ${theme.VISITOR_TEXT_COLOR};
+        
+        /* Background */
+        --background-light: ${theme.BACKGROUND_LIGHT};
+        --background-dark: ${theme.BACKGROUND_DARK};
+        
+        /* Styling */
+        --bubble-radius-px: ${theme.BUBBLE_RADIUS_PX}px;
+        --font-family: ${theme.FONT_FAMILY};
+        
+        /* Reaction */
+        --reaction-font-size-px: ${theme.REACTION_FONT_SIZE_PX}px;
+        --reaction-bg-color: ${theme.REACTION_BG_COLOR};
+        --reaction-bg-opacity: ${theme.REACTION_BG_OPACITY};
+        --reaction-text-color: ${theme.REACTION_TEXT_COLOR};
+        --reaction-padding-x-px: ${theme.REACTION_PADDING_X_PX}px;
+        --reaction-padding-y-px: ${theme.REACTION_PADDING_Y_PX}px;
+        --reaction-border-radius-px: ${theme.REACTION_BORDER_RADIUS_PX}px;
+        --reaction-offset-y-px: ${theme.REACTION_OFFSET_Y_PX}px;
+        --reaction-offset-x-px: ${theme.REACTION_OFFSET_X_PX || 0}px;
+        
+        /* Chart Styles */
+        --bar-default-color: ${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
+        --bar-track-color: ${theme.CHART_STYLES.BAR_TRACK_COLOR};
+        --bar-corner-radius-px: ${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
+        --bar-height-px: ${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
+        --bar-spacing-px: ${theme.CHART_STYLES.BAR_SPACING_PX}px;
+        
+        --label-font-family: ${theme.CHART_STYLES.LABEL_FONT_FAMILY};
+        --label-font-size-px: ${theme.CHART_STYLES.LABEL_FONT_SIZE_PX}px;
+        --value-text-font-family: ${theme.CHART_STYLES.VALUE_TEXT_FONT_FAMILY};
+        --value-text-font-size-px: ${theme.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX}px;
+        
+        --title-font-family: ${theme.CHART_STYLES.TITLE_FONT_FAMILY};
+        --title-font-size-px: ${theme.CHART_STYLES.TITLE_FONT_SIZE_PX}px;
+        --title-line-height-multiplier: ${theme.CHART_STYLES.TITLE_LINE_HEIGHT_MULTIPLIER};
+        --title-bottom-margin-px: ${theme.CHART_STYLES.TITLE_BOTTOM_MARGIN_PX}px;
+        
+        --chart-padding-x-px: ${theme.CHART_STYLES.CHART_PADDING_X_PX}px;
+        --chart-padding-y-px: ${theme.CHART_STYLES.CHART_PADDING_Y_PX}px;
+        
+        --me-title-color: ${theme.CHART_STYLES.ME_TITLE_COLOR};
+        --me-label-color: ${theme.CHART_STYLES.ME_LABEL_COLOR};
+        --me-value-text-color: ${theme.CHART_STYLES.ME_VALUE_TEXT_COLOR};
+        
+        --visitor-title-color: ${theme.CHART_STYLES.VISITOR_TITLE_COLOR};
+        --visitor-label-color: ${theme.CHART_STYLES.VISITOR_LABEL_COLOR};
+        --visitor-value-text-color: ${theme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR};
+        
+        /* Donut Chart */
+        --donut-stroke-width-px: ${theme.CHART_STYLES.DONUT_STROKE_WIDTH_PX}px;
+        --donut-center-text-font-size-px: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_SIZE_PX}px;
+        --donut-center-text-font-family: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_FAMILY};
+        --me-donut-center-text-color: ${theme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR};
+        --visitor-donut-center-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR};
+        --me-donut-legend-text-color: ${theme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR};
+        --visitor-donut-legend-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR};
+        --donut-legend-font-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_FONT_SIZE_PX}px;
+        --donut-legend-item-spacing-px: ${theme.CHART_STYLES.DONUT_LEGEND_ITEM_SPACING_PX}px;
+        --donut-legend-marker-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
+        --donut-animation-duration-sec: ${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
+        --donut-segment-animation-delay-sec: ${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
+        
+        /* Value text inside color */
+        --value-text-inside-color: ${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
+        
+        /* Animation durations */
+        --chart-bar-animation-duration-sec: ${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
+        --chart-animation-delay-sec: ${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
+      }
+    `;
 
-  // Generate dynamic scroll keyframes using ScrollAnimationEngine
-  const scrollKeyframesCSS = ScrollAnimationEngine.generateScrollKeyframesCSS(
-    scrollKeyframeData,
-    totalDurationSec
-  );
-  
-  /* ---------- CSS Variables ---------------------------------------- */
-  const cssVars = `
-    :root {
-      /* Bubble Colors */
-      --me-bubble-color: ${theme.ME_BUBBLE_COLOR};
-      --visitor-bubble-color: ${theme.VISITOR_BUBBLE_COLOR};
-      
-      /* Text Colors */
-      --me-text-color: ${theme.ME_TEXT_COLOR};
-      --visitor-text-color: ${theme.VISITOR_TEXT_COLOR};
-      
-      /* Background */
-      --background-light: ${theme.BACKGROUND_LIGHT};
-      --background-dark: ${theme.BACKGROUND_DARK};
-      
-      /* Styling */
-      --bubble-radius-px: ${theme.BUBBLE_RADIUS_PX}px;
-      --font-family: ${theme.FONT_FAMILY};
-      
-      /* Reaction */
-      --reaction-font-size-px: ${theme.REACTION_FONT_SIZE_PX}px;
-      --reaction-bg-color: ${theme.REACTION_BG_COLOR};
-      --reaction-bg-opacity: ${theme.REACTION_BG_OPACITY};
-      --reaction-text-color: ${theme.REACTION_TEXT_COLOR};
-      --reaction-padding-x-px: ${theme.REACTION_PADDING_X_PX}px;
-      --reaction-padding-y-px: ${theme.REACTION_PADDING_Y_PX}px;
-      --reaction-border-radius-px: ${theme.REACTION_BORDER_RADIUS_PX}px;
-      --reaction-offset-y-px: ${theme.REACTION_OFFSET_Y_PX}px;
-      --reaction-offset-x-px: ${theme.REACTION_OFFSET_X_PX || 0}px;
-      
-      /* Chart Styles */
-      --bar-default-color: ${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
-      --bar-track-color: ${theme.CHART_STYLES.BAR_TRACK_COLOR};
-      --bar-corner-radius-px: ${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
-      --bar-height-px: ${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
-      --bar-spacing-px: ${theme.CHART_STYLES.BAR_SPACING_PX}px;
-      
-      --label-font-family: ${theme.CHART_STYLES.LABEL_FONT_FAMILY};
-      --label-font-size-px: ${theme.CHART_STYLES.LABEL_FONT_SIZE_PX}px;
-      --value-text-font-family: ${theme.CHART_STYLES.VALUE_TEXT_FONT_FAMILY};
-      --value-text-font-size-px: ${theme.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX}px;
-      
-      --title-font-family: ${theme.CHART_STYLES.TITLE_FONT_FAMILY};
-      --title-font-size-px: ${theme.CHART_STYLES.TITLE_FONT_SIZE_PX}px;
-      --title-line-height-multiplier: ${theme.CHART_STYLES.TITLE_LINE_HEIGHT_MULTIPLIER};
-      --title-bottom-margin-px: ${theme.CHART_STYLES.TITLE_BOTTOM_MARGIN_PX}px;
-      
-      --chart-padding-x-px: ${theme.CHART_STYLES.CHART_PADDING_X_PX}px;
-      --chart-padding-y-px: ${theme.CHART_STYLES.CHART_PADDING_Y_PX}px;
-      
-      --me-title-color: ${theme.CHART_STYLES.ME_TITLE_COLOR};
-      --me-label-color: ${theme.CHART_STYLES.ME_LABEL_COLOR};
-      --me-value-text-color: ${theme.CHART_STYLES.ME_VALUE_TEXT_COLOR};
-      
-      --visitor-title-color: ${theme.CHART_STYLES.VISITOR_TITLE_COLOR};
-      --visitor-label-color: ${theme.CHART_STYLES.VISITOR_LABEL_COLOR};
-      --visitor-value-text-color: ${theme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR};
-      
-      /* Donut Chart */
-      --donut-stroke-width-px: ${theme.CHART_STYLES.DONUT_STROKE_WIDTH_PX}px;
-      --donut-center-text-font-size-px: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_SIZE_PX}px;
-      --donut-center-text-font-family: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_FAMILY};
-      --me-donut-center-text-color: ${theme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR};
-      --visitor-donut-center-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR};
-      --me-donut-legend-text-color: ${theme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR};
-      --visitor-donut-legend-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR};
-      --donut-legend-font-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_FONT_SIZE_PX}px;
-      --donut-legend-item-spacing-px: ${theme.CHART_STYLES.DONUT_LEGEND_ITEM_SPACING_PX}px;
-      --donut-legend-marker-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
-      --donut-animation-duration-sec: ${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
-      --donut-segment-animation-delay-sec: ${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
-      
-      /* Value text inside color */
-      --value-text-inside-color: ${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
-      
-      /* Animation durations */
-      --chart-bar-animation-duration-sec: ${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
-      --chart-animation-delay-sec: ${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
-    }
-  `;
-
-  /* ---------- CSS ---------------------------------------------------- */
-  const css = `
+    /* ---------- CSS ---------------------------------------------------- */
+    const css = `
 ${fontFace}
 ${cssVars}
 @keyframes bubbleIn{0%{scale:${config.layout.ANIMATION.BUBBLE_START_SCALE};opacity:0}100%{scale:1;opacity:1}}
@@ -178,7 +177,7 @@ ${cssVars}
 ${scrollKeyframesCSS}
 @keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
 @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
-.track{animation:scrollUp ${totalDurationSec.toFixed(2)}s cubic-bezier(0.25, 0.1, 0.25, 0.85) forwards;animation-delay:${scrollDelay.toFixed(2)}s;transform:translate3d(0,0,0);will-change:transform}
+.track{animation:scrollUp ${scrollDuration}s cubic-bezier(0.25, 0.1, 0.25, 0.85) forwards;animation-delay:${scrollDelay.toFixed(2)}s;transform:translate3d(0,0,0);will-change:transform}
 .msg{animation:bubbleIn ${config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION}s ${config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE} forwards;opacity:0;filter:url(#shadowEffect)}
 .typing{opacity:0;filter:url(#shadowEffect)}
 .reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
@@ -244,8 +243,8 @@ svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
   font-size: var(--reaction-font-size-px, ${theme.REACTION_FONT_SIZE_PX}px);
 }`;
 
-  /* ---------- SVG shell -------------------------------------------- */
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
+    /* ---------- SVG shell -------------------------------------------- */
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
 <defs>
   <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
     <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
@@ -261,7 +260,7 @@ svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
 <style>${css}</style>
 <rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
 <g class="track">`;
-}
+  }
 
   /**
    * Render a typing indicator with proper iOS styling
@@ -394,7 +393,7 @@ svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
     /* ── 8.   Tail geometry (mirrored for me / visitor) ───────────────── */
     const tail = isMe
       ? `<path d="M${width},10 C${width + 4},14 ${width + 7},18 ${width + 6},22
-                  C${width + 5},18 ${width + 2},14 ${width},16 Z"
+                 C${width + 5},18 ${width + 2},14 ${width},16 Z"
                fill="var(--me-bubble-color, ${bubbleFill})"/>`
       : `<path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
                fill="var(--visitor-bubble-color, ${bubbleFill})"/>`

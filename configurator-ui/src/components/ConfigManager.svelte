@@ -1,6 +1,6 @@
 <script>
     import { fade, slide } from 'svelte/transition';
-    import { userConfig, workStartDate, chatMessages } from '../stores/configStore.js';
+    import { userConfig, workStartDate, chatMessages, editableTheme } from '../stores/configStore.js';
     
     // Reference for file input
     let fileInput;
@@ -25,17 +25,29 @@
         const configData = { 
           profile: {
             ...$userConfig.profile,
-            // Store date components explicitly
             WORK_START_DATE: {
               year: $workStartDate.year,
-              month: $workStartDate.month, // 1-indexed as it is in the store
+              month: $workStartDate.month,
               day: $workStartDate.day
             }
           },
           activeTheme: $userConfig.activeTheme,
-          avatars: $userConfig.avatars, // Include avatar settings
-          chatMessages: $chatMessages
+          avatars: $userConfig.avatars,
+          chatMessages: $chatMessages,
+          themeOverrides: $editableTheme,
+          layoutAnimationOverrides: {
+            SCROLL_SPEED_MULTIPLIER: $userConfig.layout?.ANIMATION?.SCROLL_SPEED_MULTIPLIER || 1.0
+          }
         };
+
+        // Only include the override if it's different from the default
+        if (configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER === 1.0) {
+        delete configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER;
+        }
+        
+        if (Object.keys(configData.layoutAnimationOverrides).length === 0) {
+        delete configData.layoutAnimationOverrides;
+        }
         
         if (exportFormat === 'json') {
           // JSON Format
@@ -44,29 +56,29 @@
         } else {
           // JavaScript Module Format
           const jsContent = `// ProfileChatter Custom Configuration
-  // Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
-  // This file can be used to customize your ProfileChatter configuration
-  
-  export const customUserSelections = {
-    profile: ${JSON.stringify(configData.profile, null, 2)},
-    activeTheme: "${configData.activeTheme}",
-    avatars: ${JSON.stringify(configData.avatars, null, 2)}
-  };
-  
-  // Note: This file does not include chat messages. For a complete backup including messages,
-  // use the JSON export format instead.
-  
-  // To use this configuration:
-  // 1. Save this file in your ProfileChatter project
-  // 2. Import the customUserSelections in your config.js
-  // 3. Merge into your main config:
-  //    export const config = {
-  //      ...originalConfig,
-  //      profile: { ...originalConfig.profile, ...customUserSelections.profile },
-  //      activeTheme: customUserSelections.activeTheme || originalConfig.activeTheme,
-  //      avatars: { ...originalConfig.avatars, ...customUserSelections.avatars },
-  //    };
-  `;
+            // Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
+            // This file can be used to customize your ProfileChatter configuration
+
+            export const customUserSelections = {
+            profile: ${JSON.stringify(configData.profile, null, 2)},
+            activeTheme: "${configData.activeTheme}",
+            avatars: ${JSON.stringify(configData.avatars, null, 2)}
+            };
+
+            // Note: This file does not include chat messages. For a complete backup including messages,
+            // use the JSON export format instead.
+
+            // To use this configuration:
+            // 1. Save this file in your ProfileChatter project
+            // 2. Import the customUserSelections in your config.js
+            // 3. Merge into your main config:
+            //    export const config = {
+            //      ...originalConfig,
+            //      profile: { ...originalConfig.profile, ...customUserSelections.profile },
+            //      activeTheme: customUserSelections.activeTheme || originalConfig.activeTheme,
+            //      avatars: { ...originalConfig.avatars, ...customUserSelections.avatars },
+            //    };
+            `;
           downloadFile(jsContent, 'profileChatter.custom.js', 'application/javascript');
         }
       } catch (err) {
