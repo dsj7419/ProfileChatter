@@ -1,219 +1,187 @@
 # ProfileChatter
 
-A dynamic SVG chat visualization generator for your GitHub profile README or other web pages. Create an interactive, auto-updating chat bubble visualization that shows real-time information like current date, weather, and GitHub stats.
+> **Animated chat bubbles that talk for you** – a fully‑automated SVG generator that drops a live, messaging‑style panel into your GitHub&nbsp;profile.  
+> Powered by Node 20, GitHub Actions, and a **zero‑config Configurator UI**.
 
-![ProfileChatter SVG](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1747591535)
-
-## How it Works
-
-ProfileChatter uses a combination of:
-
-1. **GitHub Actions**: Scheduled workflows that run every 6 hours to keep your SVG visualization fresh
-2. **Node.js**: Backend scripts that fetch live data and generate the SVG
-3. **Dynamic Templating**: Text placeholders that get replaced with real-time data
-
-The system fetches current information (date, weather, GitHub stats) and injects it into a chat-style interface designed to look like modern messaging apps, complete with animated typing indicators and chat bubbles.
-
-## Configuration
-
-### Basic Setup
-
-1. Fork this repository
-2. Set up API Access:
-
-   - For Automated Updates (GitHub Actions): Configure the following as repository secrets in your GitHub repository settings:
-     - `WEATHER_API_KEY`: Your AccuWeather API key.
-     - `LOCATION_KEY`: Your AccuWeather location key.
-     - (Optional) `GITHUB_TOKEN`: Your GitHub Personal Access Token if needed.
-
-   - For Local Development:
-     - Copy the `.env.template` file (located in the project root) to a new file named `.env`.
-     - Fill in your API keys in the `.env` file. This file is already in `.gitignore` and should not be committed.
-
-3. Edit your GitHub profile README to embed the SVG
-
-### Choosing a Theme
-
-ProfileChatter now supports multiple visual themes to match different messaging app styles:
-
-1. To change the theme, edit the `activeTheme` property in `src/config/config.js`:
-
-```javascript
-// In src/config/config.js
-export const config = {
-    // Theme selection - default to iOS theme
-    activeTheme: "ios",
-    
-    // Rest of the configuration...
-}
-```
-
-Available themes:
-
-- **ios** (Default): Apple's iOS Messages app style with blue user bubbles, gray visitor bubbles, and rounded corners
-- **android**: Android Messages style with light blue user bubbles, light gray visitor bubbles, and less rounded corners
-
-The visual differences between themes include:
-
-| Feature | iOS Theme | Android Theme |
-|---------|-----------|---------------|
-| User Bubble Color | #0B93F6 (Blue) | #D1E6FF (Light Blue) |
-| Visitor Bubble Color | #E5E5EA (Gray) | #F0F0F0 (Light Gray) |
-| User Text Color | #FFFFFF (White) | #000000 (Black) |
-| Visitor Text Color | #000000 (Black) | #000000 (Black) |
-| Bubble Radius | 18px (More Rounded) | 8px (Less Rounded) |
-| Font Family | 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif | 'Roboto', sans-serif |
-| Dark Mode Background | #000000 | #121212 |
-
-If the specified `activeTheme` is invalid or not found, the system will automatically fall back to the "ios" theme.
-
-### Customizing Messages
-
-Edit the messages in `data/chatData.json` to personalize the conversation. The following placeholders are available:
-
-```markdown
-{name}              - Your name
-{profession}        - Your job title
-{location}          - Your city/location
-{company}           - Your company name
-{workTenure}        - Calculated time at current job
-{currentDayOfWeek}  - Current day of the week
-{currentDate}       - Full current date
-{temperature}       - Current temperature
-{weatherDescription}- Current weather condition
-{emoji}             - Weather-appropriate emoji
-{githubPublicRepos} - Number of your public GitHub repos
-{githubFollowers}   - Number of your GitHub followers
-{currentProject}    - Description of your current project
-```
-
-### User Profile Customization
-
-To personalize your profile information, edit the `profile` object within the `src/config/config.js` file:
-
-```javascript
-// In src/config/config.js
-profile: {
-  // Personal information
-  NAME: "Your Name Here",
-  PROFESSION: "Your Profession",
-  LOCATION: "Your City",
-  COMPANY: "Your Company",
-  CURRENT_PROJECT: "What you're working on",
-  
-  // Work information (used for calculating tenure)
-  WORK_START_DATE: new Date(YYYY, MM-1, DD), // Example: new Date(2020, 0, 1) for Jan 1, 2020
-  
-  // GitHub username for stats
-  GITHUB_USERNAME: "YourGitHubUsername"
-},
-```
-
-Note: For `WORK_START_DATE`, the month is zero-indexed (0 = January, 11 = December).
-
-### Advanced Configuration
-
-For more advanced customization, you can modify other settings in `src/config/config.js`:
-
-#### Cache Settings
-
-```javascript
-cache: {
-  WEATHER_CACHE_TTL_MS: 1800000, // Weather data cache lifetime (30 minutes)
-  GITHUB_CACHE_TTL_MS: 3600000   // GitHub data cache lifetime (1 hour)
-},
-```
-
-#### API Fallback Values
-
-```javascript
-apiDefaults: {
-  // Used when APIs fail
-  TEMPERATURE: "72°F (22°C)",
-  WEATHER_DESCRIPTION: "partly cloudy",
-  WEATHER_EMOJI: "⛅",
-  GITHUB_PUBLIC_REPOS: "12",
-  GITHUB_FOLLOWERS: "48"
-},
-```
-
-#### Layout & Animation Settings
-
-```javascript
-layout: {
-  FONT_SIZE_PX: 14,           // Base font size
-  LINE_HEIGHT_PX: 20,         // Text line height
-  CHAT_WIDTH_PX: 320,         // Total width of the chat container
-  CHAT_HEIGHT_PX: 450,        // Total height of the chat container
-  BUBBLE_PAD_X_PX: 12,        // Horizontal padding inside bubbles
-  BUBBLE_PAD_Y_PX: 8,         // Vertical padding inside bubbles
-  MIN_BUBBLE_W_PX: 40,        // Minimum bubble width
-  MAX_BUBBLE_W_PX: 260,       // Maximum bubble width
-  TYPING_CHAR_MS: 40,         // Typing speed per character
-  TYPING_MIN_MS: 1600,        // Minimum typing time
-  TYPING_MAX_MS: 3000,        // Maximum typing time
-  // More options available in src/config/config.js
-}
-```
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Generate SVG manually
-npm run build
-# or
-node src/main.js
-
-# Preview in browser
-npm run preview
-
-# Format code
-npm run format
-
-# Lint code
-npm run lint
-```
-
-Local development uses a `.env` file (powered by the dotenv package) for environment variables. See `.env.template` for setup instructions.
-
-## Embedding in Your GitHub Profile
-
-1. After configuring and generating your SVG, make sure it's committed to your repository
-2. In your profile repository (usually `yourusername/yourusername`), edit the README.md
-3. Add an image reference to your ProfileChatter SVG:
-
-```markdown
-![My Profile Chat](https://raw.githubusercontent.com/yourusername/ProfileChatter/main/dist/profile-chat.svg?ts=1747591535)
-```
-
-The SVG will automatically update every 6 hours via GitHub Actions workflow.
-
-## Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests to improve ProfileChatter.
-
-Some areas for potential contribution:
-
-- Additional themes (e.g., WhatsApp, Discord, Telegram)
-- New data integrations
-- Performance optimizations
-- Accessibility improvements
-
-This project is based on the [ProfileChatter](https://github.com/dsj7419/ProfileChatter) repository.
-
-## License
-
-This project is licensed under the Unlicense - see the LICENSE file for details, meaning it's completely free to use, modify, and distribute without any restrictions.
-
-## Acknowledgments
-
-- AccuWeather API for weather data
-- GitHub API for repository and follower statistics
-- Built with Node.js and SVG animation techniques
+![ProfileChatter Demo](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg)
 
 ---
 
-For issues, feature requests, or questions, please open an issue on the GitHub repository.
+## 🌟 Why ProfileChatter?
+
+*Static README badges are yesterday’s news.*  
+ProfileChatter turns your profile into a **living conversation** that updates itself – showcasing your latest repos, current weather, coding activity, social reach, and more. Set it up once, and your profile keeps talking.
+
+---
+
+## ✨ Highlights
+
+| | |
+| --- | --- |
+| **Live data on display** | GitHub repos & followers, local weather, WakaTime stats, Twitter/X followers, Code::Stats XP – plug‑and‑play, no code required |
+| **No‑code Configurator UI** | `npm run config:dev` launches a Svelte app to visually customise messages, themes, avatars, charts & more |
+| **Dynamic charts** | Donut & horizontal‑bar charts with per‑segment animation – auto‑generated from WakaTime or any JSON array |
+| **Themes that fit in** | iOS & Android styles out of the box – add your own with a single theme object in `config.js` *or* through the UI |
+| **Smooth, adaptive animations** | Dynamic scroll easing, typing indicators, bubble pop‑ins, chart draw effects |
+| **Quick, safe builds** | GitHub Actions rebuild every 6 h (or on push) with runtime config validation |
+
+---
+
+## 🛠 How it Works
+
+1. **GitHub Actions** (`.github/workflows/main.yml`) run on a 6‑hour cron or any push.  
+2. **Node scripts** fetch data and render a fresh SVG to `dist/`.  
+3. **TimelineBuilder → SvgRenderer** convert chatData + config into animated markup.  
+4. **Configurator UI** writes `profileChatterConfig.json`; when present it overrides `src/config/config.js`.
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1 – Fork the repo, then clone your fork
+git clone https://github.com/<you>/ProfileChatter.git
+cd ProfileChatter
+
+# 2 – Install dependencies & view the default output
+npm install
+npm run build
+#  └─ open dist/profile-chat.svg to preview the out‑of‑the‑box experience
+
+# 3 – Launch the Configurator UI
+npm run config:dev
+#  └─ edit profile, theme, avatars, chat messages, charts…
+#  └─ click **Export Configuration** → profileChatterConfig.json
+
+# 4 – Copy the exported profileChatterConfig.json to the project root directory, commit & push
+git add profileChatterConfig.json
+git commit -m "feat: personalise ProfileChatter"
+git push
+```
+
+> **Tip:** For local work, create a `.env` from `.env.template` and drop your API keys there.
+
+---
+
+## 🔑 Repository Secrets / Env Variables
+
+| Key | Required | Purpose |
+| --- | :---: | --- |
+| `WEATHER_API_KEY` | ✔ | AccuWeather API key |
+| `LOCATION_KEY` | ✔ | AccuWeather location key |
+| `GITHUB_TOKEN` | ☐ | Avoid unauthenticated GitHub rate‑limits (handy for frequent builds) |
+| `WAKATIME_API_KEY` | ☐ | Show WakaTime stats & **dynamic** charts |
+| `TWITTER_BEARER_TOKEN` | ☐ | Fetch Twitter/X follower count |
+| *(none)* | ☐ | Code::Stats needs only the username |
+
+For **local development** (`npm run build`, Configurator preview) place these in a `.env` file instead of repository secrets.
+
+---
+
+## 💻 Manual Configuration (optional)
+
+Prefer writing JSON in the UI, but you can hand‑edit `src/config/config.js`:
+
+* **Themes** – copy an existing object, rename it (e.g. `myCustomTheme`), change colors & fonts, then set `activeTheme: "myCustomTheme"`.  
+* **Layout & animation** – tweak bubble padding, scroll speed, chart timing, etc.  
+* **Disable integrations** – e.g. set `wakatime.enabled = false` to turn WakaTime off.
+
+---
+
+## 💬 Message Placeholders
+
+| Placeholder | Injected value |
+| --- | --- |
+| `{name}` / `{profession}` / `{location}` / `{company}` | Profile details |
+| `{workTenure}` | Human‑readable tenure – e.g. “1 year 2 months” |
+| `{currentDayOfWeek}` / `{currentDate}` | Localised date strings |
+| `{temperature}` / `{weatherDescription}` / `{emoji}` | Current weather |
+| `{githubPublicRepos}` / `{githubFollowers}` | GitHub stats |
+| `{wakatime_summary}` / `{wakatime_top_language}` / `{wakatime_top_language_percent}` | WakaTime |
+| `{twitterFollowers}` | Twitter/X followers |
+| `{codestatsXP}` | Code::Stats XP |
+
+---
+
+### Dynamic Chart Data
+
+Inside a chart’s `items` array you can put:
+
+```jsonc
+"items": "{wakatime_chart_data}"
+```
+
+and the build script will replace it with the top five languages from your last 7 days on WakaTime.
+
+---
+
+### 📊 Chart Recipe Example
+
+```jsonc
+{
+  "sender": "me",
+  "contentType": "chart",
+  "chartData": {
+    "type": "donut",
+    "title": "{wakatime_top_language} usage",
+    "centerText": "{wakatime_top_language_percent}%",
+    "items": "{wakatime_chart_data}"
+  }
+}
+```
+
+---
+
+## 🖼 Embedding in Your Profile README
+
+```markdown
+![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1)
+```
+
+Replace `<you>` with your GitHub username.  
+Add `?ts=<any changing number>` (e.g. 1, 2, 3 …) to encourage GitHub to fetch the latest SVG after updates.
+
+---
+
+## 🗜 Local Commands
+
+| Command | Description |
+| --- | --- |
+| `npm run build` | Render SVG to `dist/` using current config |
+| `npm run preview` | Build & open `test.html` for a live animation preview |
+| `npm run config:dev` | Launch the Configurator UI |
+| `npm run format` | Prettier formatting |
+| `npm run lint` | ESLint checks |
+| `npm run config:build` | Create a static build of the Configurator |
+
+---
+
+## 📺 See It in Action
+
+* **Dan Johnson** – <https://github.com/dsj7419>
+
+> **Show off yours!** Open a PR to add your profile to this list and inspire others.
+
+---
+
+## 🤝 Contributing
+
+PRs are welcome. Ideas:
+
+* New themes (WhatsApp, Discord, Telegram…)
+* Extra data sources (Dev.to posts, Stack Overflow rep, etc.)
+* Advanced theming tools (e.g. helpers to design themes that adapt to light/dark OS modes)
+* Documentation improvements
+* Performance & build‑time optimisations
+
+---
+
+## 📝 License
+
+[UNLICENSE](LICENSE) – public domain, no strings attached.
+
+---
+
+## 🙌 Acknowledgements
+
+AccuWeather API • GitHub API • WakaTime • Twitter/X API • Code::Stats • Node.js • Svelte • Tailwind CSS – and **you** for building something awesome.

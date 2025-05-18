@@ -14,23 +14,21 @@ class ChartAnimationEngine {
      * @returns {string} - SVG animation markup for stroke-dashoffset drawing effect
      */
     static getDonutSegmentDrawAnimation(segmentId, arcLength, durationSec, beginSec) {
-      // Override duration to be faster (0.5s maximum) if the theme value is too slow
-      const actualDuration = Math.min(durationSec, 0.5);
-      
-      return `
-        <animate attributeName="stroke-dashoffset" 
-                 from="${arcLength}" to="0" 
-                 dur="${actualDuration}s" 
-                 begin="${beginSec}s" 
-                 calcMode="spline"
-                 keySplines="0.215, 0.61, 0.355, 1"
-                 fill="freeze" />
-        <animate attributeName="opacity" 
-                 from="0" to="1" 
-                 dur="${actualDuration * 0.5}s" 
-                 begin="${beginSec}s" 
-                 fill="freeze" />
-      `;
+        const actualDuration = Math.min(durationSec, 0.5);
+        return `
+          <animate attributeName="stroke-dashoffset"
+                   from="${arcLength}" to="0"
+                   dur="${actualDuration}s"
+                   begin="${beginSec}s"
+                   calcMode="spline"
+                   keySplines="0.215,0.61,0.355,1"
+                   fill="freeze"/>
+          <animate attributeName="opacity"
+                   from="0" to="1"
+                   dur="${actualDuration * 0.5}s"
+                   begin="${beginSec}s"
+                   fill="freeze"/>
+        `;
     }
   
     /**
@@ -41,23 +39,19 @@ class ChartAnimationEngine {
      * @returns {string} - SVG animation markup for width growth effect
      */
     static getBarGrowAnimation(width, durationSec, beginSec) {
-      // Keep bar animations consistent but slightly faster
-      const actualDuration = Math.min(durationSec, 0.7);
-      
-      return `
-        <animate attributeName="width"
-                 from="0" to="${width}" 
-                 dur="${actualDuration}s" 
-                 begin="${beginSec}s"
-                 calcMode="spline"
-                 keySplines="0.215, 0.61, 0.355, 1"
-                 fill="freeze" />
-        <animate attributeName="opacity"
-                 from="0.2" to="1"
-                 dur="${actualDuration}s"
-                 begin="${beginSec}s"
-                 fill="freeze" />
-      `;
+        const actualDuration = Math.min(durationSec, 0.7);          // keep snappy
+        return `
+          <animate attributeName="width"
+                   from="0" to="${width}"
+                   dur="${actualDuration}s"
+                   begin="${beginSec}s"
+                   fill="freeze"/>
+          <animate attributeName="opacity"
+                   from="0" to="1"
+                   dur="${actualDuration}s"
+                   begin="${beginSec}s"
+                   fill="freeze"/>
+        `;
     }
   }
   

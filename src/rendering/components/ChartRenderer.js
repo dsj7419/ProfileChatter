@@ -208,11 +208,13 @@ class ChartRenderer {
 
       // Bar Track - always show track for consistent appearance
       rows.push(`
-        <rect class="chart-track-bar" x="${padX}" y="${barY}" 
-              width="${barTrackW}" height="var(--bar-height-px, ${barH}px)"
-              rx="var(--bar-corner-radius-px, ${cornerRadius}px)" 
-              ry="var(--bar-corner-radius-px, ${cornerRadius}px)"
-              fill="var(--bar-track-color, ${trackColor})" stroke="none"/>
+        <rect class="chart-track-bar"
+              x="${padX}" y="${barY}"
+              width="${barTrackW}"
+              height="${barH}"
+              rx="${cornerRadius}" ry="${cornerRadius}"
+              fill="${trackColor}"
+              stroke="none"/>
       `);
 
       // Bar Value (animated)
@@ -227,15 +229,14 @@ class ChartRenderer {
       
       // Specific class for animated bars to avoid style collisions
       rows.push(`
-        <rect class="chart-value-bar animated-bar" 
-              x="${padX}" y="${barY}" 
-              width="0" 
-              height="var(--bar-height-px, ${barH}px)"
-              rx="var(--bar-corner-radius-px, ${cornerRadius}px)" 
-              ry="var(--bar-corner-radius-px, ${cornerRadius}px)"
-              fill="${barFillColor}" 
+        <rect class="chart-value-bar"
+              x="${padX}" y="${barY}"
+              width="${barW}"
+              height="${barH}"
+              rx="${cornerRadius}" ry="${cornerRadius}"
+              fill="${barFillColor}"
               stroke="none"
-              opacity="0.2">
+              opacity="0">
           ${ChartAnimationEngine.getBarGrowAnimation(barW, barAnimDuration, animDelay.toFixed(2))}
         </rect>
       `);

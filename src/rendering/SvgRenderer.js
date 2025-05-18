@@ -60,242 +60,195 @@ class SvgRenderer {
     const scrollKeyframeData = timelineData.scrollKeyframeData || [];
 
     /* ---------- font‑face --------------------------------------------- */
-    const fontFace = INTER_FONT_BASE64 
+    const fontFace = INTER_FONT_BASE64
       ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
       : '';
-    
+
     /* ---------- animation timing -------------------------------------- */
-    const totalTypingTime = timelineData.totalTypingTime;
-    const scrollDelay = (totalTypingTime / 1000) * 0.6 + 1.0; // 60% of typing time + 1s buffer
-    
-    // Use adjusted scroll duration from timing profile
-    const scrollDuration = timingProfile.scrollDurationSec.toFixed(2);
-    
-    // Use the separate messaging duration for keyframe percentages
-    const totalMessagingTimeSec = timelineData.totalMessagingTimeSec || 
-      (timingProfile.getTotalDuration() - (timingProfile.scrollDurationSec * 1000)) / 1000;
-    
-    // Generate dynamic scroll keyframes using ScrollAnimationEngine
+    const totalTypingTime   = timelineData.totalTypingTime;
+    const scrollDelay       = (totalTypingTime / 1000) * 0.6 + 1.0;
+    const scrollDuration    = timingProfile.scrollDurationSec.toFixed(2);
+    const totalMessagingSec =
+      timelineData.totalMessagingTimeSec ??
+      (timingProfile.getTotalDuration() - timingProfile.scrollDurationSec * 1000) /
+        1000;
+
     const scrollKeyframesCSS = ScrollAnimationEngine.generateScrollKeyframesCSS(
       scrollKeyframeData,
-      totalMessagingTimeSec,
+      totalMessagingSec,
       'scrollUp',
       timingProfile.scrollDistance
     );
-    
-    /* ---------- CSS Variables ---------------------------------------- */
+
+    /* ---------- CSS variables ---------------------------------------- */
     const cssVars = `
-      :root {
-        /* Bubble Colors */
-        --me-bubble-color: ${theme.ME_BUBBLE_COLOR};
-        --visitor-bubble-color: ${theme.VISITOR_BUBBLE_COLOR};
-        
-        /* Text Colors */
-        --me-text-color: ${theme.ME_TEXT_COLOR};
-        --visitor-text-color: ${theme.VISITOR_TEXT_COLOR};
-        
-        /* Background */
-        --background-light: ${theme.BACKGROUND_LIGHT};
-        --background-dark: ${theme.BACKGROUND_DARK};
-        
-        /* Styling */
-        --bubble-radius-px: ${theme.BUBBLE_RADIUS_PX}px;
-        --font-family: ${theme.FONT_FAMILY};
-        
-        /* Reaction */
-        --reaction-font-size-px: ${theme.REACTION_FONT_SIZE_PX}px;
-        --reaction-bg-color: ${theme.REACTION_BG_COLOR};
-        --reaction-bg-opacity: ${theme.REACTION_BG_OPACITY};
-        --reaction-text-color: ${theme.REACTION_TEXT_COLOR};
-        --reaction-padding-x-px: ${theme.REACTION_PADDING_X_PX}px;
-        --reaction-padding-y-px: ${theme.REACTION_PADDING_Y_PX}px;
-        --reaction-border-radius-px: ${theme.REACTION_BORDER_RADIUS_PX}px;
-        --reaction-offset-y-px: ${theme.REACTION_OFFSET_Y_PX}px;
-        --reaction-offset-x-px: ${theme.REACTION_OFFSET_X_PX || 0}px;
-        
-        /* Chart Styles */
-        --bar-default-color: ${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
-        --bar-track-color: ${theme.CHART_STYLES.BAR_TRACK_COLOR};
-        --bar-corner-radius-px: ${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
-        --bar-height-px: ${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
-        --bar-spacing-px: ${theme.CHART_STYLES.BAR_SPACING_PX}px;
-        
-        --label-font-family: ${theme.CHART_STYLES.LABEL_FONT_FAMILY};
-        --label-font-size-px: ${theme.CHART_STYLES.LABEL_FONT_SIZE_PX}px;
-        --value-text-font-family: ${theme.CHART_STYLES.VALUE_TEXT_FONT_FAMILY};
-        --value-text-font-size-px: ${theme.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX}px;
-        
-        --title-font-family: ${theme.CHART_STYLES.TITLE_FONT_FAMILY};
-        --title-font-size-px: ${theme.CHART_STYLES.TITLE_FONT_SIZE_PX}px;
-        --title-line-height-multiplier: ${theme.CHART_STYLES.TITLE_LINE_HEIGHT_MULTIPLIER};
-        --title-bottom-margin-px: ${theme.CHART_STYLES.TITLE_BOTTOM_MARGIN_PX}px;
-        
-        --chart-padding-x-px: ${theme.CHART_STYLES.CHART_PADDING_X_PX}px;
-        --chart-padding-y-px: ${theme.CHART_STYLES.CHART_PADDING_Y_PX}px;
-        
-        --me-title-color: ${theme.CHART_STYLES.ME_TITLE_COLOR};
-        --me-label-color: ${theme.CHART_STYLES.ME_LABEL_COLOR};
-        --me-value-text-color: ${theme.CHART_STYLES.ME_VALUE_TEXT_COLOR};
-        
-        --visitor-title-color: ${theme.CHART_STYLES.VISITOR_TITLE_COLOR};
-        --visitor-label-color: ${theme.CHART_STYLES.VISITOR_LABEL_COLOR};
-        --visitor-value-text-color: ${theme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR};
-        
-        /* Donut Chart */
-        --donut-stroke-width-px: ${theme.CHART_STYLES.DONUT_STROKE_WIDTH_PX}px;
-        --donut-center-text-font-size-px: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_SIZE_PX}px;
-        --donut-center-text-font-family: ${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_FAMILY};
-        --me-donut-center-text-color: ${theme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR};
-        --visitor-donut-center-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR};
-        --me-donut-legend-text-color: ${theme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR};
-        --visitor-donut-legend-text-color: ${theme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR};
-        --donut-legend-font-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_FONT_SIZE_PX}px;
-        --donut-legend-item-spacing-px: ${theme.CHART_STYLES.DONUT_LEGEND_ITEM_SPACING_PX}px;
-        --donut-legend-marker-size-px: ${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
-        --donut-animation-duration-sec: ${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
-        --donut-segment-animation-delay-sec: ${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
-        
-        /* Value text inside color */
-        --value-text-inside-color: ${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
-        
-        /* Animation durations */
-        --chart-bar-animation-duration-sec: ${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
-        --chart-animation-delay-sec: ${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
-      }
-    `;
+      :root{
+        --me-bubble-color:${theme.ME_BUBBLE_COLOR};
+        --visitor-bubble-color:${theme.VISITOR_BUBBLE_COLOR};
+        --me-text-color:${theme.ME_TEXT_COLOR};
+        --visitor-text-color:${theme.VISITOR_TEXT_COLOR};
+        --background-light:${theme.BACKGROUND_LIGHT};
+        --background-dark:${theme.BACKGROUND_DARK};
+        --bubble-radius-px:${theme.BUBBLE_RADIUS_PX}px;
+        --font-family:${theme.FONT_FAMILY};
+        --reaction-font-size-px:${theme.REACTION_FONT_SIZE_PX}px;
+        --reaction-bg-color:${theme.REACTION_BG_COLOR};
+        --reaction-bg-opacity:${theme.REACTION_BG_OPACITY};
+        --reaction-text-color:${theme.REACTION_TEXT_COLOR};
+        --reaction-padding-x-px:${theme.REACTION_PADDING_X_PX}px;
+        --reaction-padding-y-px:${theme.REACTION_PADDING_Y_PX}px;
+        --reaction-border-radius-px:${theme.REACTION_BORDER_RADIUS_PX}px;
+        --reaction-offset-y-px:${theme.REACTION_OFFSET_Y_PX}px;
+        --reaction-offset-x-px:${theme.REACTION_OFFSET_X_PX || 0}px;
+        --bar-default-color:${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
+        --bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR};
+        --bar-corner-radius-px:${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
+        --bar-height-px:${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
+        --bar-spacing-px:${theme.CHART_STYLES.BAR_SPACING_PX}px;
+        --label-font-family:${theme.CHART_STYLES.LABEL_FONT_FAMILY};
+        --label-font-size-px:${theme.CHART_STYLES.LABEL_FONT_SIZE_PX}px;
+        --value-text-font-family:${theme.CHART_STYLES.VALUE_TEXT_FONT_FAMILY};
+        --value-text-font-size-px:${theme.CHART_STYLES.VALUE_TEXT_FONT_SIZE_PX}px;
+        --title-font-family:${theme.CHART_STYLES.TITLE_FONT_FAMILY};
+        --title-font-size-px:${theme.CHART_STYLES.TITLE_FONT_SIZE_PX}px;
+        --title-line-height-multiplier:${theme.CHART_STYLES.TITLE_LINE_HEIGHT_MULTIPLIER};
+        --title-bottom-margin-px:${theme.CHART_STYLES.TITLE_BOTTOM_MARGIN_PX}px;
+        --chart-padding-x-px:${theme.CHART_STYLES.CHART_PADDING_X_PX}px;
+        --chart-padding-y-px:${theme.CHART_STYLES.CHART_PADDING_Y_PX}px;
+        --me-title-color:${theme.CHART_STYLES.ME_TITLE_COLOR};
+        --me-label-color:${theme.CHART_STYLES.ME_LABEL_COLOR};
+        --me-value-text-color:${theme.CHART_STYLES.ME_VALUE_TEXT_COLOR};
+        --visitor-title-color:${theme.CHART_STYLES.VISITOR_TITLE_COLOR};
+        --visitor-label-color:${theme.CHART_STYLES.VISITOR_LABEL_COLOR};
+        --visitor-value-text-color:${theme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR};
+        --donut-stroke-width-px:${theme.CHART_STYLES.DONUT_STROKE_WIDTH_PX}px;
+        --donut-center-text-font-size-px:${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_SIZE_PX}px;
+        --donut-center-text-font-family:${theme.CHART_STYLES.DONUT_CENTER_TEXT_FONT_FAMILY};
+        --me-donut-center-text-color:${theme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR};
+        --visitor-donut-center-text-color:${theme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR};
+        --me-donut-legend-text-color:${theme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR};
+        --visitor-donut-legend-text-color:${theme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR};
+        --donut-legend-font-size-px:${theme.CHART_STYLES.DONUT_LEGEND_FONT_SIZE_PX}px;
+        --donut-legend-item-spacing-px:${theme.CHART_STYLES.DONUT_LEGEND_ITEM_SPACING_PX}px;
+        --donut-legend-marker-size-px:${theme.CHART_STYLES.DONUT_LEGEND_MARKER_SIZE_PX}px;
+        --donut-animation-duration-sec:${theme.CHART_STYLES.DONUT_ANIMATION_DURATION_SEC}s;
+        --donut-segment-animation-delay-sec:${theme.CHART_STYLES.DONUT_SEGMENT_ANIMATION_DELAY_SEC}s;
+        --value-text-inside-color:${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
+        --chart-bar-animation-duration-sec:${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
+        --chart-animation-delay-sec:${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
+      }`;
 
     /* ---------- CSS ---------------------------------------------------- */
     const css = `
-${fontFace}
-${cssVars}
-@keyframes bubbleIn{0%{scale:${config.layout.ANIMATION.BUBBLE_START_SCALE};opacity:0}100%{scale:1;opacity:1}}
-@keyframes typingDot1{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
-@keyframes typingDot2{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
-@keyframes typingDot3{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
-@keyframes reactionIn{0%{scale:.5;opacity:0}100%{scale:1;opacity:1}}
-@keyframes avatarIn{0%{scale:.8;opacity:0}100%{scale:1;opacity:1}}
-${scrollKeyframesCSS}
-@keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
-@keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
-.track{animation:scrollUp ${scrollDuration}s cubic-bezier(0.25, 0.1, 0.25, 0.85) forwards;animation-delay:${scrollDelay.toFixed(2)}s;transform:translate3d(0,0,0);will-change:transform}
-.msg{animation:bubbleIn ${config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION}s ${config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE} forwards;opacity:0;filter:url(#shadowEffect)}
-.typing{opacity:0;filter:url(#shadowEffect)}
-.reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
-.avatar{animation:avatarIn .3s ease-out forwards;opacity:0}
-.status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME};opacity:0}
-.typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:0s}
-.typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
-.typing-dot3{animation:typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_3}s}
-.donut-segment {
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 0.2s ease-out;
-}
+  ${fontFace}
+  ${cssVars}
+  @keyframes bubbleIn{0%{scale:${config.layout.ANIMATION.BUBBLE_START_SCALE};opacity:0}100%{scale:1;opacity:1}}
+  @keyframes typingDot1{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
+  @keyframes typingDot2{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
+  @keyframes typingDot3{0%,100%{opacity:${config.layout.ANIMATION.DOT_MIN_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MIN_SCALE})}40%{opacity:${config.layout.ANIMATION.DOT_MAX_OPACITY};transform:scale(${config.layout.ANIMATION.DOT_MAX_SCALE})}}
+  @keyframes reactionIn{0%{scale:.5;opacity:0}100%{scale:1;opacity:1}}
+  @keyframes avatarIn{0%{scale:.8;opacity:0}100%{scale:1;opacity:1}}
+  ${scrollKeyframesCSS}
+  @keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
+  @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
 
-.chart-content .donut-legend-marker {
-  width: var(--donut-legend-marker-size-px, 10px);
-  height: var(--donut-legend-marker-size-px, 10px);
-}
+  .track{animation:scrollUp ${scrollDuration}s cubic-bezier(0.25,0.1,0.25,0.85) forwards;animation-delay:${scrollDelay.toFixed(
+      2
+    )}s;transform:translate3d(0,0,0);will-change:transform}
+  .msg{animation:bubbleIn ${config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION}s ${
+      config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE
+    } forwards;opacity:0}
+  .typing{opacity:0}
+  .reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
+  .avatar{animation:avatarIn .3s ease-out forwards;opacity:0}
+  .status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME};opacity:0}
 
-/* Direct background application instead of using media queries */
-svg{background:var(--active-background, var(--background-light, ${theme.BACKGROUND_LIGHT}));}
+  .typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite}
+  .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
+  .typing-dot3{animation:typingDot3 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_3}s}
 
-/* Use CSS variables for themed elements - Apply to specific elements only */
-.msg.me > rect:first-child, 
-.typing.me > rect:first-child { 
-  fill: var(--me-bubble-color, ${theme.ME_BUBBLE_COLOR}); 
-  rx: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
-  ry: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
-}
+  text{text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
 
-.msg.them > rect:first-child, 
-.typing.them > rect:first-child { 
-  fill: var(--visitor-bubble-color, ${theme.VISITOR_BUBBLE_COLOR}); 
-  rx: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
-  ry: var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px);
-}
+  .donut-segment{stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease-out}
+  .chart-content .donut-legend-marker{width:var(--donut-legend-marker-size-px,10px);height:var(--donut-legend-marker-size-px,10px)}
 
-.msg.me text:not(.chart-content text) { fill: var(--me-text-color, ${theme.ME_TEXT_COLOR}); }
-.msg.them text:not(.chart-content text) { fill: var(--visitor-text-color, ${theme.VISITOR_TEXT_COLOR}); }
-svg { font-family: var(--font-family, ${theme.FONT_FAMILY}); }
+  svg{background:var(--active-background,var(--background-light,${theme.BACKGROUND_LIGHT}))}
+  @media (prefers-color-scheme:dark){svg:not(.light-mode-preview){background:var(--background-dark,${theme.BACKGROUND_DARK})}}
+  @media (prefers-color-scheme:light){svg:not(.dark-mode-preview){background:var(--background-light,${theme.BACKGROUND_LIGHT})}}
 
-/* Chart-specific styles - only style the track bar */
-.chart-track-bar { fill: var(--bar-track-color, ${theme.CHART_STYLES.BAR_TRACK_COLOR}); }
+  .msg.me>rect:first-child,.typing.me>rect:first-child{fill:var(--me-bubble-color,${theme.ME_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
+  .msg.them>rect:first-child,.typing.them>rect:first-child{fill:var(--visitor-bubble-color,${theme.VISITOR_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
+  .msg.me text:not(.chart-content text){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
+  .msg.them text:not(.chart-content text){fill:var(--visitor-text-color,${theme.VISITOR_TEXT_COLOR})}
+  svg{font-family:var(--font-family,${theme.FONT_FAMILY})}
 
-/* Donut chart hover styling */
-.donut-legend-item:hover ~ .donut-segment {
-  opacity: 0.7;
-}
+  .chart-track-bar{fill:var(--bar-track-color,${theme.CHART_STYLES.BAR_TRACK_COLOR})}
+  .donut-legend-item:hover~.donut-segment{opacity:.7}
+  .donut-legend-item:hover{cursor:pointer}
 
-.donut-legend-item:hover {
-  cursor: pointer;
-}
-
-/* Reaction styling */
-.reaction rect {
-  fill: var(--reaction-bg-color, ${theme.REACTION_BG_COLOR});
-  fill-opacity: var(--reaction-bg-opacity, ${theme.REACTION_BG_OPACITY});
-  rx: var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px);
-  ry: var(--reaction-border-radius-px, ${theme.REACTION_BORDER_RADIUS_PX}px);
-}
-.reaction text {
-  fill: var(--reaction-text-color, ${theme.REACTION_TEXT_COLOR});
-  font-size: var(--reaction-font-size-px, ${theme.REACTION_FONT_SIZE_PX}px);
-}`;
+  .reaction rect{fill:var(--reaction-bg-color,${theme.REACTION_BG_COLOR});fill-opacity:var(--reaction-bg-opacity,${theme.REACTION_BG_OPACITY});rx:var(--reaction-border-radius-px,${theme.REACTION_BORDER_RADIUS_PX}px);ry:var(--reaction-border-radius-px,${theme.REACTION_BORDER_RADIUS_PX}px)}
+  .reaction text{fill:var(--reaction-text-color,${theme.REACTION_TEXT_COLOR});font-size:var(--reaction-font-size-px,${theme.REACTION_FONT_SIZE_PX}px)}
+  `;
 
     /* ---------- SVG shell -------------------------------------------- */
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
-<defs>
-  <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
-    <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
-    <feOffset dx="${config.layout.ANIMATION.SHADOW_OFFSET_X}" dy="${config.layout.ANIMATION.SHADOW_OFFSET_Y}" result="offsetblur"/>
-    <feComponentTransfer><feFuncA type="linear" slope="${config.layout.ANIMATION.SHADOW_OPACITY}"/></feComponentTransfer>
-    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-
-  <!-- avatar masks -->
-  <clipPath id="avatarCircle"><circle cx="${config.avatars.sizePx / 2}" cy="${config.avatars.sizePx / 2}" r="${config.avatars.sizePx / 2}"/></clipPath>
-  <clipPath id="avatarSquare"><rect width="${config.avatars.sizePx}" height="${config.avatars.sizePx}" rx="4" ry="4"/></clipPath>
-</defs>
-<style>${css}</style>
-<rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
-<g class="track">`;
-  }
+  <defs>
+    <filter id="shadowEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="${config.layout.ANIMATION.SHADOW_BLUR}"/>
+      <feOffset dx="${config.layout.ANIMATION.SHADOW_OFFSET_X}" dy="${config.layout.ANIMATION.SHADOW_OFFSET_Y}" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="${config.layout.ANIMATION.SHADOW_OPACITY}"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="avatarCircle"><circle cx="${config.avatars.sizePx / 2}" cy="${config.avatars.sizePx / 2}" r="${config.avatars.sizePx / 2}"/></clipPath>
+    <clipPath id="avatarSquare"><rect width="${config.avatars.sizePx}" height="${config.avatars.sizePx}" rx="4" ry="4"/></clipPath>
+  </defs>
+  <style>${css}</style>
+  <rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
+  <g class="track">`;
+}
 
   /**
-   * Render a typing indicator with proper iOS styling
-   * @param {TypingIndicator} item - Typing indicator item
-   * @returns {string} - SVG markup for typing indicator
-   */
-  _renderTypingIndicator(item) {
-    const theme = this.getActiveThemeStyles();
-    const isMe = item.sender === "me";
-    const avatarOn = config.avatars.enabled;
+ * Render a typing indicator with proper iOS styling
+ * @param {TypingIndicator} item - Typing indicator item
+ * @returns {string} - SVG markup for typing indicator
+ */
+_renderTypingIndicator(item) {
+  const theme   = this.getActiveThemeStyles();
+  const isMe    = item.sender === "me";
+  const avatarOn = config.avatars.enabled;
 
-    const bw = config.layout.ANIMATION.TYPING_BUBBLE_WIDTH;
-    const bh = config.layout.ANIMATION.TYPING_BUBBLE_HEIGHT;
+  const bw = config.layout.ANIMATION.TYPING_BUBBLE_WIDTH;
+  const bh = config.layout.ANIMATION.TYPING_BUBBLE_HEIGHT;
 
-    // Calculate x position based on avatar configuration
-    const avSize = avatarOn ? config.avatars.sizePx : 0;
-    const avOff = avatarOn ? config.avatars.xOffsetPx : 0;
+  // Avatar‑offset calculation
+  const avSize = avatarOn ? config.avatars.sizePx   : 0;
+  const avOff  = avatarOn ? config.avatars.xOffsetPx : 0;
 
-    const x = isMe
-      ? config.layout.CHAT_WIDTH_PX - bw - avSize - avOff * 2
-      : avSize + avOff * 2;
+  const x = isMe
+    ? config.layout.CHAT_WIDTH_PX - bw - avSize - avOff * 2
+    : avSize + avOff * 2;
 
-    const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR;
-    const textColor = isMe ? theme.ME_TEXT_COLOR : theme.VISITOR_TEXT_COLOR;
+  const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR      : theme.VISITOR_BUBBLE_COLOR;
+  const textColor  = isMe ? theme.ME_TEXT_COLOR         : theme.VISITOR_TEXT_COLOR;
 
-    const start = (item.startTime / 1000).toFixed(2);
-    const dur = (item.duration / 1000).toFixed(2);
+  const start = (item.startTime / 1000).toFixed(2);
+  const dur   = (item.duration  / 1000).toFixed(2);
 
-    return `
-      <g class="typing ${isMe ? "me" : "them"}" transform="translate(${x},${item.y})">
-        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.05;0.1;0.9;1" begin="${start}s" dur="${dur}s" fill="freeze"/>
-        <rect width="${bw}" height="${bh}" rx="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" ry="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" fill="${bubbleFill}"/>
-        ${this._typingDots(bw, bh, textColor)}
-      </g>`;
-  }
+  return `
+    <g class="typing ${isMe ? "me" : "them"}" transform="translate(${x},${item.y})">
+      <animate attributeName="opacity"
+               values="0;0;1;1;0"
+               keyTimes="0;0.05;0.1;0.9;1"
+               begin="${start}s"
+               dur="${dur}s"
+               fill="freeze"/>
+      <rect width="${bw}" height="${bh}"
+            rx="${theme.BUBBLE_RADIUS_PX}"
+            ry="${theme.BUBBLE_RADIUS_PX}"
+            fill="${bubbleFill}"/>
+      ${this._typingDots(bw, bh, textColor)}
+    </g>`;
+}
 
   /**
    * Render typing animation dots
