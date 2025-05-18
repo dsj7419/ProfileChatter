@@ -5,6 +5,9 @@
     // Tab state for top-level categories
     let activeTab = 'general';
     
+    // NEW: State variable for chart sub-tabs
+    let activeChartSubTab = 'general';
+    
     // Helper for finding first font
     function cleanFontName(fontString) {
       return fontString.split(',')[0].replace(/'/g, '');
@@ -37,55 +40,17 @@
       }
     }
     
-    // After component is mounted, initialize the chart tabs
-    onMount(() => {
-      // Wait for DOM to be fully rendered
-      setTimeout(() => {
-        // Chart sub-navigation tab functionality
-        const chartTabs = document.querySelectorAll('.chart-tab-btn');
-        const chartPanels = document.querySelectorAll('.chart-panel');
-        
-        console.log('Chart tabs initialization:', {
-          tabsFound: chartTabs.length,
-          panelsFound: chartPanels.length
-        });
-        
-        // Set initial active state
-        if (chartTabs.length > 0 && chartPanels.length > 0) {
-          chartTabs[0].classList.add('active');
-          chartPanels[0].classList.add('active');
-        }
-        
-        // Add click handlers
-        chartTabs.forEach(tab => {
-          tab.addEventListener('click', () => {
-            // Remove active class from all tabs and panels
-            chartTabs.forEach(t => t.classList.remove('active'));
-            chartPanels.forEach(p => p.classList.remove('active'));
-            
-            // Add active class to clicked tab
-            tab.classList.add('active');
-            
-            // Show corresponding panel
-            const targetId = `chart-${tab.dataset.target}`;
-            const targetPanel = document.getElementById(targetId);
-            console.log('Tab clicked:', tab.dataset.target, 'Target panel:', targetId);
-            
-            if (targetPanel) {
-              targetPanel.classList.add('active');
-            } else {
-              console.warn('Target panel not found:', targetId);
-            }
-          });
-        });
-      }, 100); // Short delay to ensure DOM is ready
-    });
+    // Function to set active chart sub-tab
+    function setChartSubTab(tabId) {
+      activeChartSubTab = tabId;
+      console.log('Chart sub-tab changed to:', tabId);
+    }
   </script>
   
   <div class="theme-editor p-3 border border-gray-200 rounded-md bg-white">
     <h3 class="text-sm font-medium text-gray-700 mb-3">Theme Editor</h3>
     
-    <!-- Main Tab Navigation -->
+    <!-- Main Tab Navigation with modified chat bubbles label -->
     <div class="theme-tabs flex border-b border-gray-200 mb-4">
       <button 
         class="px-4 py-2 text-sm font-medium {activeTab === 'general' ? 'text-primary border-b-2 border-primary -mb-px' : 'text-gray-500 hover:text-gray-700'}" 
@@ -97,7 +62,7 @@
         class="px-4 py-2 text-sm font-medium {activeTab === 'bubbles' ? 'text-primary border-b-2 border-primary -mb-px' : 'text-gray-500 hover:text-gray-700'}" 
         on:click={() => activeTab = 'bubbles'}
       >
-        Chat Bubbles
+        Chat<br>Bubbles
       </button>
       <button 
         class="px-4 py-2 text-sm font-medium {activeTab === 'reactions' ? 'text-primary border-b-2 border-primary -mb-px' : 'text-gray-500 hover:text-gray-700'}" 
@@ -471,14 +436,30 @@
       <!-- Chart Sub-navigation -->
       <div class="charts-subnav flex mb-4">
         <div class="flex overflow-x-auto py-1 bg-gray-50 rounded-md w-full">
-          <button class="chart-tab-btn active" data-target="general">General</button>
-          <button class="chart-tab-btn" data-target="bar">Bar Charts</button>
-          <button class="chart-tab-btn" data-target="donut">Donut Charts</button>
+          <!-- Use Svelte-native click handlers with state variables instead of DOM manipulation -->
+          <button 
+            class="chart-tab-btn {activeChartSubTab === 'general' ? 'active' : ''}" 
+            on:click={() => setChartSubTab('general')}
+          >
+            General
+          </button>
+          <button 
+            class="chart-tab-btn {activeChartSubTab === 'bar' ? 'active' : ''}" 
+            on:click={() => setChartSubTab('bar')}
+          >
+            Bar Charts
+          </button>
+          <button 
+            class="chart-tab-btn {activeChartSubTab === 'donut' ? 'active' : ''}" 
+            on:click={() => setChartSubTab('donut')}
+          >
+            Donut Charts
+          </button>
         </div>
       </div>
       
       <!-- General Chart Settings -->
-      <div class="chart-panel active" id="chart-general">
+      <div class="chart-panel {activeChartSubTab === 'general' ? 'active' : ''}" id="chart-general">
         <div class="space-y-4">
           <!-- Common Styling -->
           <div class="section">
@@ -552,6 +533,7 @@
             </div>
           </div>
           
+          <!-- Remaining general chart settings sections (unchanged) -->
           <!-- Common Typography -->
           <div class="section">
             <h4 class="text-xs font-medium text-gray-700 mb-2">Typography</h4>
@@ -860,7 +842,7 @@
       </div>
       
       <!-- Bar Chart Settings -->
-      <div class="chart-panel" id="chart-bar">
+      <div class="chart-panel {activeChartSubTab === 'bar' ? 'active' : ''}" id="chart-bar">
         <div class="space-y-4">
           <!-- Bar Appearance -->
           <div class="section">
@@ -970,7 +952,7 @@
       </div>
       
       <!-- Donut Chart Settings -->
-      <div class="chart-panel" id="chart-donut">
+      <div class="chart-panel {activeChartSubTab === 'donut' ? 'active' : ''}" id="chart-donut">
         <div class="space-y-4">
           <!-- Donut Appearance -->
           <div class="section">
@@ -1181,36 +1163,88 @@
   </div>
   
   <style>
+    /* ============ MAIN TAB BAR ============ */
     .theme-tabs {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox */
+      display: flex;
+      flex-wrap: nowrap;            /* Try to keep tabs on one line */
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 1rem;
+      gap: 0.125rem;                /* Tighter spacing between tabs */
     }
     
-    .theme-tabs::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Edge */
+    /* Tab button styling - more compact */
+    .theme-tabs button {
+      padding: 0.25rem 0.375rem;    /* Very compact padding */
+      font-size: 0.75rem;           /* Smaller text size */
+      font-weight: 500;
+      color: #6b7280;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;          /* To offset the parent border */
+      flex: 1 1 0;                  /* Equal width for all tabs */
+      min-width: 2.75rem;           /* Smaller minimum width */
+      text-align: center;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      white-space: normal;          /* Allow text to wrap within tabs */
+      line-height: 1.1;             /* Tighter line height for wrapped text */
+      height: 2.25rem;              /* Fixed height for all tabs */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
+    /* Active tab styling - more prominent */
+    .theme-tabs button.text-primary {
+      color: #4f46e5;
+      border-bottom-color: #4f46e5;
+      background-color: rgba(79, 70, 229, 0.05); /* Very subtle background */
+      font-weight: 600;
+    }
+    
+    /* Hover effect for non-active tabs */
+    .theme-tabs button:not(.text-primary):hover {
+      color: #4338ca;
+      background-color: rgba(79, 70, 229, 0.03);
+    }
+    
+    /* ============ CONTENT SECTIONS ============ */
     .section {
       padding: 1rem;
       border: 1px solid #f0f0f0;
       border-radius: 0.375rem;
       background-color: #fafafa;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
     
+    /* Section headings */
+    .section h4 {
+      margin-bottom: 0.75rem;
+      color: #374151;
+    }
+    
+    /* ============ CHART SUB-NAVIGATION ============ */
     .charts-subnav {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox */
+      display: flex;
+      margin-bottom: 1rem;
     }
     
-    .charts-subnav::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Edge */
+    .charts-subnav > div {
+      display: flex;
+      flex-wrap: nowrap;       /* Try to keep on one line */
+      width: 100%;
+      background-color: #f9fafb;
+      border-radius: 0.25rem;
+      padding: 0.125rem;
+      gap: 0.125rem;           /* Tighter spacing */
     }
     
+    /* Chart tab buttons - more compact */
     .chart-tab-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      padding: 0.3125rem 0.5rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color: #6b7280;
       border: none;
@@ -1219,18 +1253,26 @@
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.2s ease;
+      flex: 1;                 /* Equal width */
+      text-align: center;
+      min-width: 4.25rem;      /* Smaller minimum width */
     }
     
+    /* Chart tab hover state */
     .chart-tab-btn:hover {
       color: #4f46e5;
       background-color: #f3f4f6;
     }
     
+    /* Chart tab active state - more pronounced */
     .chart-tab-btn.active {
       color: #4f46e5;
       background-color: #e0e7ff;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(79, 70, 229, 0.25);
     }
     
+    /* ============ CHART PANELS ============ */
     .chart-panel {
       display: none;
       padding: 1rem 0;
@@ -1238,5 +1280,29 @@
     
     .chart-panel.active {
       display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    
+    /* Simple fade-in animation for panel switching */
+    @keyframes fadeIn {
+      from { opacity: 0.8; }
+      to { opacity: 1; }
+    }
+    
+    /* ============ FORM CONTROLS ============ */
+    /* Add subtle hover effect to inputs */
+    input[type="text"]:hover,
+    input[type="number"]:hover,
+    input[type="color"]:hover,
+    select:hover {
+      border-color: #cbd5e1;
+    }
+    
+    /* Consistent focus states */
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
     }
   </style>

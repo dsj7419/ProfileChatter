@@ -17,6 +17,17 @@
       workStartDate: false
     };
     
+    // Ensure profile updates trigger reactivity by creating a new object reference
+    function updateProfileField(field, value) {
+      $userConfig = {
+        ...$userConfig,
+        profile: {
+          ...$userConfig.profile,
+          [field]: value
+        }
+      };
+    }
+    
     // Validate GitHub username
     $: formErrors.GITHUB_USERNAME = !isValidUsername($userConfig.profile.GITHUB_USERNAME);
     
@@ -71,7 +82,8 @@
           <input 
             type="text" 
             id="name" 
-            bind:value={$userConfig.profile.NAME} 
+            value={$userConfig.profile.NAME}
+            on:input={(e) => updateProfileField('NAME', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             placeholder="Your full name"
           />
@@ -83,7 +95,8 @@
           <input 
             type="text" 
             id="profession" 
-            bind:value={$userConfig.profile.PROFESSION} 
+            value={$userConfig.profile.PROFESSION}
+            on:input={(e) => updateProfileField('PROFESSION', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             placeholder="Your job title"
           />
@@ -95,7 +108,8 @@
           <input 
             type="text" 
             id="location" 
-            bind:value={$userConfig.profile.LOCATION} 
+            value={$userConfig.profile.LOCATION}
+            on:input={(e) => updateProfileField('LOCATION', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             placeholder="City, Country"
           />
@@ -107,7 +121,8 @@
           <input 
             type="text" 
             id="company" 
-            bind:value={$userConfig.profile.COMPANY} 
+            value={$userConfig.profile.COMPANY}
+            on:input={(e) => updateProfileField('COMPANY', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             placeholder="Your company or organization"
           />
@@ -119,7 +134,8 @@
           <input 
             type="text" 
             id="current-project" 
-            bind:value={$userConfig.profile.CURRENT_PROJECT} 
+            value={$userConfig.profile.CURRENT_PROJECT}
+            on:input={(e) => updateProfileField('CURRENT_PROJECT', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             placeholder="What are you working on?"
           />
@@ -186,7 +202,8 @@
           <input 
             type="text" 
             id="github" 
-            bind:value={$userConfig.profile.GITHUB_USERNAME} 
+            value={$userConfig.profile.GITHUB_USERNAME}
+            on:input={(e) => updateProfileField('GITHUB_USERNAME', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" 
             class:border-red-500={formErrors.GITHUB_USERNAME}
             placeholder="your_github"
@@ -202,7 +219,8 @@
           <input 
             type="text" 
             id="wakatime" 
-            bind:value={$userConfig.profile.WAKATIME_USERNAME} 
+            value={$userConfig.profile.WAKATIME_USERNAME}
+            on:input={(e) => updateProfileField('WAKATIME_USERNAME', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             class:border-red-500={formErrors.WAKATIME_USERNAME}
             placeholder="your_wakatime"
@@ -219,7 +237,8 @@
           <input 
             type="text" 
             id="twitter" 
-            bind:value={$userConfig.profile.TWITTER_USERNAME} 
+            value={$userConfig.profile.TWITTER_USERNAME}
+            on:input={(e) => updateProfileField('TWITTER_USERNAME', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             class:border-red-500={formErrors.TWITTER_USERNAME}
             placeholder="your_twitter"
@@ -236,7 +255,8 @@
           <input 
             type="text" 
             id="codestats" 
-            bind:value={$userConfig.profile.CODESTATS_USERNAME} 
+            value={$userConfig.profile.CODESTATS_USERNAME}
+            on:input={(e) => updateProfileField('CODESTATS_USERNAME', e.target.value)}
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             class:border-red-500={formErrors.CODESTATS_USERNAME}
             placeholder="your_codestats"

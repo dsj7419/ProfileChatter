@@ -79,6 +79,16 @@ class DataService {
         console.info('Using defaults already in baseData.')
       }
 
+      // Map nested profile overrides to the expected lowercase keys
+      if (customData.profile) {
+        const p = customData.profile
+        if (typeof p.NAME === 'string') baseData.name = p.NAME
+        if (typeof p.PROFESSION === 'string') baseData.profession = p.PROFESSION
+        if (typeof p.LOCATION === 'string') baseData.location = p.LOCATION
+        if (typeof p.COMPANY === 'string') baseData.company = p.COMPANY
+        if (typeof p.CURRENT_PROJECT === 'string') baseData.currentProject = p.CURRENT_PROJECT
+      }
+
       return { ...baseData, ...customData }
     } catch (err) {
       console.error('Critical error in getDynamicData:', err.message)
@@ -87,4 +97,5 @@ class DataService {
     }
   }
 }
+
 export default new DataService()

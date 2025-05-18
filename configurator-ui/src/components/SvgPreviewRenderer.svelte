@@ -174,12 +174,14 @@
         // Get a complete configuration object using our helper function
         const fullConfigData = getPreviewConfiguration();
         
+        // Add more detailed logging
         debug('Sending request to server', {
           url: `${previewServer}/generate-preview`,
           activeTheme: fullConfigData.activeTheme,
           messagesCount: fullConfigData.chatMessages.length,
           avatarsEnabled: fullConfigData.avatars?.enabled,
-          profileName: fullConfigData.profile.NAME, 
+          profileName: fullConfigData.profile.NAME,
+          profileFields: Object.keys(fullConfigData.profile),
           hasThemeOverrides: !!fullConfigData.themeOverrides,
           timestamp: new Date().toISOString()
         });
@@ -400,13 +402,21 @@
     
     // Create a computed hash of the content/structure for change tracking
     function computeContentHash() {
-      return JSON.stringify({
-        profile: $userConfig.profile,
-        avatars: $userConfig.avatars,
-        work_start_date: $workStartDate,
-        messages: $chatMessages,
-        activeTheme: $userConfig.activeTheme // Include theme name to trigger refresh on theme change
-      });
+        // Create a direct string representation of all profile fields to ensure any change is detected
+        const profileString = $userConfig && $userConfig.profile ? 
+            Object.entries($userConfig.profile).map(([key, val]) => `${key}:${val}`).join('|') 
+            : '';
+        
+        // Include all other data that should trigger a refresh
+        return JSON.stringify({
+            profile: profileString, // Direct string representation of profile
+            workStartDate: $workStartDate ? `${$workStartDate.year}-${$workStartDate.month}-${$workStartDate.day}` : '',
+            chatMessages: $chatMessages.map(msg => msg.id), // Only need IDs to detect changes
+            activeTheme: $userConfig.activeTheme,
+            avatars: $userConfig.avatars ? $userConfig.avatars.enabled : false,
+            // Include a version number to force refresh whenever the computeContentHash function changes
+            hashVersion: 2 // Incremented to ensure profile changes always detected
+        });
     }
     
     // Create a computed hash of just the theme settings for change tracking
@@ -414,23 +424,44 @@
       return JSON.stringify($editableTheme);
     }
     
+    // Force initial preview generation when chat messages and config are ready
+    let initialContentHashComputed = false;
+    
     // Watch for content/structure changes (non-theme) and update SVG with server fetch
     $: {
-      if ($userConfig && $chatMessages) { // Ensure stores are populated
-        // Create a hash of just the content/structure parts that require server rendering
-        const contentHash = computeContentHash();
-        
-        // Only fetch if content has changed AND there are messages
-        if (contentHash !== prevContentHash && $chatMessages.length > 0) {
-          debug('CONTENT CHANGED - Triggering server fetch for new SVG', { 
-            contentChanged: true,
-            oldHash: prevContentHash.substring(0, 20) + '...',
-            newHash: contentHash.substring(0, 20) + '...'
-          });
-          prevContentHash = contentHash;
-          debouncedFetchPreview();
+        if ($userConfig && $chatMessages) {
+            const contentHash = computeContentHash();
+            
+            // Log additional details for profile-related changes
+            if ($userConfig.profile) {
+                console.log('Profile content check:', { 
+                    name: $userConfig.profile.NAME,
+                    profession: $userConfig.profile.PROFESSION,
+                    location: $userConfig.profile.LOCATION,
+                    company: $userConfig.profile.COMPANY
+                });
+            }
+            
+            console.log('Content hash check:', { 
+                changed: contentHash !== prevContentHash,
+                profileName: $userConfig.profile.NAME,
+                messagesCount: $chatMessages.length,
+                initialCheck: !initialContentHashComputed
+            });
+            
+            if ((contentHash !== prevContentHash && $chatMessages.length > 0) || !initialContentHashComputed) {
+                debug('CONTENT CHANGED - Triggering server fetch for new SVG', { 
+                    contentChanged: true,
+                    profileName: $userConfig.profile.NAME,
+                    oldHash: prevContentHash.substring(0, 20) + '...',
+                    newHash: contentHash.substring(0, 20) + '...',
+                    initialCheck: !initialContentHashComputed
+                });
+                prevContentHash = contentHash;
+                initialContentHashComputed = true;
+                debouncedFetchPreview();
+            }
         }
-      }
     }
     
     // Watch for theme changes ONLY and apply style updates client-side
@@ -633,16 +664,16 @@
     }
     
     .preview-controls {
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.25rem;
     }
     
     .button-row {
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      gap: 0.375rem;
+      margin-bottom: 0.375rem;
     }
     
     .refresh-button, .test-button, .apply-button {
@@ -650,8 +681,8 @@
       color: white;
       border: none;
       border-radius: 0.375rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
@@ -691,16 +722,16 @@
     .size-controls {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      gap: 0.375rem;
+      margin-bottom: 0.375rem;
       flex-wrap: wrap;
     }
     
     .size-label {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       font-weight: 500;
       color: #4b5563;
-      min-width: 100px;
+      min-width: 90px;
     }
     
     .size-select {
@@ -746,12 +777,12 @@
     
     .debug-info {
       background-color: #f3f4f6;
-      padding: 0.5rem;
+      padding: 0.375rem;
       border-radius: 0.375rem;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #4b5563;
       display: flex;
-      gap: 1rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
     

@@ -270,31 +270,38 @@ export const chatMessages = writable([]);
 
 // Get a complete configuration object for the preview
 export function getPreviewConfiguration() {
-  // Get current values from stores
-  let currentConfig;
-  let currentTheme;
-  let currentMessages;
-  let currentWorkDate;
-  
-  userConfig.subscribe(value => { currentConfig = value; })();
-  editableTheme.subscribe(value => { currentTheme = value; })();
-  chatMessages.subscribe(value => { currentMessages = value; })();
-  workStartDate.subscribe(value => { currentWorkDate = value; })();
-  
-  return {
-    profile: {
-      ...currentConfig.profile,
-      // Include the date components formatted in the way the preview server expects
-      WORK_START_DATE: {
-        year: currentWorkDate.year,
-        month: currentWorkDate.month,
-        day: currentWorkDate.day
-      }
-    },
-    activeTheme: currentConfig.activeTheme,
-    avatars: currentConfig.avatars,
-    chatMessages: currentMessages,
-    // Include theme overrides
-    themeOverrides: currentTheme
-  };
-}
+    // Get current values from stores
+    let currentConfig;
+    let currentTheme;
+    let currentMessages;
+    let currentWorkDate;
+    
+    userConfig.subscribe(value => { currentConfig = value; })();
+    editableTheme.subscribe(value => { currentTheme = value; })();
+    chatMessages.subscribe(value => { currentMessages = value; })();
+    workStartDate.subscribe(value => { currentWorkDate = value; })();
+    
+    // Add console log to verify profile data is being included correctly
+    console.log('getPreviewConfiguration profile data:', {
+      name: currentConfig.profile.NAME,
+      profession: currentConfig.profile.PROFESSION,
+      location: currentConfig.profile.LOCATION
+    });
+    
+    return {
+      profile: {
+        ...currentConfig.profile,
+        // Include the date components formatted in the way the preview server expects
+        WORK_START_DATE: {
+          year: currentWorkDate.year,
+          month: currentWorkDate.month,
+          day: currentWorkDate.day
+        }
+      },
+      activeTheme: currentConfig.activeTheme,
+      avatars: currentConfig.avatars,
+      chatMessages: currentMessages,
+      // Include theme overrides
+      themeOverrides: currentTheme
+    };
+  }

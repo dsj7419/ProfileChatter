@@ -199,7 +199,7 @@ ${scrollKeyframesCSS}
 }
 
 /* Direct background application instead of using media queries */
-svg{background:var(--background-light, ${theme.BACKGROUND_LIGHT});}
+svg{background:var(--active-background, var(--background-light, ${theme.BACKGROUND_LIGHT}));}
 
 /* Use CSS variables for themed elements - Apply to specific elements only */
 .msg.me > rect:first-child, 
