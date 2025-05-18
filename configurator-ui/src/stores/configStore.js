@@ -172,6 +172,149 @@ const initialAvatarsConfig = {
   shape: "circle",
 };
 
+// Initial placeholder data
+const initialPlaceholderData = [
+  // Profile Info category
+  {
+    id: 'name',
+    value: '{name}',
+    label: 'User\'s Name',
+    description: 'Your full name as configured in the Profile Settings.',
+    category: 'Profile Info'
+  },
+  {
+    id: 'profession',
+    value: '{profession}',
+    label: 'Profession',
+    description: 'Your professional title or occupation as set in Profile Settings.',
+    category: 'Profile Info'
+  },
+  {
+    id: 'location',
+    value: '{location}',
+    label: 'Location',
+    description: 'Your geographical location as defined in Profile Settings.',
+    category: 'Profile Info'
+  },
+  {
+    id: 'company',
+    value: '{company}',
+    label: 'Company',
+    description: 'Your current company or organization name from Profile Settings.',
+    category: 'Profile Info'
+  },
+  {
+    id: 'currentProject',
+    value: '{currentProject}',
+    label: 'Current Project',
+    description: 'The name of your current project as set in Profile Settings.',
+    category: 'Profile Info'
+  },
+  {
+    id: 'workTenure',
+    value: '{workTenure}',
+    label: 'Work Tenure',
+    description: 'Time period at current company, calculated from Work Start Date.',
+    category: 'Profile Info'
+  },
+
+  // Date & Time category
+  {
+    id: 'currentDayOfWeek',
+    value: '{currentDayOfWeek}',
+    label: 'Current Day of Week',
+    description: 'The current day of the week (e.g., Monday, Tuesday).',
+    category: 'Date & Time'
+  },
+  {
+    id: 'currentDate',
+    value: '{currentDate}',
+    label: 'Current Date',
+    description: 'The current date in a readable format (e.g., January 1, 2025).',
+    category: 'Date & Time'
+  },
+
+  // Weather category
+  {
+    id: 'temperature',
+    value: '{temperature}',
+    label: 'Temperature',
+    description: 'Current temperature at your location, fetched from AccuWeather API.',
+    category: 'Weather'
+  },
+  {
+    id: 'weatherDescription',
+    value: '{weatherDescription}',
+    label: 'Weather Description',
+    description: 'Text description of current weather conditions at your location.',
+    category: 'Weather'
+  },
+  {
+    id: 'emoji',
+    value: '{emoji}',
+    label: 'Weather Emoji',
+    description: 'An emoji representing the current weather conditions.',
+    category: 'Weather'
+  },
+
+  // GitHub Stats category
+  {
+    id: 'githubPublicRepos',
+    value: '{githubPublicRepos}',
+    label: 'GitHub Public Repos',
+    description: 'Number of your public repositories on GitHub.',
+    category: 'GitHub Stats'
+  },
+  {
+    id: 'githubFollowers',
+    value: '{githubFollowers}',
+    label: 'GitHub Followers',
+    description: 'Your current follower count on GitHub.',
+    category: 'GitHub Stats'
+  },
+
+  // WakaTime category
+  {
+    id: 'wakatime_summary',
+    value: '{wakatime_summary}',
+    label: 'WakaTime Summary',
+    description: 'A summary of your coding activity from WakaTime.',
+    category: 'WakaTime'
+  },
+  {
+    id: 'wakatime_top_language',
+    value: '{wakatime_top_language}',
+    label: 'WakaTime Top Language',
+    description: 'Your most used programming language according to WakaTime.',
+    category: 'WakaTime'
+  },
+  {
+    id: 'wakatime_top_language_percent',
+    value: '{wakatime_top_language_percent}',
+    label: 'WakaTime Top Language Percentage',
+    description: 'Percentage of time spent using your top language on WakaTime.',
+    category: 'WakaTime'
+  },
+
+  // Twitter Stats category
+  {
+    id: 'twitterFollowers',
+    value: '{twitterFollowers}',
+    label: 'Twitter Followers',
+    description: 'Your current follower count on Twitter/X.',
+    category: 'Twitter Stats'
+  },
+
+  // Code::Stats category
+  {
+    id: 'codestatsXP',
+    value: '{codestatsXP}',
+    label: 'Code::Stats XP',
+    description: 'Your experience points accumulated on Code::Stats.',
+    category: 'Code::Stats'
+  }
+];
+
 // Function to load config from the server API (async)
 async function loadConfigFromServer() {
   try {
@@ -212,6 +355,9 @@ export const fontOptions = writable(deepClone(defaultFontOptions));
 
 // Create a store for the editable theme based on the active theme
 export const editableTheme = writable(deepClone(defaultThemes.ios));
+
+// Create a store for placeholder data
+export const placeholderData = writable(deepClone(initialPlaceholderData));
 
 // When userConfig changes, update the editableTheme
 userConfig.subscribe(value => {

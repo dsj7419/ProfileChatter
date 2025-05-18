@@ -22,7 +22,7 @@
     let manualRefreshCount = 0;
     
     // Add a mode toggle (light/dark)
-    let previewMode = 'light'; // Default to light mode
+    let previewMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     
     // Reference to the SVG container div
     let svgContainerDiv;
@@ -229,6 +229,7 @@
           // After setting the SVG markup, we'll apply theme styles in the next tick
           setTimeout(() => {
             applyThemeStyles();
+            setPreviewMode(previewMode);
           }, 10);
         } else {
           throw new Error('Received invalid SVG content from server');
@@ -486,7 +487,6 @@
     
     // Toggle between light and dark mode
     function setPreviewMode(mode) {
-      if (mode === previewMode) return; // Already in that mode
       
       previewMode = mode;
       debug(`Switching to ${mode} mode`);
@@ -501,11 +501,11 @@
           
           // Add a class to the SVG for additional styling if needed
           if (mode === 'dark') {
-            svgElement.classList.add('dark-mode');
-            svgElement.classList.remove('light-mode');
+            svgElement.classList.add('dark-mode-preview');
+            svgElement.classList.remove('light-mode-preview');
           } else {
-            svgElement.classList.add('light-mode');
-            svgElement.classList.remove('dark-mode');
+            svgElement.classList.add('light-mode-preview');
+            svgElement.classList.remove('dark-mode-preview');
           }
         }
       }
