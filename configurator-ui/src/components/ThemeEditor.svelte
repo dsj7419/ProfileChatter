@@ -186,24 +186,24 @@
                 <div class="section">
                 <h4 class="text-xs font-medium text-gray-700 mb-2">Global Animation</h4>
                 
-                <div>
+                  <div>
                     <label for="scroll-speed-multiplier" class="block text-xs font-medium text-gray-500 mb-1">
-                    Scroll Speed Multiplier (0.5x - 2x)
+                      Scroll Speed Multiplier (0.5x - 2x)
                     </label>
                     <input 
-                    type="range" 
-                    id="scroll-speed-multiplier" 
-                    bind:value={$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER} 
-                    min="0.5" 
-                    max="2" 
-                    step="0.1" 
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" 
+                      type="range" 
+                      id="scroll-speed-multiplier" 
+                      bind:value={$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER} 
+                      min="0.5" 
+                      max="2" 
+                      step="0.1" 
+                      class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" 
                     />
                     <div class="text-xs text-gray-500 text-center">
-                    Current: {$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER}x
+                      Current: {$userConfig.layout.ANIMATION.SCROLL_SPEED_MULTIPLIER}x
                     </div>
-                    <p class="text-xs text-gray-500 italic ml-1 mt-1">(Requires Preview Refresh)</p>
-                </div>
+                    <p class="text-xs text-gray-500 italic ml-1 mt-1">(Preview updates live; full refresh needed only for new SVG)</p>
+                  </div>
                 </div>
             {/if}
             

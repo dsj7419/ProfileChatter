@@ -51,6 +51,9 @@
     $: currentPreviewWidth = previewSizes.find(s => s.id === selectedSizeId)?.width || customWidth;
     $: if (selectedSizeId === 'custom') currentPreviewWidth = customWidth;
     
+    // Client-side scroll speed control
+    let originalScrollDurationSec = null;
+    
     // Debug console output with timestamp
     function debug(message, data = null) {
       const timestamp = new Date().toISOString().substr(11, 12);
@@ -92,6 +95,30 @@
           copyButtonText = "Copy SVG Markup";
           isCopying = false;
         }, 2000);
+      }
+    }
+    
+    // Capture scroll duration from SVG
+    function captureOriginalScrollDuration() {
+      if (!svgContainerDiv || !generatedSvgMarkup) return;
+      
+      const trackElement = svgContainerDiv.querySelector('svg .track');
+      if (!trackElement) {
+        debug('No .track element found in SVG');
+        return;
+      }
+      
+      const computedStyle = getComputedStyle(trackElement);
+      const durationString = trackElement.style.animationDuration || computedStyle.animationDuration || '';
+      
+      // Parse duration string (e.g. "5.2s") to get numeric value
+      const duration = parseFloat(durationString);
+      
+      if (!isNaN(duration) && duration > 0) {
+        originalScrollDurationSec = duration;
+        debug('Captured original scroll duration', { duration });
+      } else {
+        debug('Could not parse animation duration', { durationString });
       }
     }
     
@@ -232,6 +259,7 @@
           setTimeout(() => {
             applyThemeStyles();
             setPreviewMode($previewMode);
+            captureOriginalScrollDuration(); // Capture original scroll duration after SVG is in DOM
           }, 10);
         } else {
           throw new Error('Received invalid SVG content from server');
@@ -367,6 +395,31 @@
       }
       
       debug('Theme styles applied to SVG element');
+    }
+    
+    // Reactive block for client-side scroll speed adjustment
+    $: {
+      const multiplier = $userConfig?.layout?.ANIMATION?.SCROLL_SPEED_MULTIPLIER;
+      if (originalScrollDurationSec !== null && svgContainerDiv && multiplier > 0) {
+        const trackElement = svgContainerDiv.querySelector('svg .track');
+        if (trackElement) {
+          // Calculate new duration based on original and multiplier
+          const newDuration = Math.max(0.1, originalScrollDurationSec / multiplier);
+          
+          // Only update if value has changed
+          if (parseFloat(trackElement.style.animationDuration) !== newDuration) {
+            trackElement.style.animationDuration = `${newDuration}s`;
+            
+            // Force animation restart for immediate effect
+            const currentAnimationName = getComputedStyle(trackElement).animationName || 'scrollUp';
+            trackElement.style.animationName = 'none';
+            void trackElement.offsetWidth; // Force reflow
+            trackElement.style.animationName = currentAnimationName;
+            
+            debug('Scroll speed adjusted', { originalDuration: originalScrollDurationSec, multiplier, newDuration });
+          }
+        }
+      }
     }
     
     // Create debounced versions
