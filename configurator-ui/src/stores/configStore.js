@@ -359,6 +359,13 @@ export const editableTheme = writable(deepClone(defaultThemes.ios));
 // Create a store for placeholder data
 export const placeholderData = writable(deepClone(initialPlaceholderData));
 
+// Create a store for the preview mode (light/dark)
+/** 
+ * Single source-of-truth for light/dark preview state.
+ * Values: 'light' | 'dark'
+ */
+export const previewMode = writable('light');
+
 // When userConfig changes, update the editableTheme
 userConfig.subscribe(value => {
   if (value.activeTheme) {

@@ -5,7 +5,8 @@
       workStartDate, 
       chatMessages, 
       editableTheme,
-      getPreviewConfiguration 
+      getPreviewConfiguration,
+      previewMode 
     } from '../stores/configStore.js';
     
     // State for SVG preview
@@ -21,8 +22,9 @@
     // Add a manual toggle for tracking refreshes
     let manualRefreshCount = 0;
     
-    // Add a mode toggle (light/dark)
-    let previewMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // Add a mode toggle (light/dark) - initialized from system preference, but use store value
+    // Reactive alias used throughout template and code
+    $: mode = $previewMode;
     
     // Reference to the SVG container div
     let svgContainerDiv;
@@ -229,7 +231,7 @@
           // After setting the SVG markup, we'll apply theme styles in the next tick
           setTimeout(() => {
             applyThemeStyles();
-            setPreviewMode(previewMode);
+            setPreviewMode($previewMode);
           }, 10);
         } else {
           throw new Error('Received invalid SVG content from server');
@@ -263,7 +265,7 @@
       svgElement.style.setProperty('--background-light', $editableTheme.BACKGROUND_LIGHT);
       svgElement.style.setProperty('--background-dark', $editableTheme.BACKGROUND_DARK);
       svgElement.style.setProperty('--active-background', 
-        previewMode === 'light' ? $editableTheme.BACKGROUND_LIGHT : $editableTheme.BACKGROUND_DARK
+        $previewMode === 'light' ? $editableTheme.BACKGROUND_LIGHT : $editableTheme.BACKGROUND_DARK
       );
       svgElement.style.setProperty('--bubble-radius-px', `${$editableTheme.BUBBLE_RADIUS_PX}px`);
       svgElement.style.setProperty('--font-family', $editableTheme.FONT_FAMILY);
@@ -375,6 +377,10 @@
     onMount(async () => {
       debug('Component mounted');
       
+      // Initialize the previewMode store based on system preference
+      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      previewMode.set(prefersDarkMode ? 'dark' : 'light');
+      
       // First test server connection
       const connected = await testServerConnection();
       if (!connected) {
@@ -398,7 +404,7 @@
     // Cleanup on destroy
     onDestroy(() => {
       debug('Component destroyed, cleaning up');
-      // Any cleanup needed
+      // No explicit unsubscribe needed when using $-prefix syntax
     });
     
     // Create a computed hash of the content/structure for change tracking
@@ -487,8 +493,8 @@
     
     // Toggle between light and dark mode
     function setPreviewMode(mode) {
-      
-      previewMode = mode;
+      // Update the global store
+      previewMode.set(mode);
       debug(`Switching to ${mode} mode`);
       
       if (svgContainerDiv && generatedSvgMarkup) {
@@ -562,16 +568,16 @@
           <span class="size-label mr-2" id="theme-mode-label">Theme Mode:</span>
           <div role="group" aria-labelledby="theme-mode-label">
             <button 
-              class="mode-button {previewMode === 'light' ? 'active' : ''}"
+              class="mode-button {$previewMode === 'light' ? 'active' : ''}"
               on:click={() => setPreviewMode('light')}
-              aria-pressed={previewMode === 'light'}
+              aria-pressed={$previewMode === 'light'}
             >
               Light
             </button>
             <button 
-              class="mode-button {previewMode === 'dark' ? 'active' : ''}"
+              class="mode-button {$previewMode === 'dark' ? 'active' : ''}"
               on:click={() => setPreviewMode('dark')}
-              aria-pressed={previewMode === 'dark'}
+              aria-pressed={$previewMode === 'dark'}
             >
               Dark
             </button>
@@ -608,7 +614,7 @@
       <div class="debug-info">
         <span>Server: {previewServer}</span>
         <span>Theme: {$userConfig?.activeTheme || 'none'}</span>
-        <span>Mode: {previewMode}</span>
+        <span>Mode: {$previewMode}</span>
         <span>Messages: {$chatMessages?.length || 0}</span>
         <span>Avatars: {$userConfig?.avatars?.enabled ? 'Enabled' : 'Disabled'} ({$userConfig?.avatars?.shape || 'N/A'})</span>
         <span>Profile: {$userConfig?.profile?.NAME}</span>

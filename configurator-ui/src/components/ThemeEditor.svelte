@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    import { editableTheme, fontOptions, userConfig } from '../stores/configStore.js';
+    import { editableTheme, fontOptions, userConfig, previewMode } from '../stores/configStore.js';
+    import ColorPicker from './ColorPicker.svelte';
     
     // Tab state for top-level categories
     let activeTab = 'general';
@@ -124,45 +125,39 @@
             
             <!-- Background Colors -->
             <div class="section">
-            <h4 class="text-xs font-medium text-gray-700 mb-2">Background Colors</h4>
-            
-            <!-- BACKGROUND_LIGHT (basic) -->
-            <div class="mb-3">
-                <label for="bg-light" class="block text-xs font-medium text-gray-500 mb-1">Light Background</label>
-                <div class="flex gap-2">
-                <input 
-                    type="color" 
-                    id="bg-light" 
-                    bind:value={$editableTheme.BACKGROUND_LIGHT} 
-                    class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                    type="text" 
-                    bind:value={$editableTheme.BACKGROUND_LIGHT} 
-                    class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-                </div>
-            </div>
-            
-            <!-- BACKGROUND_DARK (advanced) -->
-            {#if showAdvancedGeneral}
-                <div>
-                    <label for="bg-dark" class="block text-xs font-medium text-gray-500 mb-1">Dark Background</label>
-                    <div class="flex gap-2">
-                    <input 
-                        type="color" 
-                        id="bg-dark" 
-                        bind:value={$editableTheme.BACKGROUND_DARK} 
-                        class="h-8 w-8 rounded border border-gray-300"
+                <h4 class="text-xs font-medium text-gray-700 mb-2">Background Colors</h4>
+                
+                <!-- Basic Mode: Dynamic Background Color Input -->
+                {#if !showAdvancedGeneral}
+                    {#if $previewMode === 'light'}
+                        <ColorPicker 
+                            id="bg-light" 
+                            label="Light Background" 
+                            bind:value={$editableTheme.BACKGROUND_LIGHT} 
+                        />
+                    {:else}
+                        <ColorPicker 
+                            id="bg-dark" 
+                            label="Dark Background" 
+                            bind:value={$editableTheme.BACKGROUND_DARK} 
+                        />
+                    {/if}
+                {/if}
+
+                <!-- Advanced Mode: Both Background Color Inputs -->
+                {#if showAdvancedGeneral}
+                    <ColorPicker 
+                        id="bg-light-adv" 
+                        label="Light Background" 
+                        bind:value={$editableTheme.BACKGROUND_LIGHT} 
                     />
-                    <input 
-                        type="text" 
+                    
+                    <ColorPicker 
+                        id="bg-dark-adv" 
+                        label="Dark Background" 
                         bind:value={$editableTheme.BACKGROUND_DARK} 
-                        class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
                     />
-                    </div>
-                </div>
-            {/if}
+                {/if}
             </div>
             
             <!-- Typography (basic) -->
@@ -215,7 +210,7 @@
             <!-- Advanced settings indicator when hidden -->
             {#if !showAdvancedGeneral}
                 <div class="text-xs text-gray-500 italic">
-                    <p>Advanced settings hidden: Dark background color, animation settings</p>
+                    <p>Advanced settings hidden: {$previewMode === 'light' ? 'Dark' : 'Light'} background color, animation settings</p>
                 </div>
             {/if}
         </div>
@@ -247,40 +242,18 @@
           <h4 class="text-xs font-medium text-gray-700 mb-2">User Bubbles (Me)</h4>
           
           <!-- ME_BUBBLE_COLOR -->
-          <div class="mb-3">
-            <label for="me-bubble-color" class="block text-xs font-medium text-gray-500 mb-1">Background Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="me-bubble-color" 
-                bind:value={$editableTheme.ME_BUBBLE_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.ME_BUBBLE_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="me-bubble-color" 
+              label="Background Color" 
+              bind:value={$editableTheme.ME_BUBBLE_COLOR} 
+          />
           
           <!-- ME_TEXT_COLOR -->
-          <div>
-            <label for="me-text-color" class="block text-xs font-medium text-gray-500 mb-1">Text Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="me-text-color" 
-                bind:value={$editableTheme.ME_TEXT_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.ME_TEXT_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="me-text-color" 
+              label="Text Color" 
+              bind:value={$editableTheme.ME_TEXT_COLOR} 
+          />
         </div>
         
         <!-- Visitor Bubbles -->
@@ -288,40 +261,18 @@
           <h4 class="text-xs font-medium text-gray-700 mb-2">Visitor Bubbles</h4>
           
           <!-- VISITOR_BUBBLE_COLOR -->
-          <div class="mb-3">
-            <label for="visitor-bubble-color" class="block text-xs font-medium text-gray-500 mb-1">Background Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="visitor-bubble-color" 
-                bind:value={$editableTheme.VISITOR_BUBBLE_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.VISITOR_BUBBLE_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="visitor-bubble-color" 
+              label="Background Color" 
+              bind:value={$editableTheme.VISITOR_BUBBLE_COLOR} 
+          />
           
           <!-- VISITOR_TEXT_COLOR -->
-          <div>
-            <label for="visitor-text-color" class="block text-xs font-medium text-gray-500 mb-1">Text Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="visitor-text-color" 
-                bind:value={$editableTheme.VISITOR_TEXT_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.VISITOR_TEXT_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="visitor-text-color" 
+              label="Text Color" 
+              bind:value={$editableTheme.VISITOR_TEXT_COLOR} 
+          />
         </div>
       </div>
     {/if}
@@ -347,22 +298,11 @@
           <h4 class="text-xs font-medium text-gray-700 mb-2">Appearance</h4>
           
           <!-- REACTION_BG_COLOR (basic) -->
-          <div class="mb-3">
-            <label for="reaction-bg-color" class="block text-xs font-medium text-gray-500 mb-1">Background Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="reaction-bg-color" 
-                bind:value={$editableTheme.REACTION_BG_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.REACTION_BG_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="reaction-bg-color" 
+              label="Background Color" 
+              bind:value={$editableTheme.REACTION_BG_COLOR} 
+          />
           
           <!-- REACTION_BG_OPACITY (advanced) -->
           {#if showAdvancedReactions}
@@ -381,22 +321,11 @@
           {/if}
           
           <!-- REACTION_TEXT_COLOR (basic) -->
-          <div class="mb-3">
-            <label for="reaction-text-color" class="block text-xs font-medium text-gray-500 mb-1">Text Color</label>
-            <div class="flex gap-2">
-              <input 
-                type="color" 
-                id="reaction-text-color" 
-                bind:value={$editableTheme.REACTION_TEXT_COLOR} 
-                class="h-8 w-8 rounded border border-gray-300"
-              />
-              <input 
-                type="text" 
-                bind:value={$editableTheme.REACTION_TEXT_COLOR} 
-                class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-              />
-            </div>
-          </div>
+          <ColorPicker 
+              id="reaction-text-color" 
+              label="Text Color" 
+              bind:value={$editableTheme.REACTION_TEXT_COLOR} 
+          />
           
           <!-- REACTION_BORDER_RADIUS_PX (basic) -->
           <div>
@@ -613,40 +542,18 @@
                 <h4 class="text-xs font-medium text-gray-700 mb-2">Grid & Axis</h4>
                 
                 <!-- AXIS_LINE_COLOR -->
-                <div class="mb-3">
-                  <label for="axis-line-color" class="block text-xs font-medium text-gray-500 mb-1">Axis Line Color</label>
-                  <div class="flex gap-2">
-                    <input 
-                      type="color" 
-                      id="axis-line-color" 
-                      bind:value={$editableTheme.CHART_STYLES.AXIS_LINE_COLOR} 
-                      class="h-8 w-8 rounded border border-gray-300"
-                    />
-                    <input 
-                      type="text" 
-                      bind:value={$editableTheme.CHART_STYLES.AXIS_LINE_COLOR} 
-                      class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                    id="axis-line-color" 
+                    label="Axis Line Color" 
+                    bind:value={$editableTheme.CHART_STYLES.AXIS_LINE_COLOR} 
+                />
                 
                 <!-- GRID_LINE_COLOR -->
-                <div>
-                  <label for="grid-line-color" class="block text-xs font-medium text-gray-500 mb-1">Grid Line Color</label>
-                  <div class="flex gap-2">
-                    <input 
-                      type="color" 
-                      id="grid-line-color" 
-                      bind:value={$editableTheme.CHART_STYLES.GRID_LINE_COLOR} 
-                      class="h-8 w-8 rounded border border-gray-300"
-                    />
-                    <input 
-                      type="text" 
-                      bind:value={$editableTheme.CHART_STYLES.GRID_LINE_COLOR} 
-                      class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                    id="grid-line-color" 
+                    label="Grid Line Color" 
+                    bind:value={$editableTheme.CHART_STYLES.GRID_LINE_COLOR} 
+                />
               </div>
           {/if}
           
@@ -792,22 +699,11 @@
               
               <!-- VALUE_TEXT_INSIDE_COLOR (advanced) -->
               {#if showAdvancedChartGeneral}
-                  <div>
-                    <label for="value-text-inside-color" class="block text-xs font-medium text-gray-500 mb-1">Inside Text Color</label>
-                    <div class="flex gap-2">
-                      <input 
-                        type="color" 
-                        id="value-text-inside-color" 
-                        bind:value={$editableTheme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR} 
-                        class="h-8 w-8 rounded border border-gray-300"
-                      />
-                      <input 
-                        type="text" 
-                        bind:value={$editableTheme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR} 
-                        class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                      />
-                    </div>
-                  </div>
+                  <ColorPicker 
+                      id="value-text-inside-color" 
+                      label="Inside Text Color" 
+                      bind:value={$editableTheme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR} 
+                  />
               {/if}
             </div>
           </div>
@@ -817,58 +713,25 @@
             <h4 class="text-xs font-medium text-gray-700 mb-2">User Colors (Me)</h4>
             
             <!-- ME_TITLE_COLOR -->
-            <div class="mb-3">
-              <label for="me-title-color" class="block text-xs font-medium text-gray-500 mb-1">Title Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="me-title-color" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_TITLE_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_TITLE_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="me-title-color" 
+                label="Title Color" 
+                bind:value={$editableTheme.CHART_STYLES.ME_TITLE_COLOR} 
+            />
             
             <!-- ME_LABEL_COLOR -->
-            <div class="mb-3">
-              <label for="me-label-color" class="block text-xs font-medium text-gray-500 mb-1">Label Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="me-label-color" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_LABEL_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_LABEL_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="me-label-color" 
+                label="Label Color" 
+                bind:value={$editableTheme.CHART_STYLES.ME_LABEL_COLOR} 
+            />
             
             <!-- ME_VALUE_TEXT_COLOR -->
-            <div>
-              <label for="me-value-text-color" class="block text-xs font-medium text-gray-500 mb-1">Value Text Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="me-value-text-color" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_VALUE_TEXT_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_VALUE_TEXT_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="me-value-text-color" 
+                label="Value Text Color" 
+                bind:value={$editableTheme.CHART_STYLES.ME_VALUE_TEXT_COLOR} 
+            />
           </div>
           
           <!-- Visitor-specific Colors (basic) -->
@@ -876,58 +739,25 @@
             <h4 class="text-xs font-medium text-gray-700 mb-2">Visitor Colors</h4>
             
             <!-- VISITOR_TITLE_COLOR -->
-            <div class="mb-3">
-              <label for="visitor-title-color" class="block text-xs font-medium text-gray-500 mb-1">Title Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="visitor-title-color" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_TITLE_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_TITLE_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="visitor-title-color" 
+                label="Title Color" 
+                bind:value={$editableTheme.CHART_STYLES.VISITOR_TITLE_COLOR} 
+            />
             
             <!-- VISITOR_LABEL_COLOR -->
-            <div class="mb-3">
-              <label for="visitor-label-color" class="block text-xs font-medium text-gray-500 mb-1">Label Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="visitor-label-color" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_LABEL_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_LABEL_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="visitor-label-color" 
+                label="Label Color" 
+                bind:value={$editableTheme.CHART_STYLES.VISITOR_LABEL_COLOR} 
+            />
             
             <!-- VISITOR_VALUE_TEXT_COLOR -->
-            <div>
-              <label for="visitor-value-text-color" class="block text-xs font-medium text-gray-500 mb-1">Value Text Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="visitor-value-text-color" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="visitor-value-text-color" 
+                label="Value Text Color" 
+                bind:value={$editableTheme.CHART_STYLES.VISITOR_VALUE_TEXT_COLOR} 
+            />
           </div>
           
           <!-- Chart Animation -->
@@ -997,41 +827,19 @@
             <h4 class="text-xs font-medium text-gray-700 mb-2">Bar Appearance</h4>
             
             <!-- BAR_DEFAULT_COLOR (basic) -->
-            <div class="mb-3">
-              <label for="bar-default-color" class="block text-xs font-medium text-gray-500 mb-1">Default Bar Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="bar-default-color" 
-                  bind:value={$editableTheme.CHART_STYLES.BAR_DEFAULT_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.BAR_DEFAULT_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="bar-default-color" 
+                label="Default Bar Color" 
+                bind:value={$editableTheme.CHART_STYLES.BAR_DEFAULT_COLOR} 
+            />
             
             <!-- BAR_TRACK_COLOR (advanced) -->
             {#if showAdvancedChartBar}
-                <div class="mb-3">
-                  <label for="bar-track-color" class="block text-xs font-medium text-gray-500 mb-1">Track Color</label>
-                  <div class="flex gap-2">
-                    <input 
-                      type="color" 
-                      id="bar-track-color" 
-                      bind:value={$editableTheme.CHART_STYLES.BAR_TRACK_COLOR} 
-                      class="h-8 w-8 rounded border border-gray-300"
-                    />
-                    <input 
-                      type="text" 
-                      bind:value={$editableTheme.CHART_STYLES.BAR_TRACK_COLOR} 
-                      class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                    id="bar-track-color" 
+                    label="Track Color" 
+                    bind:value={$editableTheme.CHART_STYLES.BAR_TRACK_COLOR} 
+                />
             {/if}
             
             <!-- BAR_CORNER_RADIUS_PX (basic) -->
@@ -1183,40 +991,18 @@
             </div>
             
             <!-- ME_DONUT_CENTER_TEXT_COLOR (basic) -->
-            <div class="mb-3">
-              <label for="me-donut-center-text-color" class="block text-xs font-medium text-gray-500 mb-1">Me Text Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="me-donut-center-text-color" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="me-donut-center-text-color" 
+                label="Me Text Color" 
+                bind:value={$editableTheme.CHART_STYLES.ME_DONUT_CENTER_TEXT_COLOR} 
+            />
             
             <!-- VISITOR_DONUT_CENTER_TEXT_COLOR (basic) -->
-            <div>
-              <label for="visitor-donut-center-text-color" class="block text-xs font-medium text-gray-500 mb-1">Visitor Text Color</label>
-              <div class="flex gap-2">
-                <input 
-                  type="color" 
-                  id="visitor-donut-center-text-color" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR} 
-                  class="h-8 w-8 rounded border border-gray-300"
-                />
-                <input 
-                  type="text" 
-                  bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR} 
-                  class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                />
-              </div>
-            </div>
+            <ColorPicker 
+                id="visitor-donut-center-text-color" 
+                label="Visitor Text Color" 
+                bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_CENTER_TEXT_COLOR} 
+            />
           </div>
           
           <!-- Donut Legend -->
@@ -1239,40 +1025,18 @@
             <!-- Legend Colors and Spacing (advanced) -->
             {#if showAdvancedChartDonut}
                 <!-- ME_DONUT_LEGEND_TEXT_COLOR -->
-                <div class="mb-3">
-                  <label for="me-donut-legend-text-color" class="block text-xs font-medium text-gray-500 mb-1">Me Legend Text Color</label>
-                  <div class="flex gap-2">
-                    <input 
-                      type="color" 
-                      id="me-donut-legend-text-color" 
-                      bind:value={$editableTheme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR} 
-                      class="h-8 w-8 rounded border border-gray-300"
-                    />
-                    <input 
-                      type="text" 
-                      bind:value={$editableTheme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR} 
-                      class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                    id="me-donut-legend-text-color" 
+                    label="Me Legend Text Color" 
+                    bind:value={$editableTheme.CHART_STYLES.ME_DONUT_LEGEND_TEXT_COLOR} 
+                />
                 
                 <!-- VISITOR_DONUT_LEGEND_TEXT_COLOR -->
-                <div class="mb-3">
-                  <label for="visitor-donut-legend-text-color" class="block text-xs font-medium text-gray-500 mb-1">Visitor Legend Text Color</label>
-                  <div class="flex gap-2">
-                    <input 
-                      type="color" 
-                      id="visitor-donut-legend-text-color" 
-                      bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR} 
-                      class="h-8 w-8 rounded border border-gray-300"
-                    />
-                    <input 
-                      type="text" 
-                      bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR} 
-                      class="flex-1 px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                    id="visitor-donut-legend-text-color" 
+                    label="Visitor Legend Text Color" 
+                    bind:value={$editableTheme.CHART_STYLES.VISITOR_DONUT_LEGEND_TEXT_COLOR} 
+                />
                 
                 <!-- DONUT_LEGEND_ITEM_SPACING_PX -->
                 <div class="mb-3">
@@ -1479,10 +1243,10 @@
     
     /* ============ FORM CONTROLS ============ */
     /* Add subtle hover effect to inputs */
-    input[type="text"]:hover,
     input[type="number"]:hover,
-    input[type="color"]:hover,
-    select:hover {
+    select:hover,
+    :global(input[type="text"]:hover),
+    :global(input[type="color"]:hover) {
       border-color: #cbd5e1;
     }
     
