@@ -190,16 +190,28 @@
             
             <!-- Delete button -->
             <div class="col-span-1 flex justify-center">
-              <button
-                type="button"
-                class="text-red-500 hover:text-red-700 transition-colors p-1"
-                title="Delete item"
-                on:click={() => deleteChartItem(itemIndex)}
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-              </button>
+                <button
+                    type="button"
+                    title="Delete item"
+                    on:click={() => deleteChartItem(itemIndex)}
+                    class="icon-btn p-1 bg-gray-50 hover:bg-gray-200
+                        text-red-500 hover:text-red-700 transition-colors"
+                >
+                    <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"
+                    />
+                    </svg>
+                </button>              
             </div>
           </div>
         {/each}
@@ -208,14 +220,33 @@
       <!-- Add item button -->
       <button
         type="button"
-        class="w-full mt-2 py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center justify-center"
         on:click={addChartItem}
-      >
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        class="group w-full mt-2 py-2 px-3 border border-gray-300 rounded-md shadow-sm
+                bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
+                focus:ring-offset-2 focus:ring-primary flex items-center justify-center
+                transition-colors duration-200"
+        >
+        <!-- Icon in white (stays white on hover) -->
+        <svg
+            class="w-4 h-4 mr-1 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
         </svg>
-        Add Data Item
-      </button>
+
+        <!-- Label in medium gray (darkens slightly on hover) -->
+        <span class="text-gray-700 group-hover:text-gray-900">
+            Add Data Item
+        </span>
+        </button>
     {/if}
   {/if}
 </div>

@@ -1,193 +1,247 @@
-<script>
-    import { createEventDispatcher } from 'svelte';
+<script lang="ts">
     import TextContentEditor from './TextContentEditor.svelte';
     import ChartContentEditor from './ChartContentEditor.svelte';
-    
-    // Props
+  
+    /* props */
     export let message;
-    export let index;
-    export let draggedIndex;
-    export let dragOverIndex;
-    export let onToggleSender;
-    export let onDeleteMessage;
-    export let onChangeContentType;
-    export let onOpenEmojiPicker;
-    export let updateStore;
-    
-    // Drag and drop handlers that call the parent's functions directly
+    export let index: number;
+    export let draggedIndex: number;
+    export let dragOverIndex: number;
+  
+    export let onToggleSender: () => void;
+    export let onDeleteMessage: () => void;
+    export let onChangeContentType: (val: string) => void;
+    export let onOpenEmojiPicker: (e: MouseEvent) => void;
+    export let updateStore: () => void;
+  
+    /* dnd callbacks passed from parent */
     export let onDragStart;
     export let onDragOver;
     export let onDragEnter;
-    export let onDragLeave; 
+    export let onDragLeave;
     export let onDrop;
     export let onDragEnd;
-    
-    // Function to handle content type change
-    function handleContentTypeChange(event) {
-      onChangeContentType(event.target.value);
+  
+    function handleTypeChange(e: Event) {
+      onChangeContentType((e.target as HTMLSelectElement).value);
     }
   </script>
   
-  <div 
-    class="message-card border rounded-lg shadow-sm p-4 bg-white hover:shadow-md transition-shadow duration-200 relative pl-10"
-    draggable="true"
-    role="listitem"
-    aria-grabbed={draggedIndex === index ? "true" : "false"}
-    on:dragstart={(e) => onDragStart(e, index)}
+  <!-- ─────────────────────────── CARD ─────────────────────────── -->
+  <div
+    class="message-card relative border rounded-lg shadow-sm p-4 bg-white hover:shadow-md transition-shadow duration-200 pl-10"
     on:dragover={(e) => onDragOver(e, index)}
     on:dragenter={(e) => onDragEnter(e)}
     on:dragleave={(e) => onDragLeave(e)}
     on:drop={(e) => onDrop(e, index)}
-    on:dragend={(e) => onDragEnd(e)}
     class:drag-over={dragOverIndex === index && draggedIndex !== index}
-    class:dragging={draggedIndex === index}
+    role="listitem"
+    aria-grabbed={draggedIndex === index}
   >
-    <!-- Drag handle - Updated color to text-gray-400 -->
-    <div class="drag-handle absolute left-2 top-0 bottom-0 flex items-center justify-center w-6 cursor-move" title="Drag to reorder">
-      <svg class="w-4 h-8 text-gray-400" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M4 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4-8a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4-8a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4 4a1 1 0 11-2 0 1 1 0 012 0z"/>
-      </svg>
-    </div>
-    
-    <!-- Message Header -->
-    <div class="flex items-center justify-between mb-2">
-      <div class="flex items-center">
-        <span 
-          class="inline-block w-3 h-3 rounded-full mr-2" 
-          class:bg-primary={message.sender === 'me'} 
-          class:bg-secondary={message.sender !== 'me'}>
-        </span>
-        
-        <!-- Sender with Toggle Button - Updated with text-gray-500 hover:text-gray-700 -->
-        <div class="flex items-center">
-          <span class="font-medium">{message.sender === 'me' ? 'Me' : 'Visitor'}</span>
-          <button 
-            type="button" 
-            class="ml-2 text-gray-500 hover:text-gray-700 transition-colors p-1" 
-            aria-label="Toggle sender"
-            title="Toggle sender"
-            on:click={onToggleSender}
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="flex items-center space-x-2">
-        <span class="text-xs text-gray-500">ID: {message.id}</span>
-        
-        <!-- Delete Button -->
-        <button 
-          type="button" 
-          class="text-red-500 hover:text-red-700 transition-colors duration-200" 
-          aria-label="Delete message"
-          on:click={onDeleteMessage}
+  
+    <!-- ─────────────── DRAG HANDLE (only element draggable) ─────────────── -->
+    <div
+        class="absolute left-2 top-0 bottom-0 flex items-center justify-center
+            w-6 cursor-move select-none"
+        draggable="true"
+        on:dragstart={(e) => onDragStart(e, index)}
+        on:dragend={(e) => onDragEnd(e)}
+        role="button"
+        aria-label="Drag to reorder"
+        tabindex="0"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        <!-- Modern grip: two rounded bars -->
+        <svg
+        class="icon drag-icon text-gray-400 hover:text-gray-600
+                transition-colors"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+        >
+        <!-- left bar -->
+        <path d="M5 4.5v7"   stroke-linecap="round" />
+        <!-- right bar -->
+        <path d="M11 4.5v7"  stroke-linecap="round" />
+        </svg>
+        </div>
+
+        <style>
+        /* Optional flare: lighten the handle while dragging */
+        :global(.dragging) .drag-icon {
+        @apply text-primary;
+        }                                                       
+    </style>
+  
+    <!-- ───────────────────────── HEADER ───────────────────────── -->
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2">
+        <!-- sender dot -->
+        <span
+          class="inline-block w-3 h-3 rounded-full"
+          class:bg-primary={message.sender === 'me'}
+          class:bg-secondary={message.sender !== 'me'}
+        />
+  
+        <!-- sender label & toggle -->
+        <span class="font-medium">{message.sender === 'me' ? 'Me' : 'Visitor'}</span>
+        <button
+          type="button"
+          class="icon-btn ml-1"
+          aria-label="Toggle sender"
+          on:click={onToggleSender}
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M8 7h12m0 0-4-4m4 4-4 4M4 17h12m0 0-4 4m4-4-4-4" />
           </svg>
         </button>
       </div>
+  
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-500">ID:&nbsp;{message.id}</span>
+  
+        <!-- delete -->
+        <button
+            type="button"
+            class="icon-btn text-red-500 hover:text-red-700"
+            aria-label="Delete message"
+            on:click={onDeleteMessage}
+            >
+            <svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="background:none"
+            >
+                <path d="M19 7 18.133 19.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3M4 7h16" />
+            </svg>
+        </button>
+      </div>
     </div>
-    
-    <!-- Content Type Selector -->
+  
+    <!-- ─────────────────── CONTENT TYPE SELECTOR ─────────────────── -->
     <div class="mb-3">
-      <label for="content-type-{message.id}" class="block text-sm font-medium text-gray-700 mb-1">Content Type:</label>
-      <select 
-        id="content-type-{message.id}" 
+      <label for="type-{message.id}" class="block mb-1 text-sm font-medium text-gray-700">
+        Content&nbsp;Type:
+      </label>
+      <select
+        id="type-{message.id}"
         class="w-full px-3 py-2 border border-gray-200 rounded focus:border-primary focus:ring-1 focus:ring-primary"
-        value={message.contentType || 'text'} 
-        on:change={handleContentTypeChange}
+        value={message.contentType || 'text'}
+        on:change={handleTypeChange}
       >
         <option value="text">Text</option>
         <option value="chart">Chart</option>
       </select>
     </div>
-    
-    <!-- Message Content -->
+  
+    <!-- ─────────────────────── CONTENT EDITOR ─────────────────────── -->
     {#if message.contentType === 'chart'}
-      <ChartContentEditor 
-        bind:chartData={message.chartData} 
-        {updateStore} 
-      />
+      <ChartContentEditor bind:chartData={message.chartData} {updateStore} />
     {:else}
-      <TextContentEditor 
-        bind:text={message.text} 
-        {updateStore} 
-      />
+      <TextContentEditor bind:text={message.text} {updateStore} />
     {/if}
-    
-    <!-- Reaction (if present) with Edit capability -->
+  
+    <!-- ─────────────────────── REACTION BADGE / ADD REACTION ─────────────────────── -->
     <div class="mt-2 flex items-center gap-2">
-      {#if message.reaction}
-        <span class="reaction-badge text-xs bg-gray-200 px-2 py-1 rounded-full flex items-center">
-          <span class="mr-1 reaction-display">{message.reaction}</span>
-          <button 
-            type="button" 
-            class="text-gray-500 hover:text-gray-700 transition-colors reaction-edit-button" 
-            aria-label="Edit reaction"
-            title="Edit reaction"
-            on:click={onOpenEmojiPicker}
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-            </svg>
-          </button>
-        </span>
-      {:else}
-        <button 
-          type="button" 
-          class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-full flex items-center gap-1 transition-colors"
-          aria-label="Add reaction"
-          title="Add emoji reaction"
-          on:click={onOpenEmojiPicker}
-        >
-          <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span>Add Reaction</span>
-        </button>
-      {/if}
-    </div>
+        {#if message.reaction}
+        <!-- Current reaction shown + pencil icon to edit -->
+        <span class="reaction-badge inline-flex items-center bg-gray-200 px-2 py-1 rounded-full text-xs">
+            <span class="mr-1">{message.reaction}</span>
     
-    <!-- Drop indicator (visually shows where the dragged item will be placed) -->
+            <button
+            type="button"
+            class="icon-btn text-gray-600 hover:text-gray-800"
+            aria-label="Edit reaction"
+            on:click={onOpenEmojiPicker}
+            >
+            <!-- heroicons‑outline: pencil-square -->
+            <svg
+                class="icon w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <path d="M16.862 3.487a2.5 2.5 0 0 1 3.536 3.536L9.5 18.922l-4.24.707.707-4.24 10.895-10.902Z"/>
+                <path d="M19 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/>
+            </svg>
+            </button>
+        </span>
+        {:else}
+        <!-- No reaction yet → “Add Reaction” button with smiley outline -->
+        <button
+            type="button"
+            class="inline-flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200
+                px-2 py-1 rounded-full transition-colors"
+            aria-label="Add reaction"
+            on:click={onOpenEmojiPicker}
+        >
+            <!-- heroicons‑outline: face-smile -->
+            <svg
+            class="icon w-4 h-4 text-yellow-500"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M15 13a3 3 0 0 1-6 0" />
+            <circle cx="9"  cy="9" r="1.5" />
+            <circle cx="15" cy="9" r="1.5" />
+            </svg>
+            <span>Add Reaction</span>
+        </button>
+        {/if}
+    </div>  
+  
+    <!-- ───────────── DROP INDICATOR (during drag) ───────────── -->
     {#if dragOverIndex === index && draggedIndex !== index}
-      <div class="drop-indicator"></div>
+      <div class="drop-indicator" />
     {/if}
   </div>
   
+  <!-- ───────────────────────── LOCAL STYLES ───────────────────────── -->
   <style>
-    /* Message card specific styles */
-    .drag-handle {
-      opacity: 0.3;
-      transition: opacity 0.2s;
+    /* ───────────── Drag‑handle & card effects ───────────── */
+  
+    /* highlight target card while dragging over it */
+    .message-card :global(.drag-over) {
+      border-color: #4f46e5;                           /* indigo‑600 */
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, .30);
     }
-    
-    .message-card:hover .drag-handle {
-      opacity: 0.7;
+  
+    /* muted appearance for the card being dragged */
+    .message-card :global(.dragging) {
+      opacity: .6;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .10);
     }
-    
+  
+    /* blue bar that appears where the card will drop */
     .drop-indicator {
       position: absolute;
-      height: 4px;
+      top: -2px;
       left: 0;
       right: 0;
-      top: -2px;
-      background-color: #4f46e5;
+      height: 4px;
+      background-color: #4f46e5;                       /* indigo‑600 */
       z-index: 10;
     }
-    
-    /* Reaction styling */
-    .reaction-badge {
-      transition: all 0.2s ease;
-    }
-    
+  
+    /* subtle hover for the reaction badge */
     .reaction-badge:hover {
-      background-color: #e5e7eb;
-    }
-    
-    .reaction-display {
-      font-size: 16px;
+      background-color: #e5e7eb;                       /* gray‑200 */
     }
   </style>

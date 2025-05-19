@@ -2,27 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Additional global styles */
-html, body {
+/* -------------- Global resets -------------- */
+html,
+body {
   @apply h-full;
 }
-
 body {
   @apply text-gray-800 bg-white m-0 p-0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-/* Custom utility classes */
+/* -------------- Component layer -------------- */
 @layer components {
+  /* generic buttons */
   .btn {
     @apply px-4 py-2 rounded font-medium transition-colors duration-200;
   }
-  
   .btn-primary {
     @apply bg-primary text-white hover:bg-blue-600;
   }
-  
   .btn-secondary {
     @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
   }
+
+  /* icon button wrapper */
+  .icon-btn {
+    @apply inline-flex items-center justify-center
+            text-gray-500 hover:text-primary
+            transition-colors duration-150 rounded-md;
+  }
+  .icon-btn:hover {
+    @apply bg-gray-100;
+  }
+}
+
+/* -------------- Universal icon rules -------------- */
+svg.icon,
+.icon svg {
+  @apply w-4 h-4;                 /* keep the sizing consistent */
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none !important;          /* root <svg> */
+}
+
+svg.icon,
+.icon svg,
+.icon-btn svg {
+  background-color: transparent !important;
+  mask: none !important;
+  filter: none !important;
+}
+
+/* ensure .icon-btn > svg inherits the sizing even if not given .icon class */
+.icon-btn svg {
+  @apply w-4 h-4;            /* Tailwind 1rem */
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* -------------- Drag handle crisp dots -------------- */
+svg.drag-icon circle {
+  r: 1.2;
 }

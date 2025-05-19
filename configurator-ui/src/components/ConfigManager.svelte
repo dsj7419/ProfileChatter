@@ -417,16 +417,35 @@
       </button>
       
       <!-- Toggle Upload Section Button -->
-      <button 
+      <button
         type="button"
         on:click={toggleUploadSection}
-        class="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-      >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+        class="group w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm
+                bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
+                focus:ring-offset-2 focus:ring-primary flex items-center justify-center
+                transition-colors duration-200"
+        >
+        <!-- Icon with its own colour (and hover colour via group‑hover) -->
+        <svg
+            class="w-4 h-4 mr-2 text-white group-hover:text-yellow-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            />
         </svg>
-        {showUploadSection ? 'Hide Upload Section' : 'Upload Configuration'}
-      </button>
+
+        <!-- Label with its own, separate text colour -->
+        <span class="text-gray-700 group-hover:text-gray-900">
+            {showUploadSection ? 'Hide Upload Section' : 'Upload Configuration'}
+        </span>
+        </button>
       
       <!-- Upload Section (Expandable) -->
       {#if showUploadSection}
