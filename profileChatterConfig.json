@@ -33,15 +33,16 @@
   },
   "chatMessages": [
     {
-      "id": "msg-2",
-      "sender": "visitor",
-      "text": "Nice to meet you! Today is {currentDayOfWeek}, {currentDate}.",
-      "reaction": "👋"
-    },
-    {
       "id": "msg-1",
       "sender": "me",
-      "text": "Hey there! I'm {name}, a {profession} based in {location}."
+      "text": "Hey there! I'm {name}, a {profession} based in {location}.",
+      "reaction": "🤜"
+    },
+    {
+      "id": "msg-2",
+      "sender": "visitor",
+      "text": "Nice to meet you, {name}! Today is {currentDayOfWeek}, {currentDate}.",
+      "reaction": "👋"
     },
     {
       "id": "msg-spotify",
