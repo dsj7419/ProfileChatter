@@ -6,18 +6,19 @@ class GitHubOAuthService extends BaseOAuthService {
     super('GitHub');
   }
 
+  /**
+   * Returns the GitHub OAuth authorization URL with appropriate scopes
+   * The repo scope provides full repository access (read/write)
+   * @returns {string} The complete authorization URL
+   */
   getAuthorizationUrl() {
     const clientId = process.env.GITHUB_CLIENT_ID;
     const redirectUri = encodeURIComponent(process.env.GITHUB_REDIRECT_URI || 'http://127.0.0.1:3001/callback');
-    const scopes = encodeURIComponent('user:email read:user public_repo');
+    const scopes = encodeURIComponent('repo user:email read:user');
     
     const state = this.generateState();
     
     return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
-  }
-
-  _generateState() {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
   async exchangeCodeForTokens(code) {

@@ -16,6 +16,13 @@ import { config } from '../../src/config/config.js';
 // Import OAuth Registry for handling all providers
 import oauthRegistry from '../../src/services/auth/oauthRegistry.js';
 
+// Import GitHub repository service functions
+import { 
+  getUserWritableRepositories, 
+  checkFileExists, 
+  saveFileToRepo 
+} from '../../src/services/githubRepoService.js';
+
 // Constants
 const PORT = 3001;
 const FRONTEND_URL = 'http://127.0.0.1:5173';
@@ -192,6 +199,8 @@ const routes = {
               <li><code>GET /auth/{provider}</code> - Initiate OAuth flow for a provider</li>
               <li><code>GET /callback</code> - OAuth callback (used by providers)</li>
               <li><code>GET /oauth-status</code> - Check all OAuth authentication statuses</li>
+              <li><code>GET /api/github/user-repos</code> - Get user's writable GitHub repositories</li>
+              <li><code>POST /api/github/save-config</code> - Save configuration to GitHub repository</li>
             </ul>
           </div>
           
@@ -481,6 +490,119 @@ const routes = {
       res.end(JSON.stringify({ error: `Error generating SVG: ${error.message}` }));
     }
   },
+
+  // GitHub repository listing endpoint
+  async handleGithubUserRepos(req, res) {
+    logger.info('Handling GET request to /api/github/user-repos');
+    
+    try {
+      // Ensure user has a valid GitHub OAuth token
+      const githubProvider = oauthRegistry.getProvider('github');
+      const accessToken = await githubProvider.getAccessToken();
+      
+      // Get the list of repositories the user can write to
+      const repositories = await getUserWritableRepositories(accessToken);
+      
+      // Return the repository list as JSON
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.end(JSON.stringify(repositories));
+      logger.info(`Successfully fetched ${repositories.length} writable repositories`);
+    } catch (error) {
+      logger.error('Error fetching GitHub repositories:', error);
+      
+      // Determine if this is an authentication error
+      const isAuthError = error.message.includes('No valid GitHub token') || 
+                          error.message.includes('authentication');
+      
+      res.statusCode = isAuthError ? 401 : 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ 
+        error: isAuthError ? 'GitHub authentication required' : `Error fetching repositories: ${error.message}`
+      }));
+    }
+  },
+
+  // GitHub save config endpoint
+  async handleGithubSaveConfig(req, res) {
+    logger.info('Handling POST request to /api/github/save-config');
+    
+    try {
+      // Parse the request body
+      const {
+        repoFullName,
+        filePath,
+        commitMessage,
+        configContent,
+        branch = 'main'
+      } = await parseJsonBody(req);
+      
+      // Validate required fields
+      if (!repoFullName || !filePath || !commitMessage || !configContent) {
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Missing required fields' }));
+        return;
+      }
+      
+      // Parse repository owner and name
+      const [owner, repo] = repoFullName.split('/');
+      if (!owner || !repo) {
+        throw new Error('Invalid repository name format. Expected "owner/repo"');
+      }
+      
+      // Get GitHub access token
+      const githubProvider = oauthRegistry.getProvider('github');
+      let accessToken;
+      
+      try {
+        accessToken = await githubProvider.getAccessToken();
+      } catch (authError) {
+        logger.error('GitHub authentication required:', authError);
+        res.statusCode = 401;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'GitHub authentication required' }));
+        return;
+      }
+      
+      logger.info(`Saving config to GitHub repo: ${owner}/${repo}, path: ${filePath}, branch: ${branch}`);
+      
+      // Check if the file already exists
+      const { exists, sha } = await checkFileExists(accessToken, owner, repo, filePath, branch);
+      
+      // Save the file to the repo (create or update)
+      const result = await saveFileToRepo(
+        accessToken,
+        owner,
+        repo,
+        filePath,
+        configContent,
+        commitMessage,
+        branch,
+        exists ? sha : null
+      );
+      
+      // Return success response
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({
+        success: true,
+        commitUrl: result.commitUrl,
+        fileUrl: result.content?.html_url || null
+      }));
+      
+      logger.info(`Successfully saved config to GitHub: ${result.commitUrl}`);
+      
+    } catch (error) {
+      logger.error('Error saving config to GitHub:', error);
+      
+      const isAuthError = error.message.includes('authentication') || error.message.includes('token');
+      res.statusCode = isAuthError ? 401 : 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  },
   
   // Debug cookies endpoint
   async handleDebugCookies(req, res) {
@@ -541,6 +663,8 @@ const server = http.createServer(async (req, res) => {
         await routes.handleOAuthStatus(req, res);
       } else if (path === '/api/initial-config-data') {
         await routes.handleConfigData(req, res);
+      } else if (path === '/api/github/user-repos') {
+        await routes.handleGithubUserRepos(req, res);
       } else if (path === '/debug-cookies') {
         await routes.handleDebugCookies(req, res);
       } else {
@@ -551,12 +675,10 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: 'Endpoint not found', method: req.method, url: req.url }));
       }
     } else if (req.method === 'POST') {
-      const isGeneratePreview = path === '/generate-preview' || 
-                              path === '/generate-preview/' ||
-                              path.startsWith('/generate-preview?');
-                              
-      if (isGeneratePreview) {
+      if (path === '/generate-preview' || path === '/generate-preview/' || path.startsWith('/generate-preview?')) {
         await routes.handleSvgGeneration(req, res);
+      } else if (path === '/api/github/save-config') {
+        await routes.handleGithubSaveConfig(req, res);
       } else {
         // Not found
         logger.info('Invalid endpoint requested:', req.method, path);
@@ -594,6 +716,8 @@ server.listen(PORT, () => {
   logger.info(`- GET /auth/{provider} - Initiate OAuth flow for a provider`);
   logger.info(`- GET /callback - Unified OAuth callback`);
   logger.info(`- GET /oauth-status - Check OAuth authentication status`);
+  logger.info(`- GET /api/github/user-repos - Get user's writable GitHub repositories`);
+  logger.info(`- POST /api/github/save-config - Save configuration to GitHub repository`);
   logger.info(`- GET /debug-cookies - Debug state and cookies`);
 });
 

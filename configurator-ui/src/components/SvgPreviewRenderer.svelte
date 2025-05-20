@@ -581,44 +581,66 @@
   
   <div class="svg-preview-container">
     <div class="preview-controls">
-      <div class="button-row">
-        <button 
-          class="refresh-button" 
-          on:click={fetchPreview} 
-          disabled={isLoading}
-        >
-          {#if isLoading}
-            <span class="loading-spinner"></span> Refreshing...
-          {:else}
-            Refresh Preview
-          {/if}
-        </button>
+      <!-- Primary controls row -->
+      <div class="controls-row">
+        <!-- Left controls: buttons -->
+        <div class="button-group">
+          <button 
+            class="refresh-button" 
+            on:click={fetchPreview} 
+            disabled={isLoading}
+          >
+            {#if isLoading}
+              <span class="loading-spinner"></span> Refreshing...
+            {:else}
+              Refresh
+            {/if}
+          </button>
+          
+          <button
+            class="test-button"
+            on:click={testServerConnection}
+            disabled={isLoading}
+          >
+            Test
+          </button>
+        </div>
         
-        <button
-          class="test-button"
-          on:click={testServerConnection}
-          disabled={isLoading}
-        >
-          Test Connection
-        </button>
+        <!-- Right: size selector with inline custom size -->
+        <div class="size-controls">
+          <label for="preview-size" class="size-label">Size:</label>
+          <select 
+            id="preview-size" 
+            class="size-select"
+            bind:value={selectedSizeId}
+            on:change={handleSizeChange}
+          >
+            {#each previewSizes as size}
+              <option value={size.id}>{size.name} ({size.width}px)</option>
+            {/each}
+          </select>
+          
+          {#if selectedSizeId === 'custom'}
+            <div class="custom-size-inline">
+              <input 
+                type="number" 
+                class="custom-width-input"
+                bind:value={customWidth}
+                min="280"
+                max="1200"
+                placeholder="Width"
+              />
+              <button class="apply-button" on:click={applyCustomWidth}>Apply</button>
+            </div>
+          {/if}
+        </div>
       </div>
       
-      <div class="size-controls">
-        <label for="preview-size" class="size-label">Preview Size:</label>
-        <select 
-          id="preview-size" 
-          class="size-select"
-          bind:value={selectedSizeId}
-          on:change={handleSizeChange}
-        >
-          {#each previewSizes as size}
-            <option value={size.id}>{size.name} ({size.width}px)</option>
-          {/each}
-        </select>
-        
-        <!-- Dark Mode Toggle -->
-        <div class="dark-mode-toggle">
-          <span class="size-label mr-2" id="theme-mode-label">Theme Mode:</span>
+      <!-- Secondary row for mode toggle, debug and copy button -->
+      <div class="controls-secondary-row">
+        <!-- Light/Dark Mode toggle -->
+        <div class="mode-toggle">
+          <span class="mode-label" id="theme-mode-label">Mode:</span>
           <div role="group" aria-labelledby="theme-mode-label">
             <button 
               class="mode-button {$previewMode === 'light' ? 'active' : ''}"
@@ -637,23 +659,29 @@
           </div>
         </div>
         
-        {#if selectedSizeId === 'custom'}
-          <div class="custom-size-control">
-            <input 
-              type="number" 
-              class="custom-width-input"
-              bind:value={customWidth}
-              min="280"
-              max="1200"
-              placeholder="Width (px)"
-            />
-            <button 
-              class="apply-button"
-              on:click={applyCustomWidth}
-            >
-              Apply
-            </button>
+        <!-- Debug dropdown with vertical list -->
+        <details class="debug-details-container">
+          <summary class="debug-summary">Debug Info</summary>
+          <div class="debug-details">
+            <div class="debug-item"><span class="debug-label">Server:</span> {previewServer}</div>
+            <div class="debug-item"><span class="debug-label">Theme:</span> {$userConfig?.activeTheme || 'none'}</div>
+            <div class="debug-item"><span class="debug-label">Mode:</span> {$previewMode}</div>
+            <div class="debug-item"><span class="debug-label">Messages:</span> {$chatMessages?.length || 0}</div>
+            <div class="debug-item"><span class="debug-label">Avatars:</span> {$userConfig?.avatars?.enabled ? 'Enabled' : 'Disabled'} ({$userConfig?.avatars?.shape || 'N/A'})</div>
+            <div class="debug-item"><span class="debug-label">Profile:</span> {$userConfig?.profile?.NAME}</div>
+            <div class="debug-item"><span class="debug-label">Refreshes:</span> {manualRefreshCount}</div>
           </div>
+        </details>
+        
+        <!-- Copy button moved to top row -->
+        {#if generatedSvgMarkup}
+          <button 
+            class="copy-button" 
+            on:click={copySvgMarkup} 
+            disabled={isCopying || !generatedSvgMarkup}
+          >
+            {copyButtonText}
+          </button>
         {/if}
       </div>
       
@@ -662,20 +690,9 @@
           <span>Error: {error}</span>
         </div>
       {/if}
-      
-      <!-- Debug info with added avatar status -->
-      <div class="debug-info">
-        <span>Server: {previewServer}</span>
-        <span>Theme: {$userConfig?.activeTheme || 'none'}</span>
-        <span>Mode: {$previewMode}</span>
-        <span>Messages: {$chatMessages?.length || 0}</span>
-        <span>Avatars: {$userConfig?.avatars?.enabled ? 'Enabled' : 'Disabled'} ({$userConfig?.avatars?.shape || 'N/A'})</span>
-        <span>Profile: {$userConfig?.profile?.NAME}</span>
-        <span>Refreshes: {manualRefreshCount}</span>
-      </div>
     </div>
-    
-    <!-- SVG wrapper to improve responsive display with width: 100% -->
+      
+    <!-- SVG wrapper with top alignment -->
     <div class="svg-wrapper" style="max-width: {currentPreviewWidth}px; width: 100%; margin: 0 auto;" bind:this={svgContainerDiv}>
       {#if isLoading && !generatedSvgMarkup}
         <div class="loading-indicator">
@@ -688,51 +705,59 @@
         </div>
       {:else if !error}
         <div class="empty-state">
-          <p>No preview available. Configure your profile and chat messages, then click "Refresh Preview".</p>
-        </div>
-      {/if}
-      
-      {#if generatedSvgMarkup}
-        <div class="preview-note mt-4 text-xs text-gray-600 px-2 py-1 bg-gray-100 rounded">
-          <p>Your changes are automatically reflected in this preview. If you need to manually update, click "Refresh Preview".</p>
+          <p>No preview available. Configure your profile and chat messages, then click "Refresh".</p>
         </div>
       {/if}
     </div>
-    
-    <!-- Copy SVG Markup button -->
-    {#if generatedSvgMarkup}
-      <div class="copy-button-container">
-        <button 
-          class="copy-button" 
-          on:click={copySvgMarkup} 
-          disabled={isCopying || !generatedSvgMarkup}
-        >
-          {copyButtonText}
-        </button>
-      </div>
-    {/if}
   </div>
-  
+    
   <style>
     .svg-preview-container {
       height: 100%;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
-      overflow: auto;
+      padding: 0.5rem;
+      overflow: hidden; /* Prevent scrollbars */
     }
     
     .preview-controls {
-      margin-bottom: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      margin-bottom: 0.25rem;
     }
     
-    .button-row {
+    .controls-row {
       display: flex;
-      gap: 0.375rem;
-      margin-bottom: 0.375rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .controls-secondary-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem; /* Gap between elements */
+      margin-bottom: 0.25rem;
+      flex-wrap: wrap; /* Allow wrapping on very small screens */
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+    
+    .size-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-grow: 1;
+      white-space: nowrap;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
     }
     
     .refresh-button, .test-button, .apply-button {
@@ -740,22 +765,22 @@
       color: white;
       border: none;
       border-radius: 0.375rem;
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.25rem;
     }
     
     .loading-spinner {
       display: inline-block;
-      width: 1rem;
-      height: 1rem;
-      border: 2px solid rgba(255,255,255,0.3);
+      width: 0.8rem;
+      height: 0.8rem;
+      border: a2px solid rgba(255,255,255,0.3);
       border-radius: 50%;
       border-top-color: white;
       animation: spin 1s linear infinite;
@@ -778,95 +803,118 @@
       cursor: not-allowed;
     }
     
-    .size-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
-      margin-bottom: 0.375rem;
-      flex-wrap: wrap;
-    }
-    
-    .size-label {
-      font-size: 0.75rem;
+    .size-label, .mode-label {
+      font-size: 0.7rem;
       font-weight: 500;
       color: #4b5563;
-      min-width: 90px;
     }
     
     .size-select {
-      padding: 0.375rem 0.5rem;
+      padding: 0.15rem 0.25rem;
       border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
       color: #374151;
       background-color: white;
-      min-width: 200px;
+      min-width: 120px;
+      max-width: 180px;
     }
     
-    .custom-size-control {
+    .custom-size-inline {
       display: flex;
-      gap: 0.5rem;
       align-items: center;
-      margin-top: 0.5rem;
-      width: 100%;
+      gap: 0.25rem;
     }
     
     .custom-width-input {
-      padding: 0.375rem 0.5rem;
+      padding: 0.15rem 0.25rem;
       border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
+      border-radius: 0.25rem;
+      font-size: 0.7rem;
       color: #374151;
-      width: 100px;
+      width: 60px;
     }
     
     .apply-button {
       background-color: #4f46e5;
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.15rem 0.25rem;
+      font-size: 0.7rem;
+    }
+    
+    .debug-details-container {
+      position: relative;
+    }
+    
+    .debug-summary {
+      font-size: 0.7rem;
+      color: #6b7280;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .debug-details {
+      background-color: #f3f4f6;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.65rem;
+      color: #4b5563;
+      display: flex;
+      flex-direction: column; /* Display as vertical list */
+      gap: 0.25rem; /* Space between items */
+      margin-top: 0.25rem;
+      position: absolute;
+      z-index: 10;
+      left: 0; /* Align with the left of the details element */
+      top: 100%; /* Position below the summary */
+      white-space: nowrap;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      width: max-content;
+      max-width: 90vw; /* Prevent going off-screen */
+    }
+    
+    .debug-item {
+      display: flex;
+      align-items: center;
+      line-height: 1.4;
+    }
+    
+    .debug-label {
+      font-weight: 500;
+      margin-right: 0.25rem;
+      min-width: 3.5rem; /* Ensure consistent alignment */
     }
     
     .error-message {
       background-color: #fee2e2;
       color: #b91c1c;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
-    }
-    
-    .debug-info {
-      background-color: #f3f4f6;
-      padding: 0.375rem;
-      border-radius: 0.375rem;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
       font-size: 0.7rem;
-      color: #4b5563;
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
+      margin-top: 0.25rem;
     }
     
     .svg-wrapper {
       background-color: #fff;
       border: 1px solid #e2e8f0;
-      border-radius: 0.5rem;
+      border-radius: 0.375rem;
       padding: 0.5rem;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start; /* Push content to top */
       align-items: center;
       transition: max-width 0.3s ease;
-      margin-bottom: 1rem;
+      min-height: 150px; /* Ensure minimum height */
     }
     
     .svg-content {
       width: 100%;
-      height: 100%;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* Push content to top */
       overflow: auto;
     }
     
@@ -875,7 +923,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100%;
+      padding-top: 2rem;
       color: #6b7280;
       gap: 1rem;
     }
@@ -898,25 +946,21 @@
       text-align: center;
       color: #6b7280;
       padding: 2rem;
+      padding-top: 3rem;
     }
     
     /* Copy button styling */
-    .copy-button-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    
     .copy-button {
       background-color: #10b981;
       color: white;
       border: none;
       border-radius: 0.375rem;
-      padding: 0.5rem 1.5rem;
-      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.7rem;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
+      margin-left: auto; /* Push to the right */
     }
     
     .copy-button:hover {
@@ -928,20 +972,9 @@
       cursor: not-allowed;
     }
     
-    .preview-note {
-      margin-top: 1rem;
-      font-size: 0.75rem;
-      color: #6b7280;
-      padding: 0.5rem;
-      background-color: #f3f4f6;
-      border-radius: 0.375rem;
-      width: 100%;
-      text-align: center;
-    }
-    
     .mode-button {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.15rem 0.25rem;
+      font-size: 0.7rem;
       border: 1px solid #d1d5db;
       background-color: #f9fafb;
       color: #4b5563;
@@ -949,13 +982,13 @@
     }
     
     .mode-button:first-of-type {
-      border-top-left-radius: 0.375rem;
-      border-bottom-left-radius: 0.375rem;
+      border-top-left-radius: 0.25rem;
+      border-bottom-left-radius: 0.25rem;
     }
     
     .mode-button:last-of-type {
-      border-top-right-radius: 0.375rem;
-      border-bottom-right-radius: 0.375rem;
+      border-top-right-radius: 0.25rem;
+      border-bottom-right-radius: 0.25rem;
     }
     
     .mode-button.active {
@@ -964,19 +997,10 @@
       border-color: #4f46e5;
     }
     
-    .dark-mode-toggle {
-      display: flex;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    
-    .mr-2 {
-      margin-right: 0.5rem;
-    }
-    
     :global(.svg-wrapper svg) {
       width: 100%;
       height: auto;
       max-width: 100%;
+      margin-top: 0;
     }
   </style>

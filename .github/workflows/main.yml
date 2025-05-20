@@ -12,12 +12,14 @@ on:
       - '.github/workflows/**'
       - 'package.json'
       - 'package-lock.json'
+      - 'profileChatterConfig.json'
   pull_request:
     branches: [main]
     paths:
       - 'src/**'
       - 'data/**'
       - 'assets/**'
+      - 'profileChatterConfig.json'
   workflow_dispatch:
 
 permissions:
@@ -57,7 +59,7 @@ jobs:
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
           SPOTIFY_REDIRECT_URI: ${{ secrets.SPOTIFY_REDIRECT_URI }}
 
-          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_OAUTH }}
+          PAT_GITHUB_OAUTH: ${{ secrets.PAT_GITHUB_OAUTH }}
           GITHUB_DATA_MODE: 'ci'
         run: node src/build-profile.js
 
