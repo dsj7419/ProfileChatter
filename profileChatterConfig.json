@@ -1,0 +1,256 @@
+{
+  "profile": {
+    "NAME": "Dan Johnson",
+    "PROFESSION": "Software Developer",
+    "LOCATION": "San Diego",
+    "COMPANY": "Encore",
+    "CURRENT_PROJECT": "ProfileChatter SVG Generator",
+    "WORK_START_DATE": {
+      "year": 2025,
+      "month": 5,
+      "day": 20
+    },
+    "GITHUB_USERNAME": "dsj7419",
+    "WAKATIME_USERNAME": "dsj7419",
+    "TWITTER_USERNAME": "",
+    "CODESTATS_USERNAME": "dsj7419"
+  },
+  "activeTheme": "ios",
+  "avatars": {
+    "enabled": true,
+    "me": {
+      "imageUrl": "",
+      "fallbackText": "DJ"
+    },
+    "visitor": {
+      "imageUrl": "",
+      "fallbackText": "?"
+    },
+    "sizePx": 32,
+    "shape": "circle",
+    "xOffsetPx": 8,
+    "yOffsetPx": 0
+  },
+  "chatMessages": [
+    {
+      "id": "msg-2",
+      "sender": "visitor",
+      "text": "Nice to meet you! Today is {currentDayOfWeek}, {currentDate}.",
+      "reaction": "👋"
+    },
+    {
+      "id": "msg-1",
+      "sender": "me",
+      "text": "Hey there! I'm {name}, a {profession} based in {location}."
+    },
+    {
+      "id": "msg-spotify",
+      "sender": "visitor",
+      "text": "What music are you listening to while coding?",
+      "reaction": "🎵"
+    },
+    {
+      "id": "msg-spotify-response",
+      "sender": "me",
+      "text": "Right now I'm listening to {spotifyTrack}. Music helps me focus while coding!"
+    },
+    {
+      "id": "msg-3",
+      "sender": "me",
+      "text": "I've been working at {company} for {workTenure}.\nCurrently, the weather here is {temperature} with {weatherDescription}."
+    },
+    {
+      "id": "msg-4",
+      "sender": "visitor",
+      "contentType": "chart",
+      "chartData": {
+        "type": "horizontalBar",
+        "title": "Skills Distribution",
+        "maxValue": 100,
+        "items": [
+          {
+            "label": "JavaScript",
+            "value": 85,
+            "color": "#4285F4"
+          },
+          {
+            "label": "React",
+            "value": 75,
+            "color": "#4285F4"
+          },
+          {
+            "label": "Node.js",
+            "value": 80,
+            "color": "#4285F4"
+          },
+          {
+            "label": "CSS",
+            "value": 70,
+            "color": "#4285F4"
+          },
+          {
+            "label": "Python",
+            "value": 60,
+            "color": "#4285F4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "msg-chart-donut",
+      "sender": "visitor",
+      "reaction": "💪",
+      "contentType": "chart",
+      "chartData": {
+        "type": "donut",
+        "title": "Project Breakdown",
+        "centerText": "100%",
+        "items": [
+          {
+            "label": "Frontend",
+            "value": 40,
+            "color": "#34A853"
+          },
+          {
+            "label": "Backend",
+            "value": 35,
+            "color": "#4285F4"
+          },
+          {
+            "label": "Testing",
+            "value": 15,
+            "color": "#FBBC05"
+          },
+          {
+            "label": "Docs",
+            "value": 10,
+            "color": "#EA4335"
+          }
+        ]
+      }
+    },
+    {
+      "id": "msg-5",
+      "sender": "me",
+      "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub.",
+      "reaction": "👍"
+    },
+    {
+      "id": "msg-github-oauth",
+      "sender": "me",
+      "text": "My open source projects have received a total of {githubTotalStars} stars! I primarily code in {githubPrimaryLanguage}."
+    },
+    {
+      "id": "msg-github-oauth-2",
+      "sender": "visitor",
+      "text": "That's impressive! How many repositories have you contributed to?",
+      "reaction": "🚀"
+    },
+    {
+      "id": "msg-github-oauth-3",
+      "sender": "me",
+      "text": "I've contributed to {githubContributedRepos} repositories and made approximately {githubCommitsLastYear} commits in the past year."
+    },
+    {
+      "id": "msg-6",
+      "sender": "visitor",
+      "text": "What programming languages have you been using lately?"
+    },
+    {
+      "id": "msg-7",
+      "sender": "me",
+      "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
+    },
+    {
+      "id": "msg-codestats",
+      "sender": "visitor",
+      "text": "You've also accumulated {codestatsXP} XP on Code::Stats! Impressive!"
+    },
+    {
+      "id": "msg-8",
+      "sender": "me",
+      "contentType": "chart",
+      "chartData": {
+        "type": "horizontalBar",
+        "title": "My Coding Activity (Last 7 Days)",
+        "maxValue": 100,
+        "items": "{wakatime_chart_data}"
+      }
+    },
+    {
+      "id": "msg-9",
+      "sender": "me",
+      "text": "Feel free to reach out if you want to collaborate! {emoji}"
+    },
+    {
+      "id": "msg-social",
+      "sender": "me",
+      "text": "You can also find me on X/Twitter, where I have {twitterFollowers} followers!"
+    }
+  ],
+  "themeOverrides": {
+    "ME_BUBBLE_COLOR": "#0B93F6",
+    "VISITOR_BUBBLE_COLOR": "#E5E5EA",
+    "ME_TEXT_COLOR": "#FFFFFF",
+    "VISITOR_TEXT_COLOR": "#000000",
+    "BACKGROUND_LIGHT": "#FFFFFF",
+    "BACKGROUND_DARK": "#004080",
+    "BUBBLE_RADIUS_PX": 18,
+    "FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    "REACTION_FONT_SIZE_PX": 20,
+    "REACTION_BG_COLOR": "#F1F1F1",
+    "REACTION_BG_OPACITY": 0.9,
+    "REACTION_TEXT_COLOR": "#000000",
+    "REACTION_PADDING_X_PX": 8,
+    "REACTION_PADDING_Y_PX": 4,
+    "REACTION_BORDER_RADIUS_PX": 14,
+    "REACTION_OFFSET_X_PX": 0,
+    "REACTION_OFFSET_Y_PX": -12,
+    "CHART_STYLES": {
+      "BAR_DEFAULT_COLOR": "#007AFF",
+      "BAR_TRACK_COLOR": "#D3D3D8",
+      "BAR_CORNER_RADIUS_PX": 8,
+      "VALUE_TEXT_INSIDE_COLOR": "#FFFFFF",
+      "BAR_HEIGHT_PX": 18,
+      "BAR_SPACING_PX": 10,
+      "LABEL_FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "LABEL_FONT_SIZE_PX": 13,
+      "VALUE_TEXT_FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "VALUE_TEXT_FONT_SIZE_PX": 12,
+      "TITLE_FONT_FAMILY": "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "TITLE_FONT_SIZE_PX": 15,
+      "TITLE_LINE_HEIGHT_MULTIPLIER": 1.3,
+      "TITLE_BOTTOM_MARGIN_PX": 10,
+      "CHART_PADDING_X_PX": 16,
+      "CHART_PADDING_Y_PX": 14,
+      "AXIS_LINE_COLOR": "#D3D3D8",
+      "GRID_LINE_COLOR": "#F5F5F5",
+      "DONUT_STROKE_WIDTH_PX": 30,
+      "DONUT_CENTER_TEXT_FONT_SIZE_PX": 16,
+      "DONUT_CENTER_TEXT_FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "ME_DONUT_CENTER_TEXT_COLOR": "#FFFFFF",
+      "VISITOR_DONUT_CENTER_TEXT_COLOR": "#000000",
+      "ME_DONUT_LEGEND_TEXT_COLOR": "#FFFFFF",
+      "VISITOR_DONUT_LEGEND_TEXT_COLOR": "#000000",
+      "DONUT_LEGEND_FONT_SIZE_PX": 12,
+      "DONUT_LEGEND_ITEM_SPACING_PX": 8,
+      "DONUT_LEGEND_MARKER_SIZE_PX": 10,
+      "DONUT_ANIMATION_DURATION_SEC": 1,
+      "DONUT_SEGMENT_ANIMATION_DELAY_SEC": 0.2,
+      "ME_TITLE_COLOR": "#FFFFFF",
+      "ME_LABEL_COLOR": "#E2F0FF",
+      "ME_VALUE_TEXT_COLOR": "#FFFFFF",
+      "VISITOR_TITLE_COLOR": "#000000",
+      "VISITOR_LABEL_COLOR": "#444444",
+      "VISITOR_VALUE_TEXT_COLOR": "#000000",
+      "CHART_BAR_ANIMATION_DURATION_SEC": 0.8,
+      "CHART_ANIMATION_DELAY_SEC": 0.3,
+      "BAR_ANIMATION_DURATION_SEC": 0.8
+    },
+    "REACTION_ANIMATION_DURATION_SEC": 0.3,
+    "REACTION_ANIMATION_DELAY_SEC": 0.2
+  },
+  "layoutAnimationOverrides": {
+    "SCROLL_SPEED_MULTIPLIER": 1
+  }
+}
