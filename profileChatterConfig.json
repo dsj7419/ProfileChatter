@@ -35,8 +35,7 @@
     {
       "id": "msg-1",
       "sender": "me",
-      "text": "Hey there! I'm {name}, a {profession} based in {location}.",
-      "reaction": "🤜"
+      "text": "Hey there! I'm {name}, a {profession} based in {location}."
     },
     {
       "id": "msg-2",
@@ -195,7 +194,7 @@
     "ME_TEXT_COLOR": "#FFFFFF",
     "VISITOR_TEXT_COLOR": "#000000",
     "BACKGROUND_LIGHT": "#FFFFFF",
-    "BACKGROUND_DARK": "#004080",
+    "BACKGROUND_DARK": "#000000",
     "BUBBLE_RADIUS_PX": 18,
     "FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     "REACTION_FONT_SIZE_PX": 20,
