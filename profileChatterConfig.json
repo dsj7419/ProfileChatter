@@ -41,7 +41,7 @@
     {
       "id": "msg-2",
       "sender": "visitor",
-      "text": "Nice to meet you, {name}! Today is {currentDayOfWeek}, {currentDate}.",
+      "text": "Nice to meet you! Today is {currentDayOfWeek}, {currentDate}.",
       "reaction": "👋"
     },
     {
