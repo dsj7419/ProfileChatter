@@ -7,7 +7,7 @@
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { parse as parseUrl } from 'node:url';
 
 // Import the config for the API endpoint
@@ -196,6 +196,7 @@ const routes = {
             <ul>
               <li><code>POST /generate-preview</code> - Generate SVG preview from configuration</li>
               <li><code>GET /api/initial-config-data</code> - Get initial configuration data</li>
+              <li><code>POST /api/save-local-config</code> - Save configuration to local filesystem</li>
               <li><code>GET /auth/{provider}</code> - Initiate OAuth flow for a provider</li>
               <li><code>GET /callback</code> - OAuth callback (used by providers)</li>
               <li><code>GET /oauth-status</code> - Check all OAuth authentication statuses</li>
@@ -491,6 +492,48 @@ const routes = {
     }
   },
 
+  /**
+   * Save local configuration endpoint - writes UI config to profileChatterConfig.json
+   * @async
+   */
+  async handleSaveLocalConfig(req, res) {
+    logger.info('Handling POST request to /api/save-local-config');
+    
+    try {
+      // Parse the request body
+      const configJson = await parseJsonBody(req);
+      logger.debug('Received configuration data with keys:', Object.keys(configJson));
+      
+      // Determine the path for the config file (one level above configurator-ui/)
+      const configFilePath = join(projectRoot, 'profileChatterConfig.json');
+      
+      // Save the configuration to the file system
+      try {
+        writeFileSync(configFilePath, JSON.stringify(configJson, null, 2));
+        logger.info(`Successfully saved configuration to ${configFilePath}`);
+        
+        // Return success response
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ 
+          success: true, 
+          message: 'Local config saved.',
+          path: configFilePath
+        }));
+      } catch (fileError) {
+        throw new Error(`Failed to write file: ${fileError.message}`);
+      }
+    } catch (error) {
+      logger.error('Error saving local config:', error);
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ 
+        success: false, 
+        error: `Failed to save local config: ${error.message}` 
+      }));
+    }
+  },
+
   // GitHub repository listing endpoint
   async handleGithubUserRepos(req, res) {
     logger.info('Handling GET request to /api/github/user-repos');
@@ -679,6 +722,8 @@ const server = http.createServer(async (req, res) => {
         await routes.handleSvgGeneration(req, res);
       } else if (path === '/api/github/save-config') {
         await routes.handleGithubSaveConfig(req, res);
+      } else if (path === '/api/save-local-config') {
+        await routes.handleSaveLocalConfig(req, res);
       } else {
         // Not found
         logger.info('Invalid endpoint requested:', req.method, path);
@@ -713,6 +758,7 @@ server.listen(PORT, () => {
   logger.info(`- GET / - Homepage`);
   logger.info(`- GET /api/initial-config-data - Configuration API`);
   logger.info(`- POST /generate-preview - SVG generation`);
+  logger.info(`- POST /api/save-local-config - Save configuration to local filesystem`);
   logger.info(`- GET /auth/{provider} - Initiate OAuth flow for a provider`);
   logger.info(`- GET /callback - Unified OAuth callback`);
   logger.info(`- GET /oauth-status - Check OAuth authentication status`);

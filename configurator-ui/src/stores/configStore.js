@@ -352,6 +352,54 @@ const initialPlaceholderData = [
   }
 ];
 
+/**
+ * Debounce utility function - limits how often a function can be called
+ * @param {Function} func - The function to debounce
+ * @param {number} wait - Time to wait in milliseconds
+ * @returns {Function} - Debounced function
+ */
+function debounce(func, wait = 2000) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Save current configuration to local file system via server API
+ * @async
+ */
+async function saveLocalConfigToServer() {
+  try {
+    const fullConfig = getPreviewConfiguration();
+    console.log('Saving configuration to local file system...');
+    
+    const response = await fetch('http://localhost:3001/api/save-local-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullConfig)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Server responded with ${response.status}: ${errorData.error || 'Unknown error'}`);
+    }
+    
+    const result = await response.json();
+    console.log('Configuration saved successfully:', result.message);
+  } catch (error) {
+    console.error('Failed to save local configuration:', error.message);
+  }
+}
+
+// Create debounced version of the save function with 2-second delay
+const debouncedSaveLocalConfig = debounce(saveLocalConfigToServer, 2000);
+
 // Function to load config from the server API (async)
 async function loadConfigFromServer() {
   try {
@@ -414,6 +462,9 @@ userConfig.subscribe(value => {
   }
 });
 
+// Flag to track initial load status
+let initialLoadComplete = false;
+
 // Try to load config from server (non-blocking)
 loadConfigFromServer().then(serverConfig => {
   if (serverConfig) {
@@ -451,6 +502,13 @@ loadConfigFromServer().then(serverConfig => {
   } else {
     console.log('Using default configuration');
   }
+  
+  // Mark initial load as complete after loading from server
+  initialLoadComplete = true;
+}).catch(error => {
+  console.error('Error during initial config load:', error);
+  // Mark as complete even on error, so we can start saving changes
+  initialLoadComplete = true;
 });
 
 // Separate store for WORK_START_DATE as string components
@@ -462,6 +520,31 @@ export const workStartDate = writable({
 
 // Store for chat messages
 export const chatMessages = writable([]);
+
+// Set up subscriptions to save configuration on changes
+userConfig.subscribe(() => {
+  if (initialLoadComplete) {
+    debouncedSaveLocalConfig();
+  }
+});
+
+editableTheme.subscribe(() => {
+  if (initialLoadComplete) {
+    debouncedSaveLocalConfig();
+  }
+});
+
+chatMessages.subscribe(() => {
+  if (initialLoadComplete) {
+    debouncedSaveLocalConfig();
+  }
+});
+
+workStartDate.subscribe(() => {
+  if (initialLoadComplete) {
+    debouncedSaveLocalConfig();
+  }
+});
 
 // Get a complete configuration object for the preview
 export function getPreviewConfiguration() {

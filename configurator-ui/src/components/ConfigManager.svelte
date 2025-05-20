@@ -37,6 +37,12 @@
   let filePath = 'profileChatterConfig.json'
   let commitMessage = 'Update ProfileChatter configuration via UI'
 
+  // GitHub save status state
+  let gitSaveInProgress = false
+  let gitStatusMessage = ''
+  let gitStatusError = false
+  let gitStatusCommitUrl = ''
+
   // Helper for capitalizing a string
   function cap(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -98,16 +104,26 @@
     fetchGithubRepos()
   }
 
+  // Reset GitHub save status
+  function resetGitStatus() {
+    gitStatusMessage = ''
+    gitStatusError = false
+    gitStatusCommitUrl = ''
+  }
+
   // Handle Save to GitHub button click
   async function handleSaveToGithub() {
     if (!selectedRepoFullName) {
-      showStatusMessage('Please select a repository first.', true);
+      resetGitStatus()
+      gitStatusMessage = 'Please select a repository first.'
+      gitStatusError = true
       return;
     }
     
     try {
-      isLoading = true;
-      showStatusMessage('Saving configuration to GitHub...');
+      resetGitStatus()
+      gitSaveInProgress = true
+      gitStatusMessage = 'Saving to GitHub...'
       
       const res = await fetch(`${previewServer}/api/github/save-config`, {
         method: 'POST',
@@ -126,13 +142,15 @@
         throw new Error(data.error || `Status ${res.status}`);
       }
       
-      const commitLink = `<a href="${data.commitUrl}" target="_blank" class="underline text-blue-600 hover:text-blue-800">View commit</a>`;
-      showStatusMessage(`Configuration saved successfully! ${commitLink}`, false);
+      gitStatusCommitUrl = data.commitUrl;
+      gitStatusMessage = `Configuration saved successfully! <a href="${gitStatusCommitUrl}" target="_blank" class="underline text-blue-600 hover:text-blue-800">View commit on GitHub</a>`;
+      gitStatusError = false;
     } catch (err) {
       console.error('Error saving to GitHub:', err);
-      showStatusMessage(`GitHub save failed: ${err.message}`, true);
+      gitStatusMessage = `Error saving to GitHub: ${err.message}. Please try again.`;
+      gitStatusError = true;
     } finally {
-      isLoading = false;
+      gitSaveInProgress = false;
     }
   }
 
@@ -1572,22 +1590,37 @@
           />
         </div>
       {/if}
+
+      <!-- GitHub save status area (persistent) -->
+      {#if gitStatusMessage}
+        <div
+          class="mt-2 p-2 rounded-md text-sm"
+          class:bg-green-100={!gitStatusError && !gitSaveInProgress}
+          class:text-green-800={!gitStatusError && !gitSaveInProgress}
+          class:bg-red-100={gitStatusError}
+          class:text-red-800={gitStatusError}
+          class:bg-gray-100={gitSaveInProgress}
+          class:text-gray-800={gitSaveInProgress}
+        >
+          {@html gitStatusMessage}
+        </div>
+      {/if}
     {/if}
 
     <!-- Save to GitHub button -->
     <button
       type="button"
-      class="w-full py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white
+      class="w-full mt-4 py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white
              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200
-             {selectedRepoFullName && commitMessage ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}"
+             {selectedRepoFullName && commitMessage && !gitSaveInProgress ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}"
       on:click={handleSaveToGithub}
-      disabled={!selectedRepoFullName || !commitMessage || isLoading}
+      disabled={!selectedRepoFullName || !commitMessage || gitSaveInProgress}
       aria-label="Save configuration to GitHub repository"
     >
       <div class="flex items-center justify-center">
-        {#if isLoading}
+        {#if gitSaveInProgress}
           <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-          Saving to GitHub...
+          Saving...
         {:else}
           <svg
             class="w-4 h-4 mr-2"
