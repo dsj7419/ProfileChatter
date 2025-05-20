@@ -11,6 +11,17 @@
     "reaction": "👋"
   },
   {
+    "id": "msg-spotify",
+    "sender": "visitor",
+    "text": "What music are you listening to while coding?",
+    "reaction": "🎵"
+  },
+  {
+    "id": "msg-spotify-response",
+    "sender": "me",
+    "text": "Right now I'm listening to {spotifyTrack}. Music helps me focus while coding!"
+  },
+  {
     "id": "msg-3",
     "sender": "me",
     "text": "I've been working at {company} for {workTenure}.\nCurrently, the weather here is {temperature} with {weatherDescription}."
@@ -54,6 +65,22 @@
     "sender": "me",
     "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub.",
     "reaction": "👍"
+  },
+  {
+    "id": "msg-github-oauth",
+    "sender": "me",
+    "text": "My open source projects have received a total of {githubTotalStars} stars! I primarily code in {githubPrimaryLanguage}."
+  },
+  {
+    "id": "msg-github-oauth-2",
+    "sender": "visitor",
+    "text": "That's impressive! How many repositories have you contributed to?",
+    "reaction": "🚀"
+  },
+  {
+    "id": "msg-github-oauth-3",
+    "sender": "me",
+    "text": "I've contributed to {githubContributedRepos} repositories and made approximately {githubCommitsLastYear} commits in the past year."
   },
   {
     "id": "msg-6",

@@ -1,54 +1,86 @@
-// configurator-ui/server/previewServer.js
+/**
+ * previewServer.js
+ * 
+ * A robust server for ProfileChatter SVG generation and OAuth integration.
+ * Handles API endpoints, authentication flows, and SVG preview generation.
+ */
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { parse as parseUrl } from 'node:url';
 
-// Import the config for the new API endpoint
+// Import the config for the API endpoint
 import { config } from '../../src/config/config.js';
 
-// Calculate base paths for imports
+// Import OAuth Registry for handling all providers
+import oauthRegistry from '../../src/services/auth/oauthRegistry.js';
+
+// Constants
+const PORT = 3001;
+const FRONTEND_URL = 'http://127.0.0.1:5173';
+const FIVE_MINUTES_SEC = 5 * 60;
+const FIVE_MINUTES_MS = FIVE_MINUTES_SEC * 1000;
+
+// Set up paths for importing ProfileChatter
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '../..');
-
-// Log paths for debugging
-console.log('Current directory:', process.cwd());
-console.log('Script directory:', __dirname);
-console.log('Project root:', projectRoot);
-
-// Check the expected file path
 const profileChatterPath = join(projectRoot, 'src', 'ProfileChatter.js');
-console.log('Looking for ProfileChatter.js at:', profileChatterPath);
 
-// Verify file exists
-if (!existsSync(profileChatterPath)) {
-  console.error(`Error: File not found at ${profileChatterPath}`);
-  process.exit(1);
-}
-
-// Import the main ProfileChatter SVG generator
-let generateChatSVG;
-try {
-  // Import using the proper file path - convert to URL format
-  const profileChatterUrl = `file://${profileChatterPath.replace(/\\/g, '/')}`;
-  console.log('Loading module from URL:', profileChatterUrl);
+// State store for managing OAuth state parameters securely
+const stateStore = {
+  states: new Map(),
   
-  const profileChatterModule = await import(profileChatterUrl);
-  generateChatSVG = profileChatterModule.generateChatSVG;
-  console.log('Successfully imported generateChatSVG function');
-} catch (error) {
-  console.error('Error importing ProfileChatter module:', error);
-  process.exit(1);
+  add(state) {
+    this.states.set(state, Date.now() + FIVE_MINUTES_MS);
+    setTimeout(() => this.cleanup(), FIVE_MINUTES_MS);
+  },
+  
+  verify(state) {
+    if (!this.states.has(state)) return false;
+    
+    const expiresAt = this.states.get(state);
+    const isValid = Date.now() < expiresAt;
+    this.states.delete(state);
+    return isValid;
+  },
+  
+  cleanup() {
+    const now = Date.now();
+    for (const [state, expiresAt] of this.states.entries()) {
+      if (now >= expiresAt) this.states.delete(state);
+    }
+  }
+};
+
+// Initialize logger
+const logger = {
+  info: (...args) => console.log(`[${new Date().toISOString()}]`, ...args),
+  error: (...args) => console.error(`[${new Date().toISOString()}] ERROR:`, ...args),
+  warn: (...args) => console.warn(`[${new Date().toISOString()}] WARNING:`, ...args),
+  debug: (...args) => console.log(`[${new Date().toISOString()}] DEBUG:`, ...args)
+};
+
+// Utility functions
+function parseCookies(cookieString = '') {
+  const cookies = {};
+  if (!cookieString) return cookies;
+  
+  cookieString.split(';').forEach(cookie => {
+    const parts = cookie.split('=');
+    if (parts.length >= 2) {
+      const key = parts[0].trim();
+      const value = decodeURIComponent(parts[1].trim());
+      cookies[key] = value;
+    }
+  });
+  return cookies;
 }
 
-const PORT = 3001;
-
-// Debugging: log request information
 function logRequest(req) {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  logger.info(`${req.method} ${req.url}`);
   
-  // Don't log entire headers for cleaner output
   const headersToLog = {
     'content-type': req.headers['content-type'],
     'content-length': req.headers['content-length'],
@@ -56,10 +88,9 @@ function logRequest(req) {
     'referer': req.headers['referer']
   };
   
-  console.log('Headers:', headersToLog);
+  logger.debug('Headers:', headersToLog);
 }
 
-// Helper to parse JSON safely
 async function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -83,219 +114,505 @@ async function parseJsonBody(req) {
   });
 }
 
-// Create HTTP server
-const server = http.createServer(async (req, res) => {
-  try {
-    // Log all requests for debugging
-    logRequest(req);
+// Load and initialize SVG generator
+logger.info('Initializing server...');
+logger.debug('Current directory:', process.cwd());
+logger.debug('Script directory:', __dirname);
+logger.debug('Project root:', projectRoot);
+logger.debug('Looking for ProfileChatter.js at:', profileChatterPath);
+
+if (!existsSync(profileChatterPath)) {
+  logger.error(`File not found at ${profileChatterPath}`);
+  process.exit(1);
+}
+
+// Import the main ProfileChatter SVG generator
+let generateChatSVG;
+try {
+  const profileChatterUrl = `file://${profileChatterPath.replace(/\\/g, '/')}`;
+  logger.debug('Loading module from URL:', profileChatterUrl);
+  
+  const profileChatterModule = await import(profileChatterUrl);
+  generateChatSVG = profileChatterModule.generateChatSVG;
+  logger.info('Successfully imported generateChatSVG function');
+} catch (error) {
+  logger.error('Error importing ProfileChatter module:', error);
+  process.exit(1);
+}
+
+// Route handlers
+const routes = {
+  // Home page with server status
+  async handleHomePage(req, res) {
+    logger.info('Serving homepage');
+    res.setHeader('Content-Type', 'text/html');
     
-    // Set CORS headers to allow requests from the Vite dev server
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Get OAuth status for all providers
+    const oauthStatus = oauthRegistry.getAuthenticationStatus();
+    let statusHtml = '';
     
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-      console.log('Handling OPTIONS preflight request');
-      res.statusCode = 204;
-      res.end();
-      return;
+    for (const [provider, status] of Object.entries(oauthStatus)) {
+      const color = status.authenticated ? 'green' : 'red';
+      const icon = status.authenticated ? '✅' : '❌';
+      const text = status.authenticated 
+        ? `${provider} is authenticated`
+        : `${provider} is not authenticated`;
+      const link = status.authenticated 
+        ? ''
+        : ` <a href="/auth/${provider}">Connect ${provider}</a>`;
+      
+      statusHtml += `<p style="color:${color}">${icon} ${text}${link}</p>`;
     }
     
-    // Basic homepage for direct browser access
-    if (req.method === 'GET' && (req.url === '/' || req.url === '')) {
-      console.log('Serving homepage');
-      res.setHeader('Content-Type', 'text/html');
-      res.end(`
-        <html>
-          <head><title>ProfileChatter Preview Server</title></head>
-          <body>
-            <h1>ProfileChatter Preview Server</h1>
-            <p>Server is running. Use POST to /generate-preview to generate SVG previews.</p>
-            <p>Available endpoints:</p>
+    res.end(`
+      <html>
+        <head>
+          <title>ProfileChatter Preview Server</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding: 20px; max-width: 800px; margin: 0 auto; }
+            code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; }
+            pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+            .card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>ProfileChatter Preview Server</h1>
+          <div class="card">
+            <h2>Server Status</h2>
+            <p>Server is running on port ${PORT}</p>
+            <h3>Connected Services</h3>
+            ${statusHtml}
+          </div>
+          
+          <div class="card">
+            <h2>Available Endpoints</h2>
             <ul>
               <li><code>POST /generate-preview</code> - Generate SVG preview from configuration</li>
               <li><code>GET /api/initial-config-data</code> - Get initial configuration data</li>
+              <li><code>GET /auth/{provider}</code> - Initiate OAuth flow for a provider</li>
+              <li><code>GET /callback</code> - OAuth callback (used by providers)</li>
+              <li><code>GET /oauth-status</code> - Check all OAuth authentication statuses</li>
             </ul>
-            <p>Testing with cURL:</p>
-            <pre>curl -X POST -H "Content-Type: application/json" -d '{"profile":{"NAME":"Test User"},"activeTheme":"ios","chatMessages":[{"id":"1","sender":"me","text":"Hello"}]}' http://localhost:3001/generate-preview</pre>
+          </div>
+          
+          <div class="card">
+            <h2>Testing with cURL</h2>
+            <pre>curl -X POST -H "Content-Type: application/json" -d '{"profile":{"NAME":"Test User"},"activeTheme":"ios","chatMessages":[{"id":"1","sender":"me","text":"Hello"}]}' http://127.0.0.1:${PORT}/generate-preview</pre>
+          </div>
+        </body>
+      </html>
+    `);
+  },
+  
+  // Start OAuth authorization flow
+  async handleOAuthAuthorization(req, res, path) {
+    const providerName = path.substring(6); // extract provider name from path
+    logger.info(`Handling OAuth authorization for provider: ${providerName}`);
+    
+    if (!providerName) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Provider name is required' }));
+      return;
+    }
+    
+    try {
+      const provider = oauthRegistry.getProvider(providerName);
+      const authUrl = provider.getAuthorizationUrl();
+      
+      // Extract the state parameter from the URL
+      const authUrlObj = new URL(authUrl);
+      const state = authUrlObj.searchParams.get('state');
+      
+      if (!state) {
+        throw new Error('OAuth state parameter missing from authorization URL');
+      }
+      
+      logger.info(`Redirecting to ${providerName} authorization URL with state: ${state}`);
+      
+      // Store the state in memory instead of cookies
+      stateStore.add(state);
+      
+      res.statusCode = 302;
+      res.setHeader('Location', authUrl);
+      res.end();
+    } catch (error) {
+      logger.error(`Error initiating ${providerName} authorization:`, error);
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  },
+  
+  // Handle OAuth callback
+  async handleOAuthCallback(req, res, query) {
+    logger.info('Handling OAuth callback');
+    
+    const { code, state, error: oauthError } = query;
+    
+    // Handle OAuth error response
+    if (oauthError) {
+      logger.error('OAuth error:', oauthError);
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(`
+        <html>
+          <head><title>Authentication Failed</title></head>
+          <body>
+            <h1>Authentication Failed</h1>
+            <p>Error: ${oauthError}</p>
+            <p>Description: ${query.error_description || 'No description provided'}</p>
+            <p><a href="${FRONTEND_URL}">Return to application</a></p>
+          </body>
+        </html>
+      `);
+      return;
+    }
+
+    // Verify the state parameter using the state store
+    if (!state || !stateStore.verify(state)) {
+      logger.error('Invalid or expired state parameter');
+      logger.debug('State from query:', state);
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(`
+        <html>
+          <head><title>Authentication Failed</title></head>
+          <body>
+            <h1>Authentication Failed</h1>
+            <p>Invalid state parameter. This may be due to an expired session or potential security issue.</p>
+            <p><a href="${FRONTEND_URL}">Return to application</a></p>
           </body>
         </html>
       `);
       return;
     }
     
-    // NEW ENDPOINT: Configuration data API
-    if (req.method === 'GET' && req.url === '/api/initial-config-data') {
-      console.log('Handling GET request to /api/initial-config-data');
-      
-      // Prepare the configuration data
-      const configData = {
-        themes: config.themes,
-        fontOptions: config.fontOptions,
-        defaultProfile: config.profile,
-        defaultAvatars: config.avatars,
-        layout: config.layout,
-        activeTheme: config.activeTheme
-      };
-      
-      // Send the configuration data
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.end(JSON.stringify(configData));
-      console.log('Config data sent successfully');
+    // Ensure authorization code is present
+    if (!code) {
+      logger.error('No authorization code provided in callback');
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(`
+        <html>
+          <head><title>Authentication Failed</title></head>
+          <body>
+            <h1>Authentication Failed</h1>
+            <p>No authorization code was provided.</p>
+            <p><a href="${FRONTEND_URL}">Return to application</a></p>
+          </body>
+        </html>
+      `);
       return;
     }
     
-    // Handle POST requests to /generate-preview with more flexible path matching
-    const isGeneratePreview = req.method === 'POST' && 
-                             (req.url === '/generate-preview' || 
-                              req.url === '/generate-preview/' ||
-                              req.url.startsWith('/generate-preview?'));
+    // Determine which provider to use
+    let provider;
+    let providerName;
     
-    if (isGeneratePreview) {
-      console.log('Handling POST request to /generate-preview');
+    try {
+      // If state is provided, use it to determine the provider
+      providerName = oauthRegistry.getProviderFromState(state).providerName;
+      provider = oauthRegistry.getProviderFromState(state);
+      logger.info(`Provider determined from state: ${providerName}`);
       
-      try {
-        // Parse the JSON body
-        const configData = await parseJsonBody(req);
-        console.log('Parsed JSON data with keys:', Object.keys(configData));
-        
-        // Validate the required configuration properties
-        if (!configData.profile || !configData.activeTheme || !Array.isArray(configData.chatMessages)) {
-          console.error('Invalid configuration data received');
-          res.statusCode = 400;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ 
-            error: 'Invalid configuration data. Must include profile, activeTheme, and chatMessages array.',
-            received: {
-              hasProfile: !!configData.profile,
-              activeTheme: configData.activeTheme,
-              chatMessagesIsArray: Array.isArray(configData.chatMessages),
-              chatMessagesLength: Array.isArray(configData.chatMessages) ? configData.chatMessages.length : 'N/A'
-            }
-          }));
-          return;
-        }
-        
-        // Extract work start date from the received profile
-        const workStartDate = configData.profile.WORK_START_DATE;
-        const workStartObj = workStartDate ? { ...workStartDate } : null;
-        delete configData.profile.WORK_START_DATE; // Remove from profile since it's handled separately
-        
-        // Prepare custom context for SVG generation
-        const customContext = {
-          profile: configData.profile,
-          activeTheme: configData.activeTheme,
-          // Pass chat messages separately - they'll be handled by modified TimelineBuilder
-          chatMessages: configData.chatMessages,
-          // If we have work start date components, recreate the date
-          workStartDate: workStartObj ? new Date(workStartObj.year, workStartObj.month - 1, workStartObj.day) : null,
-          // Include avatar configuration if provided
-          avatars: configData.avatars,
-          // Include any theme overrides if provided
-          themeOverrides: configData.themeOverrides || null,
-          // include animation adjustments
-          layoutAnimationOverrides: configData.layoutAnimationOverrides || null
-        };
-        
-        // Log avatar configuration if present
-        if (customContext.avatars) {
-          console.log('Avatar configuration received:', {
-            enabled: customContext.avatars.enabled,
-            shape: customContext.avatars.shape,
-            hasMeConfig: !!customContext.avatars.me,
-            hasVisitorConfig: !!customContext.avatars.visitor
-          });
-        }
-        
-        // Log if theme overrides are present
-        if (customContext.themeOverrides) {
-          console.log('Theme overrides received for theme:', customContext.activeTheme);
-        }
-
-        // Log if layout animation overrides are present
-        if (customContext.layoutAnimationOverrides) {
-            console.log('Layout animation overrides received:', 
-            JSON.stringify(customContext.layoutAnimationOverrides));
-        }
-        
-        console.log('Generating SVG with custom context...');
-        console.log('Profile:', JSON.stringify(customContext.profile).substring(0, 100) + '...');
-        console.log('Theme:', customContext.activeTheme);
-        console.log('Chat messages count:', customContext.chatMessages.length);
-        console.log('Work start date:', customContext.workStartDate);
-        
-        // Generate SVG
-        const svgMarkup = await generateChatSVG(customContext);
-        console.log('SVG generated, length:', svgMarkup.length);
-        
-        // Send SVG response
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        res.setHeader('Surrogate-Control', 'no-store');
-        res.end(svgMarkup);
-        console.log('SVG sent successfully');
-        
-      } catch (error) {
-        console.error('Error processing request:', error);
-        res.statusCode = 500;
+      // Exchange code for tokens
+      await provider.exchangeCodeForTokens(code);
+      logger.info(`Successfully authenticated with ${providerName}`);
+      
+      // Send success response
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(`
+        <html>
+          <head>
+            <title>Authentication Successful</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
+              .success { color: green; }
+              .button { display: inline-block; background: #1DB954; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; margin-top: 20px; }
+            </style>
+            <meta http-equiv="refresh" content="3;url=${FRONTEND_URL}" />
+          </head>
+          <body>
+            <h1 class="success">Authentication Successful!</h1>
+            <p>Your ${providerName} account has been connected successfully.</p>
+            <p>You will be redirected to the application in 3 seconds...</p>
+            <a href="${FRONTEND_URL}" class="button">Return to Application</a>
+          </body>
+        </html>
+      `);
+    } catch (error) {
+      logger.error('Error during OAuth callback:', error);
+      
+      // Determine provider name for the error message
+      providerName = providerName || 'service';
+      
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'text/html');
+      res.end(`
+        <html>
+          <head><title>Authentication Failed</title></head>
+          <body>
+            <h1>Authentication Failed</h1>
+            <p>Error: ${error.message}</p>
+            <p><a href="/auth/${providerName.toLowerCase()}">Try again</a> or <a href="${FRONTEND_URL}">return to application</a></p>
+          </body>
+        </html>
+      `);
+    }
+  },
+  
+  // OAuth status endpoint
+  async handleOAuthStatus(req, res) {
+    logger.info('Handling GET request to /oauth-status');
+    
+    const status = oauthRegistry.getAuthenticationStatus();
+    
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(status));
+  },
+  
+  // Configuration data API
+  async handleConfigData(req, res) {
+    logger.info('Handling GET request to /api/initial-config-data');
+    
+    const configData = {
+      themes: config.themes,
+      fontOptions: config.fontOptions,
+      defaultProfile: config.profile,
+      defaultAvatars: config.avatars,
+      layout: config.layout,
+      activeTheme: config.activeTheme
+    };
+    
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.end(JSON.stringify(configData));
+    logger.info('Config data sent successfully');
+  },
+  
+  // SVG generation endpoint
+  async handleSvgGeneration(req, res) {
+    logger.info('Handling POST request to /generate-preview');
+    
+    try {
+      const configData = await parseJsonBody(req);
+      logger.debug('Parsed JSON data with keys:', Object.keys(configData));
+      
+      if (!configData.profile || !configData.activeTheme || !Array.isArray(configData.chatMessages)) {
+        logger.error('Invalid configuration data received');
+        res.statusCode = 400;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: `Error generating SVG: ${error.message}` }));
+        res.end(JSON.stringify({ 
+          error: 'Invalid configuration data. Must include profile, activeTheme, and chatMessages array.',
+          received: {
+            hasProfile: !!configData.profile,
+            activeTheme: configData.activeTheme,
+            chatMessagesIsArray: Array.isArray(configData.chatMessages),
+            chatMessagesLength: Array.isArray(configData.chatMessages) ? configData.chatMessages.length : 'N/A'
+          }
+        }));
+        return;
+      }
+      
+      // Extract work start date from the received profile
+      const workStartDate = configData.profile.WORK_START_DATE;
+      const workStartObj = workStartDate ? { ...workStartDate } : null;
+      delete configData.profile.WORK_START_DATE; // Remove from profile since it's handled separately
+      
+      // Prepare custom context for SVG generation
+      const customContext = {
+        profile: configData.profile,
+        activeTheme: configData.activeTheme,
+        chatMessages: configData.chatMessages,
+        workStartDate: workStartObj ? new Date(workStartObj.year, workStartObj.month - 1, workStartObj.day) : null,
+        avatars: configData.avatars,
+        themeOverrides: configData.themeOverrides || null,
+        layoutAnimationOverrides: configData.layoutAnimationOverrides || null
+      };
+      
+      // Log configuration details
+      if (customContext.avatars) {
+        logger.debug('Avatar configuration received:', {
+          enabled: customContext.avatars.enabled,
+          shape: customContext.avatars.shape,
+          hasMeConfig: !!customContext.avatars.me,
+          hasVisitorConfig: !!customContext.avatars.visitor
+        });
+      }
+      
+      if (customContext.themeOverrides) {
+        logger.debug('Theme overrides received for theme:', customContext.activeTheme);
+      }
+
+      if (customContext.layoutAnimationOverrides) {
+        logger.debug('Layout animation overrides received:', 
+          JSON.stringify(customContext.layoutAnimationOverrides));
+      }
+      
+      logger.info('Generating SVG with custom context...');
+      logger.debug('Profile:', JSON.stringify(customContext.profile).substring(0, 100) + '...');
+      logger.debug('Theme:', customContext.activeTheme);
+      logger.debug('Chat messages count:', customContext.chatMessages.length);
+      logger.debug('Work start date:', customContext.workStartDate);
+      
+      // Generate SVG
+      const svgMarkup = await generateChatSVG(customContext);
+      logger.info('SVG generated, length:', svgMarkup.length);
+      
+      // Send SVG response
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Surrogate-Control', 'no-store');
+      res.end(svgMarkup);
+      logger.info('SVG sent successfully');
+      
+    } catch (error) {
+      logger.error('Error processing request:', error);
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: `Error generating SVG: ${error.message}` }));
+    }
+  },
+  
+  // Debug cookies endpoint
+  async handleDebugCookies(req, res) {
+    logger.info('Debugging cookies and state store');
+    res.setHeader('Content-Type', 'application/json');
+    
+    const cookies = parseCookies(req.headers.cookie);
+    const stateCount = stateStore.states.size;
+    const stateEntries = Array.from(stateStore.states.entries()).map(([state, expires]) => ({
+      state: state.substring(0, 10) + '...',
+      expiresIn: Math.floor((expires - Date.now()) / 1000) + ' seconds'
+    }));
+    
+    res.end(JSON.stringify({
+      rawCookieHeader: req.headers.cookie,
+      parsedCookies: cookies,
+      stateStore: {
+        count: stateCount,
+        entries: stateEntries
+      },
+      currentTime: new Date().toISOString()
+    }, null, 2));
+  }
+};
+
+// Create HTTP server with request handler
+const server = http.createServer(async (req, res) => {
+  try {
+    logRequest(req);
+    
+    // Parse URL for path and query parameters
+    const parsedUrl = parseUrl(req.url, true);
+    const path = parsedUrl.pathname;
+    const query = parsedUrl.query;
+    
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Handle preflight request
+    if (req.method === 'OPTIONS') {
+      logger.info('Handling OPTIONS preflight request');
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+    
+    // Route request to appropriate handler
+    if (req.method === 'GET') {
+      if (path === '/' || path === '') {
+        await routes.handleHomePage(req, res);
+      } else if (path.startsWith('/auth/')) {
+        await routes.handleOAuthAuthorization(req, res, path);
+      } else if (path === '/callback' || path.startsWith('/callback/')) {
+        await routes.handleOAuthCallback(req, res, query, path);
+      } else if (path === '/oauth-status') {
+        await routes.handleOAuthStatus(req, res);
+      } else if (path === '/api/initial-config-data') {
+        await routes.handleConfigData(req, res);
+      } else if (path === '/debug-cookies') {
+        await routes.handleDebugCookies(req, res);
+      } else {
+        // Not found
+        logger.info('Invalid endpoint requested:', req.method, path);
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Endpoint not found', method: req.method, url: req.url }));
+      }
+    } else if (req.method === 'POST') {
+      const isGeneratePreview = path === '/generate-preview' || 
+                              path === '/generate-preview/' ||
+                              path.startsWith('/generate-preview?');
+                              
+      if (isGeneratePreview) {
+        await routes.handleSvgGeneration(req, res);
+      } else {
+        // Not found
+        logger.info('Invalid endpoint requested:', req.method, path);
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ error: 'Endpoint not found', method: req.method, url: req.url }));
       }
     } else {
-      // Handle invalid endpoints
-      console.log('Invalid endpoint requested:', req.method, req.url);
-      res.statusCode = 404;
+      // Method not allowed
+      logger.info('Method not allowed:', req.method, path);
+      res.statusCode = 405;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Endpoint not found', method: req.method, url: req.url }));
+      res.end(JSON.stringify({ error: 'Method not allowed', method: req.method, url: req.url }));
     }
   } catch (serverError) {
     // Catch-all error handler
-    console.error('Unhandled server error:', serverError);
+    logger.error('Unhandled server error:', serverError);
     try {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ error: 'Internal server error' }));
     } catch (responseError) {
-      console.error('Error sending error response:', responseError);
+      logger.error('Error sending error response:', responseError);
     }
   }
 });
 
-// Start the server
+// Server lifecycle management
 server.listen(PORT, () => {
-  console.log(`Preview server running at http://localhost:${PORT}`);
-  console.log(`Serving endpoints:`);
-  console.log(`- GET / - Homepage`);
-  console.log(`- GET /api/initial-config-data - Configuration API`);
-  console.log(`- POST /generate-preview - SVG generation`);
+  logger.info(`Preview server running at http://127.0.0.1:${PORT}`);
+  logger.info(`Serving endpoints:`);
+  logger.info(`- GET / - Homepage`);
+  logger.info(`- GET /api/initial-config-data - Configuration API`);
+  logger.info(`- POST /generate-preview - SVG generation`);
+  logger.info(`- GET /auth/{provider} - Initiate OAuth flow for a provider`);
+  logger.info(`- GET /callback - Unified OAuth callback`);
+  logger.info(`- GET /oauth-status - Check OAuth authentication status`);
+  logger.info(`- GET /debug-cookies - Debug state and cookies`);
 });
 
-// Handle server errors
 server.on('error', (error) => {
-  console.error('Server error:', error);
+  logger.error('Server error:', error);
   if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Please choose a different port.`);
+    logger.error(`Port ${PORT} is already in use. Please choose a different port.`);
   }
   process.exit(1);
 });
 
-// Handle process termination
 process.on('SIGINT', () => {
-  console.log('Shutting down preview server...');
+  logger.info('Shutting down preview server...');
   server.close(() => {
-    console.log('Preview server stopped');
+    logger.info('Preview server stopped');
     process.exit(0);
   });
 });
 
-// Add unhandled rejection handler
 process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Promise Rejection:', reason);
+  logger.error('Unhandled Promise Rejection:', reason);
 });

@@ -34,6 +34,11 @@ body {
   .icon-btn:hover {
     @apply bg-gray-100;
   }
+  
+  /* tooltip help icon wrapper */
+  .tooltip-help-icon {
+    @apply inline-flex ml-1 text-gray-400 hover:text-gray-600 cursor-help transition-colors duration-150;
+  }
 }
 
 /* -------------- Universal icon rules -------------- */

@@ -161,8 +161,10 @@ export const config = {
   cache: {
     WEATHER_CACHE_TTL_MS: 1800000,
     GITHUB_CACHE_TTL_MS: 3600000,
+    GITHUB_OAUTH_CACHE_TTL_MS: 3600000,
     TWITTER_CACHE_TTL_MS: 3600000,
-    CODESTATS_CACHE_TTL_MS: 7200000
+    CODESTATS_CACHE_TTL_MS: 7200000,
+    SPOTIFY_CACHE_TTL_MS: 900000
   },
   
   apiDefaults: {
@@ -171,8 +173,13 @@ export const config = {
     WEATHER_EMOJI: "⛅",
     GITHUB_PUBLIC_REPOS: "12",
     GITHUB_FOLLOWERS: "48",
+    GITHUB_TOTAL_STARS: "0",
+    GITHUB_COMMITS_LAST_YEAR: "0",
+    GITHUB_CONTRIBUTED_REPOS: "0", 
+    GITHUB_PRIMARY_LANGUAGE: "None",
     TWITTER_FOLLOWERS: "120",
-    CODESTATS_XP: "0"
+    CODESTATS_XP: "0",
+    SPOTIFY_NOW_PLAYING: "Not currently listening to music."
   },
   
   layout: {

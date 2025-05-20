@@ -1,5 +1,6 @@
 <script>
     import { userConfig } from '../stores/configStore.js';
+    import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte';
     
     // Function to update store to ensure deep reactivity
     function updateStore() {
@@ -40,6 +41,7 @@
           class="mr-2 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
         />
         <span class="text-sm font-medium text-gray-700">Enable Avatars</span>
+        <HelpIconTooltip text="Show avatar images next to chat messages. When disabled, messages will be displayed without avatars." />
       </label>
     </div>
     
@@ -55,7 +57,10 @@
     {#if $userConfig.avatars.enabled}
       <!-- Avatar Shape -->
       <div class="mb-4">
-        <span id="avatar-shape-label" class="block text-sm font-medium text-gray-700 mb-2">Avatar Shape:</span>
+        <span id="avatar-shape-label" class="block text-sm font-medium text-gray-700 mb-2">
+          Avatar Shape:
+          <HelpIconTooltip text="Choose between circular or square avatars. Circular is the most common style for chat interfaces." />
+        </span>
         <div class="flex space-x-4" role="radiogroup" aria-labelledby="avatar-shape-label">
           <label class="flex items-center">
             <input 
@@ -87,7 +92,10 @@
         <h4 class="text-sm font-medium text-gray-700 mb-2">Your Avatar (Me)</h4>
         
         <div class="mb-3">
-          <label for="me-image-url" class="block text-xs font-medium text-gray-500 mb-1">Image URL:</label>
+          <label for="me-image-url" class="block text-xs font-medium text-gray-500 mb-1">
+            Image URL:
+            <HelpIconTooltip text="The URL for your avatar image. For GitHub compatibility, use a base64 encoded image string. This ensures the image is embedded directly in the SVG." />
+          </label>
           <input 
             type="text" 
             id="me-image-url" 
@@ -100,7 +108,10 @@
         </div>
         
         <div>
-          <label for="me-fallback-text" class="block text-xs font-medium text-gray-500 mb-1">Fallback Text:</label>
+          <label for="me-fallback-text" class="block text-xs font-medium text-gray-500 mb-1">
+            Fallback Text:
+            <HelpIconTooltip text="Text displayed when your image isn't available or while it's loading. Usually your initials (e.g., JD for John Doe). Limited to 2 characters." />
+          </label>
           <input 
             type="text" 
             id="me-fallback-text" 
@@ -119,7 +130,10 @@
         <h4 class="text-sm font-medium text-gray-700 mb-2">Visitor Avatar</h4>
         
         <div class="mb-3">
-          <label for="visitor-image-url" class="block text-xs font-medium text-gray-500 mb-1">Image URL:</label>
+          <label for="visitor-image-url" class="block text-xs font-medium text-gray-500 mb-1">
+            Image URL:
+            <HelpIconTooltip text="The URL for the visitor avatar image. For GitHub compatibility, use a base64 encoded image string." />
+          </label>
           <input 
             type="text" 
             id="visitor-image-url" 
@@ -132,7 +146,10 @@
         </div>
         
         <div>
-          <label for="visitor-fallback-text" class="block text-xs font-medium text-gray-500 mb-1">Fallback Text:</label>
+          <label for="visitor-fallback-text" class="block text-xs font-medium text-gray-500 mb-1">
+            Fallback Text:
+            <HelpIconTooltip text="Text displayed when visitor image isn't available. Usually a question mark (?) or generic identifier. Limited to 2 characters." />
+          </label>
           <input 
             type="text" 
             id="visitor-fallback-text" 

@@ -1,7 +1,7 @@
 <script>
-    import { onMount } from 'svelte';
     import { editableTheme, fontOptions, userConfig, previewMode } from '../stores/configStore.js';
     import ColorPicker from './ColorPicker.svelte';
+    import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte';
     
     // Tab state for top-level categories
     let activeTab = 'general';
@@ -189,6 +189,7 @@
                   <div>
                     <label for="scroll-speed-multiplier" class="block text-xs font-medium text-gray-500 mb-1">
                       Scroll Speed Multiplier (0.5x - 2x)
+                      <HelpIconTooltip text="Controls the speed of all scrolling animations in your profile. Lower values create slower, smoother animations while higher values make animations faster." />
                     </label>
                     <input 
                       type="range" 
@@ -225,7 +226,10 @@
           
           <!-- BUBBLE_RADIUS_PX -->
           <div class="mb-3">
-            <label for="bubble-radius" class="block text-xs font-medium text-gray-500 mb-1">Corner Radius (px)</label>
+            <label for="bubble-radius" class="block text-xs font-medium text-gray-500 mb-1">
+              Corner Radius (px)
+              <HelpIconTooltip text="Controls how rounded the corners of chat bubbles appear. Higher values create more rounded corners."/>
+            </label>
             <input 
               type="number" 
               id="bubble-radius" 
@@ -703,7 +707,9 @@
                       id="value-text-inside-color" 
                       label="Inside Text Color" 
                       bind:value={$editableTheme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR} 
-                  />
+                  >
+                    <HelpIconTooltip text="Text color when values are displayed inside chart bars. Choose a color that contrasts well against bar colors for readability."/>
+                  </ColorPicker>
               {/if}
             </div>
           </div>
@@ -766,7 +772,10 @@
             
             <!-- CHART_BAR_ANIMATION_DURATION_SEC (basic) -->
             <div class="mb-3">
-              <label for="chart-animation-duration" class="block text-xs font-medium text-gray-500 mb-1">Animation Duration (sec)</label>
+              <label for="chart-animation-duration" class="block text-xs font-medium text-gray-500 mb-1">
+                Animation Duration (sec)
+                <HelpIconTooltip text="Controls how long chart animations run. Lower values create faster animations, higher values create slower animations."/>
+              </label>
               <input 
                 type="number" 
                 id="chart-animation-duration" 
@@ -942,7 +951,10 @@
             
             <!-- DONUT_STROKE_WIDTH_PX -->
             <div>
-              <label for="donut-stroke-width" class="block text-xs font-medium text-gray-500 mb-1">Stroke Width (px)</label>
+              <label for="donut-stroke-width" class="block text-xs font-medium text-gray-500 mb-1">
+                Stroke Width (px)
+                <HelpIconTooltip text="Controls the thickness of the donut chart ring. Larger values create thicker rings, smaller values create thinner rings."/>
+              </label>
               <input 
                 type="number" 
                 id="donut-stroke-width" 

@@ -35,7 +35,7 @@ async function getGitHubData() {
             throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
           case 403:
           case 429:
-            throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a GITHUB_TOKEN to your environment variables to increase your rate limit.`);
+            throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a PAT_GITHUB_BASIC to your environment variables to increase your rate limit.`);
           case 404:
             throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
           default:
@@ -72,7 +72,7 @@ async function getGitHubData() {
               throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
             case 403:
             case 429:
-              throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a GITHUB_TOKEN to your environment variables to increase your rate limit.`);
+              throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a PAT_GITHUB_BASICto your environment variables to increase your rate limit.`);
             case 404:
               throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
             default:

@@ -9,6 +9,8 @@ import { getWeatherData }  from './data_sources/weatherDataSource.js'
 import { getWakaTimeData } from './data_sources/wakatimeDataSource.js'
 import { getTwitterData }  from './data_sources/twitterDataSource.js'
 import { getCodeStatsData } from './data_sources/codestatsDataSource.js'
+import { getSpotifyData } from './data_sources/spotifyDataSource.js'
+import { getGitHubOAuthData } from './data_sources/githubOAuthDataSource.js'
 
 /* ---------- local helpers ------------------------------------------------ */
 const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -45,6 +47,12 @@ class DataService {
       githubFollowers:    config.apiDefaults.GITHUB_FOLLOWERS,
       twitterFollowers:   config.apiDefaults.TWITTER_FOLLOWERS,
       codestatsXP:        config.apiDefaults.CODESTATS_XP,
+      spotifyTrack:       config.apiDefaults.SPOTIFY_NOW_PLAYING,
+      // Add new GitHub OAuth defaults
+      githubTotalStars:     config.apiDefaults.GITHUB_TOTAL_STARS,
+      githubCommitsLastYear: config.apiDefaults.GITHUB_COMMITS_LAST_YEAR,
+      githubContributedRepos: config.apiDefaults.GITHUB_CONTRIBUTED_REPOS,
+      githubPrimaryLanguage: config.apiDefaults.GITHUB_PRIMARY_LANGUAGE,
       // static profile
       name:           config.profile.NAME,
       profession:     config.profile.PROFESSION,
@@ -66,17 +74,19 @@ class DataService {
 
       /* remote */
       try {
-        const [weather, github, wakatime, twitter, codestats] = await Promise.all([
+        const [weather, github, wakatime, twitter, codestats, spotify, githubOAuth] = await Promise.all([
           getWeatherData(),
           getGitHubData(),
           getWakaTimeData(),
           getTwitterData(),
-          getCodeStatsData()
-        ])
-        Object.assign(baseData, weather, github, wakatime, twitter, codestats)
+          getCodeStatsData(),
+          getSpotifyData(),
+          getGitHubOAuthData()
+        ]);
+        Object.assign(baseData, weather, github, wakatime, twitter, codestats, spotify, githubOAuth);
       } catch (apiErr) {
-        console.error('Error fetching APIs:', apiErr.message)
-        console.info('Using defaults already in baseData.')
+        console.error('Error fetching APIs:', apiErr.message);
+        console.info('Using defaults already in baseData.');
       }
 
       // Map nested profile overrides to the expected lowercase keys

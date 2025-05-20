@@ -312,6 +312,43 @@ const initialPlaceholderData = [
     label: 'Code::Stats XP',
     description: 'Your experience points accumulated on Code::Stats.',
     category: 'Code::Stats'
+  },
+  
+  // Spotify category
+  {
+    id: 'spotifyTrack',
+    value: '{spotifyTrack}',
+    label: 'Spotify Track',
+    description: 'Currently playing or last played track on Spotify (e.g., "Song Title by Artist Name"). Requires Spotify connection.',
+    category: 'Spotify'
+  },
+  {
+    id: 'githubTotalStars',
+    value: '{githubTotalStars}',
+    label: 'GitHub Total Stars',
+    description: 'Total number of stars received across all your repositories.',
+    category: 'GitHub Stats (OAuth)'
+  },
+  {
+    id: 'githubCommitsLastYear',
+    value: '{githubCommitsLastYear}',
+    label: 'GitHub Commits (Last Year)',
+    description: 'Approximate number of commits you made in the last year.',
+    category: 'GitHub Stats (OAuth)'
+  },
+  {
+    id: 'githubContributedRepos',
+    value: '{githubContributedRepos}',
+    label: 'GitHub Contributed Repos',
+    description: 'Number of repositories you have contributed to.',
+    category: 'GitHub Stats (OAuth)'
+  },
+  {
+    id: 'githubPrimaryLanguage',
+    value: '{githubPrimaryLanguage}',
+    label: 'GitHub Primary Language',
+    description: 'Your most used programming language based on repository count.',
+    category: 'GitHub Stats (OAuth)'
   }
 ];
 

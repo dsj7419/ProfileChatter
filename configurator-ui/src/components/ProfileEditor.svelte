@@ -1,5 +1,6 @@
 <script>
     import { userConfig, workStartDate } from '../stores/configStore.js';
+    import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte';
     
     // Helper functions
     function isValidUsername(username) {
@@ -144,7 +145,10 @@
       
       <!-- Work Start Date Section -->
       <div class="p-3 border border-gray-200 rounded-md bg-white">
-        <h3 class="text-sm font-medium text-gray-700 mb-3">Work Start Date</h3>
+        <h3 class="text-sm font-medium text-gray-700 mb-3">
+          Work Start Date
+          <HelpIconTooltip text="This date is used to calculate your work tenure duration, which can be displayed in your profile using a special placeholder variable." />
+        </h3>
         
         <div class="grid grid-cols-3 gap-2">
           <!-- YEAR -->
@@ -198,7 +202,10 @@
         
         <!-- GITHUB_USERNAME -->
         <div class="mb-3">
-          <label for="github" class="block text-sm font-medium text-gray-700 mb-1">GitHub Username</label>
+          <label for="github" class="block text-sm font-medium text-gray-700 mb-1">
+            GitHub Username
+            <HelpIconTooltip text="Your public GitHub username, used for API calls to fetch repository and follower counts. Required for many ProfileChatter features." />
+          </label>
           <input 
             type="text" 
             id="github" 
@@ -215,7 +222,10 @@
         
         <!-- WAKATIME_USERNAME -->
         <div class="mb-3">
-          <label for="wakatime" class="block text-sm font-medium text-gray-700 mb-1">WakaTime Username</label>
+          <label for="wakatime" class="block text-sm font-medium text-gray-700 mb-1">
+            WakaTime Username
+            <HelpIconTooltip text="Connect your WakaTime account to display coding stats in your profile. WakaTime tracks your programming activity across different editors." />
+          </label>
           <input 
             type="text" 
             id="wakatime" 
@@ -233,7 +243,10 @@
         
         <!-- TWITTER_USERNAME -->
         <div class="mb-3">
-          <label for="twitter" class="block text-sm font-medium text-gray-700 mb-1">Twitter Username</label>
+          <label for="twitter" class="block text-sm font-medium text-gray-700 mb-1">
+            Twitter Username
+            <HelpIconTooltip text="Your Twitter/X username, used to display your follower count and connect your social profile." />
+          </label>
           <input 
             type="text" 
             id="twitter" 
@@ -251,7 +264,10 @@
         
         <!-- CODESTATS_USERNAME -->
         <div>
-          <label for="codestats" class="block text-sm font-medium text-gray-700 mb-1">Code::Stats Username</label>
+          <label for="codestats" class="block text-sm font-medium text-gray-700 mb-1">
+            Code::Stats Username
+            <HelpIconTooltip text="Code::Stats is a free service that tracks your programming metrics, including experience points (XP) earned while coding in different languages." />
+          </label>
           <input 
             type="text" 
             id="codestats" 

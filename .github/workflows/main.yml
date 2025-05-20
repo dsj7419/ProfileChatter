@@ -51,6 +51,14 @@ jobs:
       - name: Generate SVG
         env:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+          # Spotify OAuth secrets for CI
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          SPOTIFY_REDIRECT_URI: ${{ secrets.SPOTIFY_REDIRECT_URI }}
+
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_OAUTH }}
+          GITHUB_DATA_MODE: 'ci'
         run: node src/build-profile.js
 
       - name: Record timestamp
