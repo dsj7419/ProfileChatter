@@ -133,11 +133,11 @@ export const config = {
         DONUT_LEGEND_MARKER_SIZE_PX: 10,
         DONUT_ANIMATION_DURATION_SEC: 1.0,
         DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.1,
-  
+
         ME_TITLE_COLOR: '#0D47A1',
         ME_LABEL_COLOR: '#1976D2',
         ME_VALUE_TEXT_COLOR: '#0D47A1',
-  
+
         VISITOR_TITLE_COLOR: '#212121',
         VISITOR_LABEL_COLOR: '#616161',
         VISITOR_VALUE_TEXT_COLOR: '#212121',
@@ -155,7 +155,8 @@ export const config = {
     GITHUB_USERNAME: "dsj7419",
     WAKATIME_USERNAME: "dsj7419",
     TWITTER_USERNAME: "",
-    CODESTATS_USERNAME: "dsj7419"
+    CODESTATS_USERNAME: "dsj7419",
+    TIMEZONE: 'UTC', // Default timezone
   },
   
   cache: {

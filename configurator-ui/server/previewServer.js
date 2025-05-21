@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { existsSync, writeFileSync } from 'node:fs';
 import { parse as parseUrl } from 'node:url';
+import { promises as fs } from 'node:fs';
 
 // Import the config for the API endpoint
 import { config } from '../../src/config/config.js';
@@ -34,6 +35,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = resolve(__dirname, '../..');
 const profileChatterPath = join(projectRoot, 'src', 'ProfileChatter.js');
+
+// Define a consistent helper function for configuration file path
+function getConfigPath() {
+  return join(projectRoot, 'profileChatterConfig.json');
+}
 
 // State store for managing OAuth state parameters securely
 const stateStore = {
@@ -388,21 +394,82 @@ const routes = {
   async handleConfigData(req, res) {
     logger.info('Handling GET request to /api/initial-config-data');
     
-    const configData = {
-      themes: config.themes,
-      fontOptions: config.fontOptions,
-      defaultProfile: config.profile,
-      defaultAvatars: config.avatars,
-      layout: config.layout,
-      activeTheme: config.activeTheme
-    };
+    // Get the path to the config file
+    const configFilePath = getConfigPath();
     
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.end(JSON.stringify(configData));
-    logger.info('Config data sent successfully');
+    try {
+      // Check if the config file exists
+      if (existsSync(configFilePath)) {
+        try {
+          // Read and parse the saved configuration
+          const fileContent = await fs.readFile(configFilePath, 'utf8');
+          const savedConfig = JSON.parse(fileContent);
+          
+          logger.info(`Loaded saved configuration from ${configFilePath}`);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.end(JSON.stringify(savedConfig));
+          return;
+        } catch (readErr) {
+          logger.warn(`Corrupt JSON in ${configFilePath}:`, readErr.message);
+          // Falls through to default config
+        }
+      } else {
+        logger.info(`No saved config found at ${configFilePath}, using defaults`);
+      }
+      
+      // Return a minimal valid configuration structure that will pass validation
+      const emptyConfig = {
+        profile: { 
+          NAME: 'Your Name',
+          PROFESSION: 'Your Profession',
+          LOCATION: 'Your City',
+          COMPANY: 'Your Company',
+          GITHUB_USERNAME: 'your_github',
+          TIMEZONE: 'UTC'
+        },
+        chatMessages: [],
+        activeTheme: config.activeTheme,
+        avatars: config.avatars,
+        themes: config.themes,
+        fontOptions: config.fontOptions,
+        layout: config.layout
+      };
+      
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.end(JSON.stringify(emptyConfig));
+      
+      logger.info('Default config data sent due to missing or invalid saved config');
+    } catch (error) {
+      logger.error('Error handling configuration request:', error);
+      
+      // Fall back to defaults in case of any other error
+      const emptyConfig = {
+        profile: { 
+          NAME: 'Your Name',
+          PROFESSION: 'Your Profession',
+          LOCATION: 'Your City',
+          COMPANY: 'Your Company',
+          GITHUB_USERNAME: 'your_github',
+          TIMEZONE: 'UTC'
+        },
+        chatMessages: [],
+        activeTheme: config.activeTheme
+      };
+      
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.end(JSON.stringify(emptyConfig));
+      
+      logger.info('Default config data sent due to error');
+    }
   },
   
   // SVG generation endpoint
@@ -503,9 +570,10 @@ const routes = {
       // Parse the request body
       const configJson = await parseJsonBody(req);
       logger.debug('Received configuration data with keys:', Object.keys(configJson));
+      logger.debug('Config json snippet:', JSON.stringify(configJson).slice(0, 120) + '…');
       
-      // Determine the path for the config file (one level above configurator-ui/)
-      const configFilePath = join(projectRoot, 'profileChatterConfig.json');
+      // Use the consistent path helper
+      const configFilePath = getConfigPath();
       
       // Save the configuration to the file system
       try {

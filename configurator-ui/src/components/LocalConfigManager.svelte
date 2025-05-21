@@ -10,6 +10,7 @@
     getPreviewConfiguration,
   } from '../stores/configStore.js'
   import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte'
+  import { applyConfig } from '../stores/initConfigLoader.js';
 
   // Create a dispatcher for component events
   const dispatch = createEventDispatcher()
@@ -674,123 +675,11 @@
    * Update all stores with data from the parsed configuration
    * @param {Object} data - The validated configuration data
    */
-  function updateStoresFromConfig(data) {
-    console.log('Updating stores from config:', JSON.parse(JSON.stringify(data)))
-
-    // Store the theme overrides for reapplication after userConfig update
-    const themeOverridesToApply = data.themeOverrides || data.theme
-
-    // First, handle components that don't trigger theme resets
-
-    // Update chat messages if present
-    if (data.chatMessages) {
-      console.log('Updating chat messages:', data.chatMessages.length, 'messages')
-      chatMessages.set(data.chatMessages)
-    }
-
-    // Update profile, theme, and avatars if present
-    // But EXCLUDE activeTheme which triggers the theme subscription
-    if (data.profile || data.avatars || data.layoutAnimationOverrides) {
-      userConfig.update((currentConfig) => {
-        console.log(
-          'Current userConfig before update (excluding activeTheme):',
-          JSON.parse(JSON.stringify(currentConfig))
-        )
-        const newConfig = { ...currentConfig }
-
-        // Update profile if present
-        if (data.profile) {
-          // Extract work start date to handle separately
-          const { WORK_START_DATE, ...profileWithoutDate } = data.profile
-
-          // Update profile with deep merge
-          newConfig.profile = {
-            ...currentConfig.profile,
-            ...profileWithoutDate,
-          }
-
-          // Update work start date if present
-          if (WORK_START_DATE) {
-            workStartDate.set(WORK_START_DATE)
-          }
-        }
-
-        // Update avatars if present with proper deep merge
-        if (data.avatars) {
-          newConfig.avatars = {
-            ...currentConfig.avatars,
-            ...data.avatars,
-            // Ensure nested me/visitor objects are also merged deeply
-            me: {
-              ...(currentConfig.avatars?.me || {}),
-              ...(data.avatars?.me || {}),
-            },
-            visitor: {
-              ...(currentConfig.avatars?.visitor || {}),
-              ...(data.avatars?.visitor || {}),
-            },
-          }
-        }
-
-        // Handle layout animation overrides if present
-        if (data.layoutAnimationOverrides) {
-          if (!newConfig.layout) {
-            newConfig.layout = {}
-          }
-          if (!newConfig.layout.ANIMATION) {
-            newConfig.layout.ANIMATION = {}
-          }
-          newConfig.layout.ANIMATION = {
-            ...newConfig.layout.ANIMATION,
-            ...data.layoutAnimationOverrides,
-          }
-        }
-
-        console.log(
-          'New userConfig after update (excluding activeTheme):',
-          JSON.parse(JSON.stringify(newConfig))
-        )
-        return newConfig
-      })
-    }
-
-    // If we need to update the activeTheme, do it in isolation
-    // so we can reapply theme overrides immediately after
-    if (data.activeTheme) {
-      // Update activeTheme - this will trigger the subscription that resets the theme
-      userConfig.update((currentConfig) => ({
-        ...currentConfig,
-        activeTheme: data.activeTheme,
-      }))
-
-      // Immediately after the theme is reset by the subscription, apply our overrides
-      if (themeOverridesToApply) {
-        // Use setTimeout with 0ms to ensure this runs after the subscription
-        setTimeout(() => {
-          console.log(
-            'Reapplying theme overrides after activeTheme change:',
-            JSON.parse(JSON.stringify(themeOverridesToApply))
-          )
-          editableTheme.update((currentTheme) => ({
-            ...currentTheme,
-            ...themeOverridesToApply,
-          }))
-        }, 0)
-      }
-    }
-    // If we're not updating activeTheme (which would reset the theme),
-    // we can directly apply theme overrides
-    else if (themeOverridesToApply) {
-      console.log(
-        'Directly applying theme overrides (no activeTheme change):',
-        JSON.parse(JSON.stringify(themeOverridesToApply))
-      )
-      editableTheme.update((currentTheme) => ({
-        ...currentTheme,
-        ...themeOverridesToApply,
-      }))
-    }
-  }
+   function updateStoresFromConfig(data) {
+  console.log('Applying configuration:', JSON.stringify(data));
+  applyConfig(data);
+  showStatusMessage('Configuration loaded successfully!');
+}
 </script>
 
 <!-- Export Format Selection -->

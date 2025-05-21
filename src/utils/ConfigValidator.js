@@ -4,8 +4,6 @@
  * Single Responsibility: Configuration validation.
  */
 
-// ... (all helper functions: isNonEmptyString, isString, ... , validateObjectWithProps, validateAvatarsConfig) ...
-// (Keep these exactly as they were in your last confirmed version)
 function isNonEmptyString(value, propertyPath) {
   if (typeof value !== 'string') {
     console.error(`Configuration error: ${propertyPath} must be a string, got ${typeof value}.`);
@@ -217,9 +215,6 @@ function validateChartStyles(chartStyles, themeName) {
   return isValid;
 }
 
-// ... (validateTheme, validateProfileConfig, validateCacheConfig, validateApiDefaultsConfig, validateWakatimeConfig, validateLayoutConfig)
-// These should remain largely the same as your last confirmed version, 
-// ensure validateTheme calls the updated validateChartStyles.
 function validateTheme(theme, themeName) {
   const basePath = `config.themes.${themeName}`;
   const requiredProps = [
@@ -253,23 +248,68 @@ function validateTheme(theme, themeName) {
 }
 
 function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
-  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'WORK_START_DATE', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME', 'CODESTATS_USERNAME'];
+  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME', 'CODESTATS_USERNAME'];
+  
   if (!validateObjectWithProps(profileConfig, pathPrefix, requiredProps)) return false;
+  
   let isValid = true;
   isValid = isNonEmptyString(profileConfig.NAME, `${pathPrefix}.NAME`) && isValid;
   isValid = isNonEmptyString(profileConfig.PROFESSION, `${pathPrefix}.PROFESSION`) && isValid;
   isValid = isNonEmptyString(profileConfig.LOCATION, `${pathPrefix}.LOCATION`) && isValid;
   isValid = isNonEmptyString(profileConfig.COMPANY, `${pathPrefix}.COMPANY`) && isValid;
   isValid = isNonEmptyString(profileConfig.CURRENT_PROJECT, `${pathPrefix}.CURRENT_PROJECT`) && isValid;
-  isValid = isValidDate(profileConfig.WORK_START_DATE, `${pathPrefix}.WORK_START_DATE`) && isValid;
+  
+  // Check TIMEZONE if present (optional)
+  if (profileConfig.TIMEZONE !== undefined) {
+    isValid = isNonEmptyString(profileConfig.TIMEZONE, `${pathPrefix}.TIMEZONE`) && isValid;
+  }
+  
+  // Handle WORK_START_DATE which can be either a Date object OR an object with year/month/day
+  if (profileConfig.WORK_START_DATE) {
+    // If it's a Date object
+    if (profileConfig.WORK_START_DATE instanceof Date) {
+      isValid = isValidDate(profileConfig.WORK_START_DATE, `${pathPrefix}.WORK_START_DATE`) && isValid;
+    } 
+    // If it's an object with year/month/day properties
+    else if (typeof profileConfig.WORK_START_DATE === 'object') {
+      const dateObj = profileConfig.WORK_START_DATE;
+      let dateIsValid = true;
+      
+      // Check year, month, day properties
+      if (!dateObj.year || !Number.isInteger(dateObj.year) || dateObj.year < 1900) {
+        console.error(`Configuration error: ${pathPrefix}.WORK_START_DATE.year must be a valid year >= 1900`);
+        dateIsValid = false;
+      }
+      
+      if (!dateObj.month || !Number.isInteger(dateObj.month) || dateObj.month < 1 || dateObj.month > 12) {
+        console.error(`Configuration error: ${pathPrefix}.WORK_START_DATE.month must be a valid month (1-12)`);
+        dateIsValid = false;
+      }
+      
+      if (!dateObj.day || !Number.isInteger(dateObj.day) || dateObj.day < 1 || dateObj.day > 31) {
+        console.error(`Configuration error: ${pathPrefix}.WORK_START_DATE.day must be a valid day (1-31)`);
+        dateIsValid = false;
+      }
+      
+      isValid = dateIsValid && isValid;
+    } else {
+      console.error(`Configuration error: ${pathPrefix}.WORK_START_DATE must be a Date object or an object with year/month/day properties`);
+      isValid = false;
+    }
+  } else {
+    console.error(`Configuration error: Missing required property ${pathPrefix}.WORK_START_DATE`);
+    isValid = false;
+  }
+  
   isValid = isNonEmptyString(profileConfig.GITHUB_USERNAME, `${pathPrefix}.GITHUB_USERNAME`) && isValid;
   isValid = isNonEmptyString(profileConfig.WAKATIME_USERNAME, `${pathPrefix}.WAKATIME_USERNAME`) && isValid;
   if (profileConfig.TWITTER_USERNAME !== '') {
-  isValid = isNonEmptyString(profileConfig.TWITTER_USERNAME, `${pathPrefix}.TWITTER_USERNAME`) && isValid;
+    isValid = isNonEmptyString(profileConfig.TWITTER_USERNAME, `${pathPrefix}.TWITTER_USERNAME`) && isValid;
   }
   if (profileConfig.CODESTATS_USERNAME !== '') {
     isValid = isNonEmptyString(profileConfig.CODESTATS_USERNAME, `${pathPrefix}.CODESTATS_USERNAME`) && isValid;
   }
+  
   return isValid;
 }
 
@@ -441,6 +481,9 @@ export function validateConfiguration(config) {
     overallIsValid = validateApiDefaultsConfig(config.apiDefaults) && overallIsValid;
     overallIsValid = validateWakatimeConfig(config.wakatime) && overallIsValid;
     overallIsValid = validateLayoutConfig(config.layout) && overallIsValid;
+  }
+  if (!overallIsValid) {
+    console.warn('[ConfigLoader] Validation failed - configuration will not be applied');
   }
   
   return overallIsValid;

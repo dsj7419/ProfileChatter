@@ -11,7 +11,7 @@
     "build": "node src/build-profile.js",
     "preview": "npm run build && cmd /c start test.html",
     "config:dev": "npm-run-all --parallel config:ui:dev config:server:preview",
-    "config:ui:dev": "npm run dev --prefix configurator-ui",
+    "config:ui:dev":   "npm run dev --prefix configurator-ui -- --clearScreen=false",
     "config:server:preview": "node configurator-ui/server/previewServer.js",
     "config:build": "npm run build --prefix configurator-ui"
   },

@@ -11,25 +11,7 @@ import { getTwitterData }  from './data_sources/twitterDataSource.js'
 import { getCodeStatsData } from './data_sources/codestatsDataSource.js'
 import { getSpotifyData } from './data_sources/spotifyDataSource.js'
 import { getGitHubOAuthData } from './data_sources/githubOAuthDataSource.js'
-
-/* ---------- local helpers ------------------------------------------------ */
-const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
-function formatDayOfWeek (d) { return days[d.getDay()] }
-function formatDate      (d) { return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}` }
-function formatTimePeriod (start) {
-  const now = new Date()
-  let y = now.getFullYear() - start.getFullYear()
-  let m = now.getMonth()    - start.getMonth()
-  let d = now.getDate()     - start.getDate()
-  if (d < 0) { m--; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate() }
-  if (m < 0) { y--; m += 12 }
-  const parts = []
-  if (y) parts.push(`${y} year${y!==1?'s':''}`)
-  if (m) parts.push(`${m} month${m!==1?'s':''}`)
-  if (d) parts.push(`${d} day${d!==1?'s':''}`)
-  return parts.length ? (parts.length===1?parts[0]:parts.slice(0,-1).join(', ')+' and '+parts.slice(-1)) : '0 days'
-}
+import DateTimeFormatService from './DateTimeFormatService.js'
 
 /* ---------- service ------------------------------------------------------ */
 class DataService {
@@ -38,6 +20,17 @@ class DataService {
     let baseData = {
       currentDayOfWeek: 'N/A',
       currentDate:      'N/A',
+      dayName:          'N/A',
+      dayNameShort:     'N/A',
+      monthName:        'N/A',
+      monthNameShort:   'N/A',
+      day:              'N/A',
+      year:             'N/A',
+      time:             'N/A',
+      time24:           'N/A',
+      dateTime:         'N/A',
+      timezone:         'N/A',
+      timezoneAbbr:     'N/A',
       workTenure:       'N/A',
       // API defaults
       temperature:        config.apiDefaults.TEMPERATURE,
@@ -66,10 +59,24 @@ class DataService {
     }
 
     try {
-      /* local */
-      const now = new Date()
-      baseData.currentDayOfWeek = formatDayOfWeek(now)
-      baseData.currentDate      = formatDate(now)
+      // Get timezone from configuration
+      const effectiveTimeZone = customData.profile?.TIMEZONE || config.profile.TIMEZONE || 'UTC';
+      
+      // Use the DateTimeFormatService to get all date/time formatted values
+      try {
+        const dateTimeData = DateTimeFormatService.formatCurrentDateTime(effectiveTimeZone);
+        
+        // Merge all date/time data into baseData
+        Object.assign(baseData, dateTimeData);
+        
+        console.log(`DataService: Using timezone "${effectiveTimeZone}" for date formatting.`);
+      } catch (e) {
+        console.warn(`DataService: Error formatting date/time: ${e.message}`);
+        
+        // If there's an error, try with UTC
+        const utcDateTimeData = DateTimeFormatService.formatCurrentDateTime('UTC');
+        Object.assign(baseData, utcDateTimeData);
+      }
       
       // First use the default work start date from config
       let workStartDate = config.profile.WORK_START_DATE;
@@ -132,8 +139,8 @@ class DataService {
         console.log(`Using Date object from customData.workStartDate: ${workStartDate.toDateString()}`);
       }
       
-      // Calculate workTenure AFTER processing all possible sources of the work start date
-      baseData.workTenure = formatTimePeriod(workStartDate);
+      // Calculate workTenure using the DateTimeFormatService
+      baseData.workTenure = DateTimeFormatService.formatWorkTenure(workStartDate);
       
       return { ...baseData, ...customData }
     } catch (err) {

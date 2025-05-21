@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { applyConfig } from './initConfigLoader.js';
 
 // Initial default values
 const defaultThemes = {
@@ -160,7 +161,8 @@ const initialProfileConfig = {
   GITHUB_USERNAME: "your_github",
   WAKATIME_USERNAME: "your_wakatime",
   TWITTER_USERNAME: "",
-  CODESTATS_USERNAME: ""
+  CODESTATS_USERNAME: "",
+  TIMEZONE: "UTC" // Default timezone
 };
 
 // Initial avatar configuration
@@ -231,6 +233,76 @@ const initialPlaceholderData = [
     value: '{currentDate}',
     label: 'Current Date',
     description: 'The current date in a readable format (e.g., January 1, 2025).',
+    category: 'Date & Time'
+  },
+  {
+    id: 'dayName',
+    value: '{dayName}',
+    label: 'Day Name',
+    description: 'Full name of the current day (e.g., "Wednesday").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'dayNameShort',
+    value: '{dayNameShort}',
+    label: 'Day Name (Short)',
+    description: 'Abbreviated name of the current day (e.g., "Wed").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'monthName',
+    value: '{monthName}',
+    label: 'Month Name',
+    description: 'Full name of the current month (e.g., "May").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'monthNameShort',
+    value: '{monthNameShort}',
+    label: 'Month Name (Short)',
+    description: 'Abbreviated name of the current month (e.g., "Dec").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'day',
+    value: '{day}',
+    label: 'Day of Month',
+    description: 'Current day of the month (e.g., "21").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'year',
+    value: '{year}',
+    label: 'Year',
+    description: 'Current year (e.g., "2025").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'time',
+    value: '{time}',
+    label: 'Time (12-hour)',
+    description: 'Current time in 12-hour format (e.g., "4:58 AM").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'time24',
+    value: '{time24}',
+    label: 'Time (24-hour)',
+    description: 'Current time in 24-hour format (e.g., "16:58").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'dateTime',
+    value: '{dateTime}',
+    label: 'Full Date & Time',
+    description: 'Complete date and time (e.g., "May 21, 2025, 4:58 AM").',
+    category: 'Date & Time'
+  },
+  {
+    id: 'timezoneAbbr',
+    value: '{timezoneAbbr}',
+    label: 'Timezone Abbreviation',
+    description: 'The abbreviation for your selected timezone (e.g., "EDT", "PST").',
     category: 'Date & Time'
   },
 
@@ -415,34 +487,29 @@ async function loadConfigFromServer() {
   }
 }
 
-// Deep clone helper
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
 // Create stores with default values
 export const userConfig = writable({
-    profile: deepClone(initialProfileConfig),
-    activeTheme: "ios",
-    avatars: deepClone(initialAvatarsConfig),
-    layout: { 
-      ANIMATION: { 
-        SCROLL_SPEED_MULTIPLIER: 1.0 
-      } 
-    }
-  });
+  profile: structuredClone(initialProfileConfig),
+  activeTheme: "ios",
+  avatars: structuredClone(initialAvatarsConfig),
+  layout: { 
+    ANIMATION: { 
+      SCROLL_SPEED_MULTIPLIER: 1.0 
+    } 
+  }
+});
 
 // Source of themes with defaults
-export const themes = writable(deepClone(defaultThemes));
+export const themes = writable(structuredClone(defaultThemes));
 
 // Source of font options
-export const fontOptions = writable(deepClone(defaultFontOptions));
+export const fontOptions = writable(structuredClone(defaultFontOptions));
 
 // Create a store for the editable theme based on the active theme
-export const editableTheme = writable(deepClone(defaultThemes.ios));
+export const editableTheme = writable(structuredClone(defaultThemes.ios));
 
 // Create a store for placeholder data
-export const placeholderData = writable(deepClone(initialPlaceholderData));
+export const placeholderData = writable(structuredClone(initialPlaceholderData));
 
 // Create a store for the preview mode (light/dark)
 /** 
@@ -456,7 +523,7 @@ userConfig.subscribe(value => {
   if (value.activeTheme) {
     themes.subscribe(allThemes => {
       if (allThemes[value.activeTheme]) {
-        editableTheme.set(deepClone(allThemes[value.activeTheme]));
+        editableTheme.set(structuredClone(allThemes[value.activeTheme]));
       }
     });
   }
@@ -468,39 +535,10 @@ let initialLoadComplete = false;
 // Try to load config from server (non-blocking)
 loadConfigFromServer().then(serverConfig => {
   if (serverConfig) {
-    // Update stores with server data
-    if (serverConfig.themes) {
-      themes.set(deepClone(serverConfig.themes));
-    }
-    
-    if (serverConfig.fontOptions) {
-      fontOptions.set(deepClone(serverConfig.fontOptions));
-    }
-    
-    if (serverConfig.defaultProfile) {
-      userConfig.update(cfg => ({
-        ...cfg,
-        profile: deepClone(serverConfig.defaultProfile)
-      }));
-    }
-    
-    if (serverConfig.defaultAvatars) {
-      userConfig.update(cfg => ({
-        ...cfg,
-        avatars: deepClone(serverConfig.defaultAvatars)
-      }));
-    }
-    
-    if (serverConfig.activeTheme) {
-      userConfig.update(cfg => ({
-        ...cfg,
-        activeTheme: serverConfig.activeTheme
-      }));
-    }
-    
-    console.log('Loaded configuration from server');
+    applyConfig(serverConfig);       // <— single point of truth
+    console.log('[Config] hydrated from server');
   } else {
-    console.log('Using default configuration');
+    console.log('[Config] using defaults');
   }
   
   // Mark initial load as complete after loading from server
@@ -546,41 +584,37 @@ workStartDate.subscribe(() => {
   }
 });
 
-// Get a complete configuration object for the preview
+/**
+ * Get a complete configuration object for the preview
+ * @returns {Object} Complete configuration object
+ */
 export function getPreviewConfiguration() {
-    // Get current values from stores
-    let currentConfig;
-    let currentTheme;
-    let currentMessages;
-    let currentWorkDate;
-    
-    userConfig.subscribe(value => { currentConfig = value; })();
-    editableTheme.subscribe(value => { currentTheme = value; })();
-    chatMessages.subscribe(value => { currentMessages = value; })();
-    workStartDate.subscribe(value => { currentWorkDate = value; })();
-    
-    // Add console log to verify profile data is being included correctly
-    console.log('getPreviewConfiguration profile data:', {
-      name: currentConfig.profile.NAME,
-      profession: currentConfig.profile.PROFESSION,
-      location: currentConfig.profile.LOCATION
-    });
-    
-    return {
-      profile: {
-        ...currentConfig.profile,
-        WORK_START_DATE: {
-          year: currentWorkDate.year,
-          month: currentWorkDate.month,
-          day: currentWorkDate.day
-        }
-      },
-      activeTheme: currentConfig.activeTheme,
-      avatars: currentConfig.avatars,
-      chatMessages: currentMessages,
-      themeOverrides: currentTheme,
-      layoutAnimationOverrides: {
-        SCROLL_SPEED_MULTIPLIER: currentConfig.layout?.ANIMATION?.SCROLL_SPEED_MULTIPLIER || 1.0
+  // Get current values from stores
+  let currentConfig;
+  let currentTheme;
+  let currentMessages;
+  let currentWorkDate;
+  
+  userConfig.subscribe(value => { currentConfig = value; })();
+  editableTheme.subscribe(value => { currentTheme = value; })();
+  chatMessages.subscribe(value => { currentMessages = value; })();
+  workStartDate.subscribe(value => { currentWorkDate = value; })();
+  
+  return {
+    profile: {
+      ...currentConfig.profile,
+      WORK_START_DATE: {
+        year: currentWorkDate.year,
+        month: currentWorkDate.month,
+        day: currentWorkDate.day
       }
-    };
-  }
+    },
+    activeTheme: currentConfig.activeTheme,
+    avatars: currentConfig.avatars,
+    chatMessages: currentMessages,
+    themeOverrides: currentTheme,
+    layoutAnimationOverrides: {
+      SCROLL_SPEED_MULTIPLIER: currentConfig.layout?.ANIMATION?.SCROLL_SPEED_MULTIPLIER || 1.0
+    }
+  };
+}
