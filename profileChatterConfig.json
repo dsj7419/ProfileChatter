@@ -1,13 +1,13 @@
 {
   "profile": {
-    "NAME": "Dan Johnson",
-    "PROFESSION": "Software Developer",
+    "NAME": "Dan",
+    "PROFESSION": "Director of Event Technology",
     "LOCATION": "San Diego",
     "COMPANY": "Encore",
-    "CURRENT_PROJECT": "ProfileChatter SVG Generator",
+    "CURRENT_PROJECT": "ProfileChatter, and SVG Generator",
     "WORK_START_DATE": {
-      "year": 2025,
-      "month": 5,
+      "year": 2007,
+      "month": 4,
       "day": 20
     },
     "GITHUB_USERNAME": "dsj7419",
@@ -19,11 +19,11 @@
   "avatars": {
     "enabled": true,
     "me": {
-      "imageUrl": "",
+      "imageUrl": "https://i.imgur.com/J2RDcms.png",
       "fallbackText": "DJ"
     },
     "visitor": {
-      "imageUrl": "",
+      "imageUrl": "https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg",
       "fallbackText": "?"
     },
     "sizePx": 32,
@@ -251,6 +251,6 @@
     "REACTION_ANIMATION_DELAY_SEC": 0.2
   },
   "layoutAnimationOverrides": {
-    "SCROLL_SPEED_MULTIPLIER": 1
+    "SCROLL_SPEED_MULTIPLIER": 1.1
   }
 }
