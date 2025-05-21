@@ -9,15 +9,16 @@ import path from 'node:path';
 import { config } from './config/config.js';
 
 /**
- * Embed avatar image as a base64 data URI
+ * Embed local avatar image as a base64 data URI
  * @param {string} sender - 'me' or 'visitor'
  * @param {string} filePath - Path to image file
+ * @param {Object} targetAvatarConfig - Config object to modify directly
  * @returns {boolean} - Whether embedding was successful
  */
-function embedAvatar(sender, filePath) {
+function embedAvatarLocal(sender, filePath, targetAvatarConfig) {
   try {
     if (!existsSync(filePath)) {
-      console.warn(`Avatar image not found: ${filePath}`);
+      // console.warn(`Local avatar asset not found: ${filePath}`); // Optional: less noisy
       return false;
     }
     
@@ -26,13 +27,12 @@ function embedAvatar(sender, filePath) {
       ? 'image/jpeg' 
       : 'image/png';
     const b64 = readFileSync(abs).toString('base64');
-    config.avatars[sender].imageUrl = `data:${mime};base64,${b64}`;
-    console.log(`✅ Embedded ${sender} avatar from ${filePath}`);
+    targetAvatarConfig[sender].imageUrl = `data:${mime};base64,${b64}`;
+    console.log(`✅ Embedded local ${sender} avatar from ${filePath}`);
     return true;
   } catch (error) {
-    console.warn(`Failed to embed avatar for ${sender}: ${error.message}`);
-    // Fall back to initials-based avatar
-    config.avatars[sender].imageUrl = '';
+    console.warn(`Failed to embed local avatar for ${sender}: ${error.message}`);
+    targetAvatarConfig[sender].imageUrl = ''; // Ensure it's empty on error
     return false;
   }
 }
@@ -40,46 +40,71 @@ function embedAvatar(sender, filePath) {
 // Ensure dist directory exists
 mkdirSync('dist', { recursive: true });
 
-// Embed avatar images if they exist
-if (config.avatars && config.avatars.enabled) {
-  // Define avatar paths (adjust as needed)
+// Attempt to load profileChatterConfig.json
+let loadedUiConfig = null;
+const configFilePath = './profileChatterConfig.json';
+if (existsSync(configFilePath)) {
+  try {
+    const configFileContent = readFileSync(configFilePath, 'utf8');
+    loadedUiConfig = JSON.parse(configFileContent);
+    console.log('✅ Found profileChatterConfig.json. Applying custom UI configuration.');
+  } catch (error) {
+    console.warn(`Failed to load custom configuration: ${error.message}. Proceeding with defaults and local asset fallbacks.`);
+    loadedUiConfig = null; // Ensure it's null on error
+  }
+}
+
+// Initialize effectiveAvatarConfig, prioritizing loadedUiConfig if available
+let effectiveAvatarConfig = { 
+  enabled: loadedUiConfig?.avatars?.enabled ?? config.avatars.enabled,
+  me: { 
+    imageUrl: loadedUiConfig?.avatars?.me?.imageUrl ?? '', 
+    fallbackText: loadedUiConfig?.avatars?.me?.fallbackText ?? config.avatars.me.fallbackText
+  },
+  visitor: { 
+    imageUrl: loadedUiConfig?.avatars?.visitor?.imageUrl ?? '',
+    fallbackText: loadedUiConfig?.avatars?.visitor?.fallbackText ?? config.avatars.visitor.fallbackText
+  },
+  sizePx: loadedUiConfig?.avatars?.sizePx ?? config.avatars.sizePx,
+  shape: loadedUiConfig?.avatars?.shape ?? config.avatars.shape,
+  xOffsetPx: loadedUiConfig?.avatars?.xOffsetPx ?? config.avatars.xOffsetPx,
+  yOffsetPx: loadedUiConfig?.avatars?.yOffsetPx ?? config.avatars.yOffsetPx
+};
+
+// Apply local asset embedding as a fallback if imageUrl is still empty
+if (effectiveAvatarConfig.enabled) {
   const avatarDir = path.join(process.cwd(), 'assets');
-  const myAvatarPath = path.join(avatarDir, 'me-avatar.png');
-  const visitorAvatarPath = path.join(avatarDir, 'visitor-avatar.png');
-  
-  // Create assets directory if it doesn't exist
   if (!existsSync(avatarDir)) {
     mkdirSync(avatarDir, { recursive: true });
     console.log('✅ Created assets directory for avatars');
   }
-  
-  // Embed avatars
-  embedAvatar('me', myAvatarPath);
-  embedAvatar('visitor', visitorAvatarPath);
-}
 
-// Check for custom configuration file
-let customContext = {};
-const configFilePath = './profileChatterConfig.json';
-
-if (existsSync(configFilePath)) {
-  try {
-    const configFileContent = readFileSync(configFilePath, 'utf8');
-    const loadedUiConfig = JSON.parse(configFileContent);
-    console.log('✅ Found profileChatterConfig.json. Applying custom UI configuration.');
-    
-    customContext = {
-      profile: loadedUiConfig.profile,
-      activeTheme: loadedUiConfig.activeTheme,
-      avatars: loadedUiConfig.avatars,
-      chatMessages: loadedUiConfig.chatMessages,
-      themeOverrides: loadedUiConfig.themeOverrides
-    };
-  } catch (error) {
-    console.warn(`Failed to load custom configuration: ${error.message}`);
-    console.warn('Proceeding with default configuration.');
+  if (!effectiveAvatarConfig.me.imageUrl) {
+    const myAvatarPath = path.join(avatarDir, 'me-avatar.png');
+    if (embedAvatarLocal('me', myAvatarPath, effectiveAvatarConfig)) {
+      console.log('Applied local asset for ME avatar as fallback.');
+    }
+  }
+  if (!effectiveAvatarConfig.visitor.imageUrl) {
+    const visitorAvatarPath = path.join(avatarDir, 'visitor-avatar.png');
+    if (embedAvatarLocal('visitor', visitorAvatarPath, effectiveAvatarConfig)) {
+      console.log('Applied local asset for VISITOR avatar as fallback.');
+    }
   }
 }
+
+// Prepare customContext for generateChatSVG
+let customContext = {};
+if (loadedUiConfig) {
+  customContext = {
+    profile: loadedUiConfig.profile,
+    activeTheme: loadedUiConfig.activeTheme,
+    chatMessages: loadedUiConfig.chatMessages,
+    themeOverrides: loadedUiConfig.themeOverrides
+  };
+}
+// Crucially, pass the processed effectiveAvatarConfig to generateChatSVG
+customContext.avatars = effectiveAvatarConfig; 
 
 // Generate SVG with configured data
 generateChatSVG(customContext)

@@ -70,8 +70,10 @@ class DataService {
       const now = new Date()
       baseData.currentDayOfWeek = formatDayOfWeek(now)
       baseData.currentDate      = formatDate(now)
-      baseData.workTenure       = formatTimePeriod(config.profile.WORK_START_DATE)
-
+      
+      // First use the default work start date from config
+      let workStartDate = config.profile.WORK_START_DATE;
+      
       /* remote */
       try {
         const [weather, github, wakatime, twitter, codestats, spotify, githubOAuth] = await Promise.all([
@@ -97,8 +99,42 @@ class DataService {
         if (typeof p.LOCATION === 'string') baseData.location = p.LOCATION
         if (typeof p.COMPANY === 'string') baseData.company = p.COMPANY
         if (typeof p.CURRENT_PROJECT === 'string') baseData.currentProject = p.CURRENT_PROJECT
+        
+        // Check if we have a custom work start date to use
+        if (p.WORK_START_DATE) {
+          // If it's an object with year, month, day properties (from UI)
+          if (typeof p.WORK_START_DATE === 'object' && 
+              p.WORK_START_DATE.year !== undefined &&
+              p.WORK_START_DATE.month !== undefined &&
+              p.WORK_START_DATE.day !== undefined) {
+            
+            const year = parseInt(p.WORK_START_DATE.year, 10);
+            const month = parseInt(p.WORK_START_DATE.month, 10); // UI month is 1-indexed
+            const day = parseInt(p.WORK_START_DATE.day, 10);
+            
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+              // Create a new Date object (JS months are 0-indexed)
+              workStartDate = new Date(year, month - 1, day);
+              console.log(`Using custom work start date: ${workStartDate.toDateString()}`);
+            }
+          }
+          // If it's already a Date object
+          else if (p.WORK_START_DATE instanceof Date) {
+            workStartDate = p.WORK_START_DATE;
+            console.log(`Using Date object from profile.WORK_START_DATE: ${workStartDate.toDateString()}`);
+          }
+        }
       }
-
+      
+      // Also check if customData.workStartDate exists (how previewServer.js passes it)
+      if (customData.workStartDate instanceof Date) {
+        workStartDate = customData.workStartDate;
+        console.log(`Using Date object from customData.workStartDate: ${workStartDate.toDateString()}`);
+      }
+      
+      // Calculate workTenure AFTER processing all possible sources of the work start date
+      baseData.workTenure = formatTimePeriod(workStartDate);
+      
       return { ...baseData, ...customData }
     } catch (err) {
       console.error('Critical error in getDynamicData:', err.message)
