@@ -73,7 +73,7 @@
   @keyframes typingDot3{0%,100%{opacity:0.4;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
   @keyframes reactionIn{0%{scale:.5;opacity:0}100%{scale:1;opacity:1}}
   @keyframes avatarIn{0%{scale:.8;opacity:0}100%{scale:1;opacity:1}}
-  @keyframes scrollUp { 0% { transform: translateY(0px); } 2% { transform: translateY(-10px); } 4% { transform: translateY(-61.2px); } 6% { transform: translateY(-99.6px); } 8% { transform: translateY(-138px); } 11% { transform: translateY(-246px); } 13% { transform: translateY(-289.2px); } 15% { transform: translateY(-321.6px); } 17% { transform: translateY(-354px); } 19% { transform: translateY(-413.2px); } 20% { transform: translateY(-457.6px); } 22% { transform: translateY(-502px); } 24% { transform: translateY(-569.2px); } 27% { transform: translateY(-619.6px); } 29% { transform: translateY(-670px); } 30% { transform: translateY(-730px); } 32% { transform: translateY(-836.2px); } 35% { transform: translateY(-915.85px); } 37% { transform: translateY(-995.5px); } 38% { transform: translateY(-1055.5px); } 41% { transform: translateY(-1187.9px); } 44% { transform: translateY(-1287.2px); } 47% { transform: translateY(-1386.5px); } 49% { transform: translateY(-1453.7px); } 51% { transform: translateY(-1504.1px); } 53% { transform: translateY(-1554.5px); } 55% { transform: translateY(-1613.7px); } 58% { transform: translateY(-1658.1px); } 60% { transform: translateY(-1702.5px); } 62% { transform: translateY(-1745.7px); } 63% { transform: translateY(-1778.1px); } 65% { transform: translateY(-1810.5px); } 67% { transform: translateY(-1869.7px); } 69% { transform: translateY(-1914.1px); } 71% { transform: translateY(-1958.5px); } 73% { transform: translateY(-2001.7px); } 75% { transform: translateY(-2034.1px); } 77% { transform: translateY(-2066.5px); } 79% { transform: translateY(-2117.7px); } 80% { transform: translateY(-2156.1px); } 82% { transform: translateY(-2194.5px); } 84% { transform: translateY(-2245.7px); } 87% { transform: translateY(-2284.1px); } 89% { transform: translateY(-2322.5px); } 89% { transform: translateY(-2382.5px); } 91% { transform: translateY(-2454px); } 94% { transform: translateY(-2454px); } 96% { transform: translateY(-2454px); } 97% { transform: translateY(-2454px); } 99% { transform: translateY(-2454px); } 100% { transform: translateY(-2454px); } }
+  @keyframes scrollUp { 0% { transform: translateY(0px); } 2% { transform: translateY(-10px); } 4% { transform: translateY(-61.2px); } 6% { transform: translateY(-99.6px); } 8% { transform: translateY(-138px); } 11% { transform: translateY(-246px); } 13% { transform: translateY(-289.2px); } 15% { transform: translateY(-321.6px); } 17% { transform: translateY(-354px); } 19% { transform: translateY(-413.2px); } 21% { transform: translateY(-457.6px); } 23% { transform: translateY(-502px); } 25% { transform: translateY(-569.2px); } 28% { transform: translateY(-619.6px); } 30% { transform: translateY(-670px); } 30% { transform: translateY(-730px); } 33% { transform: translateY(-836.2px); } 35% { transform: translateY(-915.85px); } 38% { transform: translateY(-995.5px); } 38% { transform: translateY(-1055.5px); } 41% { transform: translateY(-1187.9px); } 44% { transform: translateY(-1287.2px); } 47% { transform: translateY(-1386.5px); } 49% { transform: translateY(-1453.7px); } 52% { transform: translateY(-1504.1px); } 54% { transform: translateY(-1554.5px); } 56% { transform: translateY(-1613.7px); } 58% { transform: translateY(-1658.1px); } 60% { transform: translateY(-1702.5px); } 62% { transform: translateY(-1745.7px); } 63% { transform: translateY(-1778.1px); } 65% { transform: translateY(-1810.5px); } 67% { transform: translateY(-1869.7px); } 69% { transform: translateY(-1914.1px); } 71% { transform: translateY(-1958.5px); } 73% { transform: translateY(-2001.7px); } 75% { transform: translateY(-2034.1px); } 77% { transform: translateY(-2066.5px); } 79% { transform: translateY(-2117.7px); } 81% { transform: translateY(-2156.1px); } 83% { transform: translateY(-2194.5px); } 85% { transform: translateY(-2245.7px); } 86% { transform: translateY(-2284.1px); } 88% { transform: translateY(-2322.5px); } 89% { transform: translateY(-2382.5px); } 91% { transform: translateY(-2454px); } 94% { transform: translateY(-2454px); } 96% { transform: translateY(-2454px); } 97% { transform: translateY(-2454px); } 99% { transform: translateY(-2454px); } 100% { transform: translateY(-2454px); } }
   @keyframes fadeInStatus{0%{opacity:0}100%{opacity:1}}
   @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
 
@@ -147,7 +147,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="9.71s"
+               begin="10.17s"
                dur="2.04s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -159,15 +159,15 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,138)" style="animation-delay:11.75s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,138)" style="animation-delay:12.21s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,138)"
-         style="animation-delay:11.75s">
+         style="animation-delay:12.21s">
         <rect width="183.6" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
-               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Nice to meet you!</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Today is Wednesday,</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">May 21, 2025.</text><g class="reaction" style="animation-delay:13.21s" transform="translate(165.6,-12)">
+               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Nice to meet you!</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Today is Wednesday,</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">May 21, 2025.</text><g class="reaction" style="animation-delay:13.67s" transform="translate(165.6,-12)">
       <rect width="36" height="28" 
             rx="var(--reaction-border-radius-px, 14px)" 
             ry="var(--reaction-border-radius-px, 14px)" 
@@ -185,7 +185,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="15.77s"
+               begin="15.89s"
                dur="1.80s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -197,15 +197,15 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,246)" style="animation-delay:17.57s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,246)" style="animation-delay:17.69s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,246)"
-         style="animation-delay:17.57s">
+         style="animation-delay:17.69s">
         <rect width="175.20000000000002" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
-               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">What music are you</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">listening to while</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">coding?</text><g class="reaction" style="animation-delay:19.03s" transform="translate(157.20000000000002,-12)">
+               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">What music are you</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">listening to while</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">coding?</text><g class="reaction" style="animation-delay:19.15s" transform="translate(157.20000000000002,-12)">
       <rect width="36" height="28" 
             rx="var(--reaction-border-radius-px, 14px)" 
             ry="var(--reaction-border-radius-px, 14px)" 
@@ -223,7 +223,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="22.86s"
+               begin="23.04s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -235,25 +235,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,354)" style="animation-delay:25.86s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,354)" style="animation-delay:26.04s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(71.6,354)"
-         style="animation-delay:25.86s">
+         style="animation-delay:26.04s">
         <rect width="200.4" height="116"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M200.4,10 C204.4,14 207.4,18 206.4,22
                  C205.4,18 202.4,14 200.4,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Right now I&apos;m</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">listening to Poor</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Heart by Phish. Music</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">helps me focus while</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">coding!</text>
-      <text x="188.4" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:26.42s">Delivered</text>
-      <text x="188.4" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:27.92s">Read</text>
+      <text x="188.4" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:26.60s">Delivered</text>
+      <text x="188.4" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:28.10s">Read</text>
       </g>
 
     <g class="typing me" transform="translate(202,502)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="31.49s"
+               begin="32.45s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -265,25 +265,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,502)" style="animation-delay:34.49s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,502)" style="animation-delay:35.45s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,502)"
-         style="animation-delay:34.49s">
+         style="animation-delay:35.45s">
         <rect width="208.8" height="136"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
-               fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">I&apos;ve been working at</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Encore for 18 years, 1</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">month and 5 days.</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Currently, the weather</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">here is 72°F (22°C)</text><text x="12" y="122" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">with partly cloudy.</text>
-      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:35.05s">Delivered</text>
-      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:36.55s">Read</text>
+               fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">I&apos;ve been working at</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Encore for 18 years, 1</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">month and 1 day.</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Currently, the weather</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">here is 72°F (22°C)</text><text x="12" y="122" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">with partly cloudy.</text>
+      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:36.01s">Delivered</text>
+      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:37.51s">Read</text>
       </g>
 
     <g class="typing them" transform="translate(48,670)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="42.83s"
+               begin="43.89s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -295,10 +295,10 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,670)" style="animation-delay:45.83s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,670)" style="animation-delay:46.89s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,670)"
-         style="animation-delay:45.83s">
+         style="animation-delay:46.89s">
         <rect width="236" height="293.5"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
@@ -348,12 +348,12 @@
           <animate attributeName="width"
                    from="0" to="153"
                    dur="0.7s"
-                   begin="46.13s"
+                   begin="47.19s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="46.13s"
+                   begin="47.19s"
                    fill="freeze"/>
         
         </rect>
@@ -395,12 +395,12 @@
           <animate attributeName="width"
                    from="0" to="135"
                    dur="0.7s"
-                   begin="46.16s"
+                   begin="47.22s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="46.16s"
+                   begin="47.22s"
                    fill="freeze"/>
         
         </rect>
@@ -442,12 +442,12 @@
           <animate attributeName="width"
                    from="0" to="144"
                    dur="0.7s"
-                   begin="46.19s"
+                   begin="47.25s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="46.19s"
+                   begin="47.25s"
                    fill="freeze"/>
         
         </rect>
@@ -489,12 +489,12 @@
           <animate attributeName="width"
                    from="0" to="126"
                    dur="0.7s"
-                   begin="46.22s"
+                   begin="47.28s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="46.22s"
+                   begin="47.28s"
                    fill="freeze"/>
         
         </rect>
@@ -536,12 +536,12 @@
           <animate attributeName="width"
                    from="0" to="108"
                    dur="0.7s"
-                   begin="46.25s"
+                   begin="47.31s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="46.25s"
+                   begin="47.31s"
                    fill="freeze"/>
         
         </rect>
@@ -561,7 +561,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="55.29s"
+               begin="57.05s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -573,10 +573,10 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,995.5)" style="animation-delay:58.29s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,995.5)" style="animation-delay:60.05s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,995.5)"
-         style="animation-delay:58.29s">
+         style="animation-delay:60.05s">
         <rect width="236" height="359"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
@@ -607,14 +607,14 @@
           <animate attributeName="stroke-dashoffset"
                    from="201.06192982974676" to="0"
                    dur="0.5s"
-                   begin="58.59s"
+                   begin="60.35s"
                    calcMode="spline"
                    keySplines="0.215,0.61,0.355,1"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.25s"
-                   begin="58.59s"
+                   begin="60.35s"
                    fill="freeze"/>
         
         </path>
@@ -632,14 +632,14 @@
           <animate attributeName="stroke-dashoffset"
                    from="175.92918860102841" to="0"
                    dur="0.5s"
-                   begin="58.64s"
+                   begin="60.40s"
                    calcMode="spline"
                    keySplines="0.215,0.61,0.355,1"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.25s"
-                   begin="58.64s"
+                   begin="60.40s"
                    fill="freeze"/>
         
         </path>
@@ -657,14 +657,14 @@
           <animate attributeName="stroke-dashoffset"
                    from="75.39822368615503" to="0"
                    dur="0.5s"
-                   begin="58.69s"
+                   begin="60.45s"
                    calcMode="spline"
                    keySplines="0.215,0.61,0.355,1"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.25s"
-                   begin="58.69s"
+                   begin="60.45s"
                    fill="freeze"/>
         
         </path>
@@ -682,14 +682,14 @@
           <animate attributeName="stroke-dashoffset"
                    from="50.26548245743669" to="0"
                    dur="0.5s"
-                   begin="58.74s"
+                   begin="60.50s"
                    calcMode="spline"
                    keySplines="0.215,0.61,0.355,1"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.25s"
-                   begin="58.74s"
+                   begin="60.50s"
                    fill="freeze"/>
         
         </path>
@@ -763,7 +763,7 @@
             Docs (10%)
           </text>
         </g>
-      </g><g class="reaction" style="animation-delay:59.75s" transform="translate(218,-12)">
+      </g><g class="reaction" style="animation-delay:61.51s" transform="translate(218,-12)">
       <rect width="36" height="28" 
             rx="var(--reaction-border-radius-px, 14px)" 
             ry="var(--reaction-border-radius-px, 14px)" 
@@ -781,7 +781,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="69.66s"
+               begin="71.01s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -793,18 +793,18 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,1386.5)" style="animation-delay:72.66s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,1386.5)" style="animation-delay:74.01s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,1386.5)"
-         style="animation-delay:72.66s">
+         style="animation-delay:74.01s">
         <rect width="208.8" height="136"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">I&apos;m currently focused</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">on ProfileChatter, an</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">SVG Generator. I have</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">41 public repositories</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">and 0 followers on</text><text x="12" y="122" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">GitHub.</text>
-      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:73.22s">Delivered</text>
-      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:74.72s">Read</text><g class="reaction" style="animation-delay:76.02s" transform="translate(-18,-12)">
+      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:74.57s">Delivered</text>
+      <text x="196.8" y="146" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:76.07s">Read</text><g class="reaction" style="animation-delay:77.37s" transform="translate(-18,-12)">
       <rect width="36" height="28" 
             rx="var(--reaction-border-radius-px, 14px)" 
             ry="var(--reaction-border-radius-px, 14px)" 
@@ -822,7 +822,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="79.54s"
+               begin="81.24s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -834,25 +834,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,1554.5)" style="animation-delay:82.54s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,1554.5)" style="animation-delay:84.24s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,1554.5)"
-         style="animation-delay:82.54s">
+         style="animation-delay:84.24s">
         <rect width="208.8" height="116"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">My open source</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">projects have received</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">a total of 17 stars! I</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">primarily code in</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Python.</text>
-      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:83.10s">Delivered</text>
-      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:84.60s">Read</text>
+      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:84.80s">Delivered</text>
+      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:86.30s">Read</text>
       </g>
 
     <g class="typing them" transform="translate(48,1702.5)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="90.30s"
+               begin="91.07s"
                dur="2.60s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -864,15 +864,15 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,1702.5)" style="animation-delay:92.90s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,1702.5)" style="animation-delay:93.67s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,1702.5)"
-         style="animation-delay:92.90s">
+         style="animation-delay:93.67s">
         <rect width="208.8" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
-               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">That&apos;s impressive! How</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">many repositories have</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">you contributed to?</text><g class="reaction" style="animation-delay:94.36s" transform="translate(190.8,-12)">
+               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">That&apos;s impressive! How</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">many repositories have</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">you contributed to?</text><g class="reaction" style="animation-delay:95.13s" transform="translate(190.8,-12)">
       <rect width="36" height="28" 
             rx="var(--reaction-border-radius-px, 14px)" 
             ry="var(--reaction-border-radius-px, 14px)" 
@@ -890,7 +890,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="98.51s"
+               begin="99.47s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -902,25 +902,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,1810.5)" style="animation-delay:101.51s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,1810.5)" style="animation-delay:102.47s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,1810.5)"
-         style="animation-delay:101.51s">
+         style="animation-delay:102.47s">
         <rect width="208.8" height="116"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">I&apos;ve contributed to 36</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">repositories and made</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">approximately 1083+</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">commits in the past</text><text x="12" y="102" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">year.</text>
-      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:102.07s">Delivered</text>
-      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:103.57s">Read</text>
+      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:103.03s">Delivered</text>
+      <text x="196.8" y="126" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:104.53s">Read</text>
       </g>
 
     <g class="typing them" transform="translate(48,1958.5)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="108.86s"
+               begin="109.80s"
                dur="2.16s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -932,10 +932,10 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,1958.5)" style="animation-delay:111.02s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,1958.5)" style="animation-delay:111.96s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,1958.5)"
-         style="animation-delay:111.02s">
+         style="animation-delay:111.96s">
         <rect width="175.20000000000002" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
@@ -947,7 +947,7 @@
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="116.63s"
+               begin="117.54s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -959,25 +959,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,2066.5)" style="animation-delay:119.63s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,2066.5)" style="animation-delay:120.54s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,2066.5)"
-         style="animation-delay:119.63s">
+         style="animation-delay:120.54s">
         <rect width="208.8" height="96"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">My top language last</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">week was Svelte (40%).</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Coded for 31 hrs 9</text><text x="12" y="82" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">mins in the last week</text>
-      <text x="196.8" y="106" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:120.19s">Delivered</text>
-      <text x="196.8" y="106" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:121.69s">Read</text>
+      <text x="196.8" y="106" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:121.10s">Delivered</text>
+      <text x="196.8" y="106" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:122.60s">Read</text>
       </g>
 
     <g class="typing them" transform="translate(48,2194.5)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="126.31s"
+               begin="126.99s"
                dur="2.36s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -989,22 +989,22 @@
             <circle cx="52.5" cy="18" r="4" fill="#000000" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(8,2194.5)" style="animation-delay:128.67s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(8,2194.5)" style="animation-delay:129.35s"><image href="https://i.pinimg.com/236x/63/dd/c2/63ddc24b5f730d8fe4134708fbcc93df.jpg" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg them"
          transform="translate(48,2194.5)"
-         style="animation-delay:128.67s">
+         style="animation-delay:129.35s">
         <rect width="208.8" height="96"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#E5E5EA"/><path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
-               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">You&apos;ve also</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">accumulated 5404 XP on</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Code::Stats!</text><text x="12" y="82" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Impressive!</text>
+               fill="var(--visitor-bubble-color, #E5E5EA)"/><text x="12" y="22" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">You&apos;ve also</text><text x="12" y="42" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">accumulated 5422 XP on</text><text x="12" y="62" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Code::Stats!</text><text x="12" y="82" fill="var(--visitor-text-color, #000000)" dominant-baseline="middle">Impressive!</text>
       </g>
 
     <g class="typing me" transform="translate(202,2322.5)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="135.37s"
+               begin="135.68s"
                dur="3.00s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -1016,10 +1016,10 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,2322.5)" style="animation-delay:138.37s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,2322.5)" style="animation-delay:138.68s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(36,2322.5)"
-         style="animation-delay:138.37s">
+         style="animation-delay:138.68s">
         <rect width="236" height="293.5"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
@@ -1070,12 +1070,12 @@
           <animate attributeName="width"
                    from="0" to="72"
                    dur="0.7s"
-                   begin="138.67s"
+                   begin="138.98s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="138.67s"
+                   begin="138.98s"
                    fill="freeze"/>
         
         </rect>
@@ -1117,12 +1117,12 @@
           <animate attributeName="width"
                    from="0" to="65"
                    dur="0.7s"
-                   begin="138.70s"
+                   begin="139.01s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="138.70s"
+                   begin="139.01s"
                    fill="freeze"/>
         
         </rect>
@@ -1164,12 +1164,12 @@
           <animate attributeName="width"
                    from="0" to="20"
                    dur="0.7s"
-                   begin="138.73s"
+                   begin="139.04s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="138.73s"
+                   begin="139.04s"
                    fill="freeze"/>
         
         </rect>
@@ -1211,12 +1211,12 @@
           <animate attributeName="width"
                    from="0" to="9"
                    dur="0.7s"
-                   begin="138.76s"
+                   begin="139.07s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="138.76s"
+                   begin="139.07s"
                    fill="freeze"/>
         
         </rect>
@@ -1258,12 +1258,12 @@
           <animate attributeName="width"
                    from="0" to="5"
                    dur="0.7s"
-                   begin="138.79s"
+                   begin="139.10s"
                    fill="freeze"/>
           <animate attributeName="opacity"
                    from="0" to="1"
                    dur="0.7s"
-                   begin="138.79s"
+                   begin="139.10s"
                    fill="freeze"/>
         
         </rect>
@@ -1277,15 +1277,15 @@
           3%
         </text>
       </g>
-      <text x="224" y="303.5" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:138.93s">Delivered</text>
-      <text x="224" y="303.5" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:140.43s">Read</text>
+      <text x="224" y="303.5" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:139.24s">Delivered</text>
+      <text x="224" y="303.5" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:140.74s">Read</text>
       </g>
 
     <g class="typing me" transform="translate(202,2648)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="147.84s"
+               begin="147.96s"
                dur="2.08s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -1297,25 +1297,25 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,2648)" style="animation-delay:149.92s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,2648)" style="animation-delay:150.04s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(63.19999999999999,2648)"
-         style="animation-delay:149.92s">
+         style="animation-delay:150.04s">
         <rect width="208.8" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M208.8,10 C212.8,14 215.8,18 214.8,22
                  C213.8,18 210.8,14 208.8,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">Feel free to reach out</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">if you want to</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">collaborate! ⛅</text>
-      <text x="196.8" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:150.48s">Delivered</text>
-      <text x="196.8" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:151.98s">Read</text>
+      <text x="196.8" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:150.60s">Delivered</text>
+      <text x="196.8" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:152.10s">Read</text>
       </g>
 
     <g class="typing me" transform="translate(202,2756)">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
-               begin="153.62s"
+               begin="154.28s"
                dur="2.48s"
                fill="freeze"/>
       <rect width="70" height="36"
@@ -1327,17 +1327,17 @@
             <circle cx="52.5" cy="18" r="4" fill="#FFFFFF" class="typing-dot3"/>
     </g>
 
-      <g class="avatar" transform="translate(280,2756)" style="animation-delay:156.10s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
+      <g class="avatar" transform="translate(280,2756)" style="animation-delay:156.76s"><image href="https://i.imgur.com/J2RDcms.png" width="32" height="32" clip-path="url(#avatarCircle)"/></g>
       <g class="msg me"
          transform="translate(71.6,2756)"
-         style="animation-delay:156.10s">
+         style="animation-delay:156.76s">
         <rect width="200.4" height="76"
                      rx="var(--bubble-radius-px, 18px)" 
                      ry="var(--bubble-radius-px, 18px)"
                      fill="#0B93F6"/><path d="M200.4,10 C204.4,14 207.4,18 206.4,22
                  C205.4,18 202.4,14 200.4,16 Z"
                fill="var(--me-bubble-color, #0B93F6)"/><text x="12" y="22" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">You can also find me</text><text x="12" y="42" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">on X/Twitter, where I</text><text x="12" y="62" fill="var(--me-text-color, #FFFFFF)" dominant-baseline="middle">have 120 followers!</text>
-      <text x="188.4" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:156.66s">Delivered</text>
-      <text x="188.4" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:158.16s">Read</text>
+      <text x="188.4" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus 1.5s ease forwards;animation-delay:157.32s">Delivered</text>
+      <text x="188.4" y="86" text-anchor="end" class="status-indicator" style="animation:fadeInStatus 0.2s ease forwards;animation-delay:158.82s">Read</text>
       </g>
 </g></svg>
