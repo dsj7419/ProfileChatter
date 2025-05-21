@@ -1,143 +1,149 @@
 <!-- LocalConfigManager.svelte -->
 <script>
-    import { createEventDispatcher } from 'svelte'
-    import { fade, slide } from 'svelte/transition'
-    import { userConfig, workStartDate, chatMessages, editableTheme, getPreviewConfiguration } from '../stores/configStore.js'
-    import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte'
-  
-    // Create a dispatcher for component events
-    const dispatch = createEventDispatcher()
-  
-    // Reference for file inputs
-    let fileInput
-    let specificPartFileInput
-    // State for loading status
-    let isLoading = false
-    // State for showing the upload section
-    let showUploadSection = false
-    // State for showing success message
-    let showSuccess = false
-    // Success/error message
-    let message = ''
-    let isError = false
-    // Export format selection
-    let exportFormat = 'json' // Default format: 'json' or 'js'
-    // Target for imports (messages, theme, profile, avatars)
-    let importTarget = null
-  
-    /**
-     * Show a status message to the user
-     * @param {string} msg - The message to display
-     * @param {boolean} error - Whether this is an error message
-     */
-    function showStatusMessage(msg, error = false) {
-      message = msg
-      isError = error
-      showSuccess = true
-  
-      // Auto-hide the message after 4 seconds
-      setTimeout(() => {
-        showSuccess = false
-      }, 4000)
-    }
-  
-    /**
-     * Helper function for downloading files
-     * @param {string} content - File content
-     * @param {string} filename - Download filename
-     * @param {string} contentType - MIME type
-     */
-    function downloadFile(content, filename, contentType) {
-      const blob = new Blob([content], { type: contentType })
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-      a.download = filename
-  
-      document.body.appendChild(a)
-      a.click()
-  
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(a.href)
-        showStatusMessage(`Configuration exported as ${filename}`, false)
-      }, 100)
-    }
-  
-    /**
-     * Read a file as text using FileReader with Promise
-     * @param {File} file - The file to read
-     * @returns {Promise<string>} - Promise resolving to file content
-     */
-    function readFileAsText(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-  
-        reader.onload = (event) => {
-          resolve(event.target.result)
-        }
-  
-        reader.onerror = (error) => {
-          reject(error)
-        }
-  
-        reader.readAsText(file)
-      })
-    }
-  
-    /**
-     * Toggle the upload section visibility
-     */
-    function toggleUploadSection() {
-      showUploadSection = !showUploadSection
-    }
-  
-    /**
-     * Trigger the hidden file input for full configuration import
-     */
-    function openFileInput() {
-      fileInput.click()
-    }
-  
-    /**
-     * Trigger the hidden file input for specific part imports
-     * @param {string} target - The type of component to import
-     */
-    function importSpecificPart(target) {
-      importTarget = target
-      specificPartFileInput.click()
-    }
-  
-    /**
-     * Dispatch event for GitHub copy request
-     */
-    function handleGitHubCopyRequest() {
-      dispatch('requestGitHubCopy')
-    }
-  
-    /**
-     * Download the configuration in the selected format
-     */
-    function downloadConfiguration() {
-      try {
-        // Get the complete configuration using the function from the store
-        const configData = getPreviewConfiguration()
-  
-        // Only include the override if it's different from the default
-        if (configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER === 1.0) {
-          delete configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER
-        }
-  
-        if (Object.keys(configData.layoutAnimationOverrides).length === 0) {
-          delete configData.layoutAnimationOverrides
-        }
-  
-        if (exportFormat === 'json') {
-          // JSON Format
-          const jsonString = JSON.stringify(configData, null, 2)
-          downloadFile(jsonString, 'profileChatterConfig.json', 'application/json')
-        } else {
-          // JavaScript Module Format
-          const jsContent = `// ProfileChatter Custom Configuration
+  import { createEventDispatcher } from 'svelte'
+  import { fade, slide } from 'svelte/transition'
+  import {
+    userConfig,
+    workStartDate,
+    chatMessages,
+    editableTheme,
+    getPreviewConfiguration,
+  } from '../stores/configStore.js'
+  import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte'
+
+  // Create a dispatcher for component events
+  const dispatch = createEventDispatcher()
+
+  // Reference for file inputs
+  let fileInput
+  let specificPartFileInput
+  // State for loading status
+  let isLoading = false
+  // State for showing the upload section
+  let showUploadSection = false
+  // State for showing success message
+  let showSuccess = false
+  // Success/error message
+  let message = ''
+  let isError = false
+  // Export format selection
+  let exportFormat = 'json' // Default format: 'json' or 'js'
+  // Target for imports (messages, theme, profile, avatars)
+  let importTarget = null
+
+  /**
+   * Show a status message to the user
+   * @param {string} msg - The message to display
+   * @param {boolean} error - Whether this is an error message
+   */
+  function showStatusMessage(msg, error = false) {
+    message = msg
+    isError = error
+    showSuccess = true
+
+    // Auto-hide the message after 4 seconds
+    setTimeout(() => {
+      showSuccess = false
+    }, 4000)
+  }
+
+  /**
+   * Helper function for downloading files
+   * @param {string} content - File content
+   * @param {string} filename - Download filename
+   * @param {string} contentType - MIME type
+   */
+  function downloadFile(content, filename, contentType) {
+    const blob = new Blob([content], { type: contentType })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = filename
+
+    document.body.appendChild(a)
+    a.click()
+
+    setTimeout(() => {
+      document.body.removeChild(a)
+      URL.revokeObjectURL(a.href)
+      showStatusMessage(`Configuration exported as ${filename}`, false)
+    }, 100)
+  }
+
+  /**
+   * Read a file as text using FileReader with Promise
+   * @param {File} file - The file to read
+   * @returns {Promise<string>} - Promise resolving to file content
+   */
+  function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+
+      reader.onload = (event) => {
+        resolve(event.target.result)
+      }
+
+      reader.onerror = (error) => {
+        reject(error)
+      }
+
+      reader.readAsText(file)
+    })
+  }
+
+  /**
+   * Toggle the upload section visibility
+   */
+  function toggleUploadSection() {
+    showUploadSection = !showUploadSection
+  }
+
+  /**
+   * Trigger the hidden file input for full configuration import
+   */
+  function openFileInput() {
+    fileInput.click()
+  }
+
+  /**
+   * Trigger the hidden file input for specific part imports
+   * @param {string} target - The type of component to import
+   */
+  function importSpecificPart(target) {
+    importTarget = target
+    specificPartFileInput.click()
+  }
+
+  /**
+   * Dispatch event for GitHub copy request
+   */
+  function handleGitHubCopyRequest() {
+    dispatch('requestGitHubCopy')
+  }
+
+  /**
+   * Download the configuration in the selected format
+   */
+  function downloadConfiguration() {
+    try {
+      // Get the complete configuration using the function from the store
+      const configData = getPreviewConfiguration()
+
+      // Only include the override if it's different from the default
+      if (configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER === 1.0) {
+        delete configData.layoutAnimationOverrides.SCROLL_SPEED_MULTIPLIER
+      }
+
+      if (Object.keys(configData.layoutAnimationOverrides).length === 0) {
+        delete configData.layoutAnimationOverrides
+      }
+
+      if (exportFormat === 'json') {
+        // JSON Format
+        const jsonString = JSON.stringify(configData, null, 2)
+        downloadFile(jsonString, 'profileChatterConfig.json', 'application/json')
+      } else {
+        // JavaScript Module Format
+        const jsContent = `// ProfileChatter Custom Configuration
               // Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
               // This file can be used to customize your ProfileChatter configuration
   
@@ -161,817 +167,947 @@
               //      avatars: { ...originalConfig.avatars, ...customUserSelections.avatars },
               //    };
               `
-          downloadFile(jsContent, 'profileChatter.custom.js', 'application/javascript')
-        }
-      } catch (err) {
-        console.error('Error downloading configuration:', err)
-        showStatusMessage(`Error downloading configuration: ${err.message}`, true)
+        downloadFile(jsContent, 'profileChatter.custom.js', 'application/javascript')
       }
+    } catch (err) {
+      console.error('Error downloading configuration:', err)
+      showStatusMessage(`Error downloading configuration: ${err.message}`, true)
     }
-  
-    /**
-     * Export just the chat messages component
-     */
-    function exportChatMessages() {
-      try {
-        const jsonString = JSON.stringify($chatMessages, null, 2)
-        downloadFile(jsonString, 'profileChatter_messages.json', 'application/json')
-        showStatusMessage('Chat messages exported as profileChatter_messages.json')
-      } catch (err) {
-        console.error('Error exporting chat messages:', err)
-        showStatusMessage(`Error exporting chat messages: ${err.message}`, true)
+  }
+
+  /**
+   * Export just the chat messages component
+   */
+  function exportChatMessages() {
+    try {
+      const jsonString = JSON.stringify($chatMessages, null, 2)
+      downloadFile(jsonString, 'profileChatter_messages.json', 'application/json')
+      showStatusMessage('Chat messages exported as profileChatter_messages.json')
+    } catch (err) {
+      console.error('Error exporting chat messages:', err)
+      showStatusMessage(`Error exporting chat messages: ${err.message}`, true)
+    }
+  }
+
+  /**
+   * Export just the theme settings component
+   */
+  function exportThemeSettings() {
+    try {
+      const jsonString = JSON.stringify($editableTheme, null, 2)
+      downloadFile(jsonString, 'profileChatter_theme.json', 'application/json')
+      showStatusMessage('Theme settings exported as profileChatter_theme.json')
+    } catch (err) {
+      console.error('Error exporting theme settings:', err)
+      showStatusMessage(`Error exporting theme settings: ${err.message}`, true)
+    }
+  }
+
+  /**
+   * Export just the profile data component
+   */
+  function exportProfileData() {
+    try {
+      const profileData = {
+        profile: $userConfig.profile,
+        workStartDate: {
+          year: $workStartDate.year,
+          month: $workStartDate.month,
+          day: $workStartDate.day,
+        },
       }
+      const jsonString = JSON.stringify(profileData, null, 2)
+      downloadFile(jsonString, 'profileChatter_profile.json', 'application/json')
+      showStatusMessage('Profile data exported as profileChatter_profile.json')
+    } catch (err) {
+      console.error('Error exporting profile data:', err)
+      showStatusMessage(`Error exporting profile data: ${err.message}`, true)
     }
-  
-    /**
-     * Export just the theme settings component
-     */
-    function exportThemeSettings() {
-      try {
-        const jsonString = JSON.stringify($editableTheme, null, 2)
-        downloadFile(jsonString, 'profileChatter_theme.json', 'application/json')
-        showStatusMessage('Theme settings exported as profileChatter_theme.json')
-      } catch (err) {
-        console.error('Error exporting theme settings:', err)
-        showStatusMessage(`Error exporting theme settings: ${err.message}`, true)
-      }
+  }
+
+  /**
+   * Export just the avatar settings component
+   */
+  function exportAvatarSettings() {
+    try {
+      const jsonString = JSON.stringify($userConfig.avatars, null, 2)
+      downloadFile(jsonString, 'profileChatter_avatars.json', 'application/json')
+      showStatusMessage('Avatar settings exported as profileChatter_avatars.json')
+    } catch (err) {
+      console.error('Error exporting avatar settings:', err)
+      showStatusMessage(`Error exporting avatar settings: ${err.message}`, true)
     }
-  
-    /**
-     * Export just the profile data component
-     */
-    function exportProfileData() {
-      try {
-        const profileData = {
-          profile: $userConfig.profile,
-          workStartDate: {
-            year: $workStartDate.year,
-            month: $workStartDate.month,
-            day: $workStartDate.day,
-          },
-        }
-        const jsonString = JSON.stringify(profileData, null, 2)
-        downloadFile(jsonString, 'profileChatter_profile.json', 'application/json')
-        showStatusMessage('Profile data exported as profileChatter_profile.json')
-      } catch (err) {
-        console.error('Error exporting profile data:', err)
-        showStatusMessage(`Error exporting profile data: ${err.message}`, true)
-      }
-    }
-  
-    /**
-     * Export just the avatar settings component
-     */
-    function exportAvatarSettings() {
-      try {
-        const jsonString = JSON.stringify($userConfig.avatars, null, 2)
-        downloadFile(jsonString, 'profileChatter_avatars.json', 'application/json')
-        showStatusMessage('Avatar settings exported as profileChatter_avatars.json')
-      } catch (err) {
-        console.error('Error exporting avatar settings:', err)
-        showStatusMessage(`Error exporting avatar settings: ${err.message}`, true)
-      }
-    }
-  
-    /**
-     * Handle file selection for uploading configuration
-     * @param {Event} event - The change event from file input
-     */
-    async function loadConfigurationFromFile(event) {
-      try {
-        isLoading = true
-  
-        // Get the selected file
-        const file = event.target.files[0]
-  
-        // Check if a file was selected
-        if (!file) {
-          isLoading = false
-          return
-        }
-  
-        // Validate file type (basic check)
-        if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-          showStatusMessage('Please select a valid JSON file.', true)
-          fileInput.value = null // Reset file input
-          isLoading = false
-          return
-        }
-  
-        // Read the file content
-        const fileContent = await readFileAsText(file)
-  
-        // Parse JSON
-        let parsedData
-        try {
-          parsedData = JSON.parse(fileContent)
-        } catch (parseError) {
-          showStatusMessage('Invalid JSON file. The file could not be parsed.', true)
-          console.error('JSON parsing error:', parseError)
-          fileInput.value = null // Reset file input
-          isLoading = false
-          return
-        }
-  
-        // Validate the structure of the parsed data
-        if (!validateConfigStructure(parsedData)) {
-          fileInput.value = null // Reset file input
-          isLoading = false
-          return
-        }
-  
-        // Update the stores with the validated data
-        updateStoresFromConfig(parsedData)
-  
-        // Show success message
-        showStatusMessage('Configuration loaded successfully!')
-  
-        // Reset file input
-        fileInput.value = null
+  }
+
+  /**
+   * Handle file selection for uploading configuration
+   * @param {Event} event - The change event from file input
+   */
+  async function loadConfigurationFromFile(event) {
+    try {
+      isLoading = true
+
+      // Get the selected file
+      const file = event.target.files[0]
+
+      // Check if a file was selected
+      if (!file) {
         isLoading = false
-  
-        // Automatically hide the upload section after successful load
-        showUploadSection = false
-      } catch (err) {
-        console.error('Error loading configuration:', err)
-        showStatusMessage(`Error loading configuration: ${err.message}`, true)
-        fileInput.value = null // Reset file input
-        isLoading = false
-      }
-    }
-  
-    /**
-     * Handle file selection for uploading specific configuration parts
-     * @param {Event} event - The change event from file input
-     */
-    async function loadSpecificPartFromFile(event) {
-      if (!importTarget) {
-        showStatusMessage('Import target not specified.', true)
-        event.target.value = null
         return
       }
-  
-      try {
-        isLoading = true
-  
-        // Get the selected file
-        const file = event.target.files[0]
-  
-        // Check if a file was selected
-        if (!file) {
-          isLoading = false
-          return
-        }
-  
-        // Validate file type (basic check)
-        if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-          showStatusMessage('Please select a valid JSON file.', true)
-          event.target.value = null // Reset file input
-          isLoading = false
-          importTarget = null
-          return
-        }
-  
-        // Read the file content
-        const fileContent = await readFileAsText(file)
-  
-        // Parse JSON
-        let parsedData
-        try {
-          parsedData = JSON.parse(fileContent)
-        } catch (parseError) {
-          showStatusMessage('Invalid JSON file. The file could not be parsed.', true)
-          console.error('JSON parsing error:', parseError)
-          event.target.value = null // Reset file input
-          isLoading = false
-          importTarget = null
-          return
-        }
-  
-        // Process based on import target
-        let success = false
-  
-        switch (importTarget) {
-          case 'messages':
-            success = importChatMessages(parsedData)
-            break
-          case 'theme':
-            success = importThemeSettings(parsedData)
-            break
-          case 'profile':
-            success = importProfileData(parsedData)
-            break
-          case 'avatars':
-            success = importAvatarSettings(parsedData)
-            break
-          default:
-            showStatusMessage(`Unknown import target: ${importTarget}`, true)
-        }
-  
-        // Reset file input regardless of outcome
-        event.target.value = null
+
+      // Validate file type (basic check)
+      if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+        showStatusMessage('Please select a valid JSON file.', true)
+        fileInput.value = null // Reset file input
         isLoading = false
-        importTarget = null
-      } catch (err) {
-        console.error(`Error importing ${importTarget}:`, err)
-        showStatusMessage(`Error importing ${importTarget}: ${err.message}`, true)
+        return
+      }
+
+      // Read the file content
+      const fileContent = await readFileAsText(file)
+
+      // Parse JSON
+      let parsedData
+      try {
+        parsedData = JSON.parse(fileContent)
+      } catch (parseError) {
+        showStatusMessage('Invalid JSON file. The file could not be parsed.', true)
+        console.error('JSON parsing error:', parseError)
+        fileInput.value = null // Reset file input
+        isLoading = false
+        return
+      }
+
+      // Validate the structure of the parsed data
+      if (!validateConfigStructure(parsedData)) {
+        fileInput.value = null // Reset file input
+        isLoading = false
+        return
+      }
+
+      // Update the stores with the validated data
+      updateStoresFromConfig(parsedData)
+
+      // Show success message
+      showStatusMessage('Configuration loaded successfully!')
+
+      // Reset file input
+      fileInput.value = null
+      isLoading = false
+
+      // Automatically hide the upload section after successful load
+      showUploadSection = false
+    } catch (err) {
+      console.error('Error loading configuration:', err)
+      showStatusMessage(`Error loading configuration: ${err.message}`, true)
+      fileInput.value = null // Reset file input
+      isLoading = false
+    }
+  }
+
+  /**
+   * Handle file selection for uploading specific configuration parts
+   * @param {Event} event - The change event from file input
+   */
+  async function loadSpecificPartFromFile(event) {
+    if (!importTarget) {
+      showStatusMessage('Import target not specified.', true)
+      event.target.value = null
+      return
+    }
+
+    try {
+      isLoading = true
+
+      // Get the selected file
+      const file = event.target.files[0]
+
+      // Check if a file was selected
+      if (!file) {
+        isLoading = false
+        return
+      }
+
+      // Validate file type (basic check)
+      if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+        showStatusMessage('Please select a valid JSON file.', true)
         event.target.value = null // Reset file input
         isLoading = false
         importTarget = null
+        return
       }
+
+      // Read the file content
+      const fileContent = await readFileAsText(file)
+
+      // Parse JSON
+      let parsedData
+      try {
+        parsedData = JSON.parse(fileContent)
+      } catch (parseError) {
+        showStatusMessage('Invalid JSON file. The file could not be parsed.', true)
+        console.error('JSON parsing error:', parseError)
+        event.target.value = null // Reset file input
+        isLoading = false
+        importTarget = null
+        return
+      }
+
+      // Process based on import target
+      let success = false
+
+      switch (importTarget) {
+        case 'messages':
+          success = importChatMessages(parsedData)
+          break
+        case 'theme':
+          success = importThemeSettings(parsedData)
+          break
+        case 'profile':
+          success = importProfileData(parsedData)
+          break
+        case 'avatars':
+          success = importAvatarSettings(parsedData)
+          break
+        default:
+          showStatusMessage(`Unknown import target: ${importTarget}`, true)
+      }
+
+      // Reset file input regardless of outcome
+      event.target.value = null
+      isLoading = false
+      importTarget = null
+    } catch (err) {
+      console.error(`Error importing ${importTarget}:`, err)
+      showStatusMessage(`Error importing ${importTarget}: ${err.message}`, true)
+      event.target.value = null // Reset file input
+      isLoading = false
+      importTarget = null
     }
-  
-    /**
-     * Import chat messages from JSON
-     * @param {Array|Object} data - Parsed data from JSON
-     * @returns {boolean} Whether import was successful
-     */
-    function importChatMessages(data) {
-      // Handle case where data is wrapped in an object with chatMessages property
-      const messages = Array.isArray(data) ? data : data.chatMessages || null
-  
-      if (!messages || !Array.isArray(messages)) {
-        showStatusMessage('Invalid format for chat messages. Expected an array.', true)
+  }
+
+  /**
+   * Import chat messages from JSON
+   * @param {Array|Object} data - Parsed data from JSON
+   * @returns {boolean} Whether import was successful
+   */
+  function importChatMessages(data) {
+    // Handle case where data is wrapped in an object with chatMessages property
+    const messages = Array.isArray(data) ? data : data.chatMessages || null
+
+    if (!messages || !Array.isArray(messages)) {
+      showStatusMessage('Invalid format for chat messages. Expected an array.', true)
+      return false
+    }
+
+    // Validate message structure
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i]
+      if (!msg.id || !msg.sender || (msg.sender !== 'me' && msg.sender !== 'visitor')) {
+        showStatusMessage(`Invalid message at index ${i}. Missing required fields.`, true)
         return false
       }
-  
-      // Validate message structure
-      for (let i = 0; i < messages.length; i++) {
-        const msg = messages[i]
+    }
+
+    // Update the store with validated messages
+    chatMessages.set(messages)
+    showStatusMessage('Chat messages imported successfully.')
+    return true
+  }
+
+  /**
+   * Import theme settings from JSON
+   * @param {Object} data - Parsed data from JSON
+   * @returns {boolean} Whether import was successful
+   */
+  function importThemeSettings(data) {
+    // Handle case where theme is in themeOverrides property
+    const themeData = data.themeOverrides || data
+
+    if (!themeData || typeof themeData !== 'object') {
+      showStatusMessage('Invalid format for theme settings. Expected an object.', true)
+      return false
+    }
+
+    // Basic validation of theme structure
+    const requiredThemeProperties = [
+      'ME_BUBBLE_COLOR',
+      'VISITOR_BUBBLE_COLOR',
+      'ME_TEXT_COLOR',
+      'VISITOR_TEXT_COLOR',
+    ]
+
+    for (const prop of requiredThemeProperties) {
+      if (!themeData[prop]) {
+        showStatusMessage(`Invalid theme settings. Missing required property: ${prop}.`, true)
+        return false
+      }
+    }
+
+    // Update the editable theme store
+    editableTheme.set(themeData)
+    showStatusMessage('Theme settings imported successfully.')
+    return true
+  }
+
+  /**
+   * Import profile data from JSON
+   * @param {Object} data - Parsed data from JSON
+   * @returns {boolean} Whether import was successful
+   */
+  function importProfileData(data) {
+    if (!data || typeof data !== 'object') {
+      showStatusMessage('Invalid format for profile data. Expected an object.', true)
+      return false
+    }
+
+    // Check for profile object
+    if (!data.profile || typeof data.profile !== 'object') {
+      showStatusMessage('Invalid profile data. Missing profile object.', true)
+      return false
+    }
+
+    // Check for required profile fields
+    const requiredProfileFields = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'GITHUB_USERNAME']
+    for (const field of requiredProfileFields) {
+      if (!data.profile[field]) {
+        showStatusMessage(`Invalid profile data. Missing required field: ${field}.`, true)
+        return false
+      }
+    }
+
+    // Check for work start date
+    const workDate = data.workStartDate || data.profile.WORK_START_DATE
+    if (
+      !workDate ||
+      typeof workDate !== 'object' ||
+      !workDate.year ||
+      !workDate.month ||
+      !workDate.day
+    ) {
+      showStatusMessage('Invalid profile data. Missing or invalid work start date.', true)
+      return false
+    }
+
+    // Update profile in userConfig
+    userConfig.update((cfg) => ({
+      ...cfg,
+      profile: {
+        ...cfg.profile,
+        ...data.profile,
+      },
+    }))
+
+    // Update work start date
+    workStartDate.set(workDate)
+
+    showStatusMessage('Profile data imported successfully.')
+    return true
+  }
+
+  /**
+   * Import avatar settings from JSON
+   * @param {Object} data - Parsed data from JSON
+   * @returns {boolean} Whether import was successful
+   */
+  function importAvatarSettings(data) {
+    // Handle case where avatars is a property in a larger object
+    const avatarData = data.avatars || data
+
+    if (!avatarData || typeof avatarData !== 'object') {
+      showStatusMessage('Invalid format for avatar settings. Expected an object.', true)
+      return false
+    }
+
+    // Basic validation of avatar structure
+    if (typeof avatarData.enabled !== 'boolean') {
+      showStatusMessage('Invalid avatar settings. Missing or invalid "enabled" property.', true)
+      return false
+    }
+
+    if (
+      !avatarData.me ||
+      typeof avatarData.me !== 'object' ||
+      !avatarData.visitor ||
+      typeof avatarData.visitor !== 'object'
+    ) {
+      showStatusMessage(
+        'Invalid avatar settings. Missing or invalid "me" or "visitor" properties.',
+        true
+      )
+      return false
+    }
+
+    // Update avatars in userConfig
+    userConfig.update((cfg) => ({
+      ...cfg,
+      avatars: {
+        ...cfg.avatars,
+        ...avatarData,
+      },
+    }))
+
+    showStatusMessage('Avatar settings imported successfully.')
+    return true
+  }
+
+  /**
+   * Validate the structure of the loaded configuration
+   * @param {Object} data - The parsed configuration data
+   * @returns {boolean} - Whether the structure is valid
+   */
+  function validateConfigStructure(data) {
+    // Check for required top-level keys
+    if (!data || typeof data !== 'object') {
+      showStatusMessage('Invalid configuration: Not a valid object.', true)
+      return false
+    }
+
+    // Check if this is an array of messages (legacy format)
+    if (Array.isArray(data)) {
+      // Validate as array of messages
+      for (let i = 0; i < data.length; i++) {
+        const msg = data[i]
         if (!msg.id || !msg.sender || (msg.sender !== 'me' && msg.sender !== 'visitor')) {
-          showStatusMessage(`Invalid message at index ${i}. Missing required fields.`, true)
+          showStatusMessage(`Invalid chat data: Message at index ${i} has invalid structure.`, true)
           return false
         }
       }
-  
-      // Update the store with validated messages
-      chatMessages.set(messages)
-      showStatusMessage('Chat messages imported successfully.')
+
+      // Legacy format is valid - will only update chat messages
+      showStatusMessage('Note: This file only contains chat messages, not profile settings.', false)
+
+      // Create a wrapper object with only chatMessages
+      data = { chatMessages: data }
       return true
     }
-  
-    /**
-     * Import theme settings from JSON
-     * @param {Object} data - Parsed data from JSON
-     * @returns {boolean} Whether import was successful
-     */
-    function importThemeSettings(data) {
-      // Handle case where theme is in themeOverrides property
-      const themeData = data.themeOverrides || data
-  
-      if (!themeData || typeof themeData !== 'object') {
-        showStatusMessage('Invalid format for theme settings. Expected an object.', true)
-        return false
-      }
-  
-      // Basic validation of theme structure
-      const requiredThemeProperties = [
-        'ME_BUBBLE_COLOR',
-        'VISITOR_BUBBLE_COLOR',
-        'ME_TEXT_COLOR',
-        'VISITOR_TEXT_COLOR',
-      ]
-  
-      for (const prop of requiredThemeProperties) {
-        if (!themeData[prop]) {
-          showStatusMessage(`Invalid theme settings. Missing required property: ${prop}.`, true)
-          return false
-        }
-      }
-  
-      // Update the editable theme store
-      editableTheme.set(themeData)
-      showStatusMessage('Theme settings imported successfully.')
-      return true
-    }
-  
-    /**
-     * Import profile data from JSON
-     * @param {Object} data - Parsed data from JSON
-     * @returns {boolean} Whether import was successful
-     */
-    function importProfileData(data) {
-      if (!data || typeof data !== 'object') {
-        showStatusMessage('Invalid format for profile data. Expected an object.', true)
-        return false
-      }
-  
-      // Check for profile object
-      if (!data.profile || typeof data.profile !== 'object') {
-        showStatusMessage('Invalid profile data. Missing profile object.', true)
-        return false
-      }
-  
-      // Check for required profile fields
+
+    // For comprehensive config, validate profile if present
+    if (data.profile && typeof data.profile === 'object') {
+      // Check required profile fields
       const requiredProfileFields = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'GITHUB_USERNAME']
       for (const field of requiredProfileFields) {
         if (!data.profile[field]) {
-          showStatusMessage(`Invalid profile data. Missing required field: ${field}.`, true)
-          return false
-        }
-      }
-  
-      // Check for work start date
-      const workDate = data.workStartDate || data.profile.WORK_START_DATE
-      if (
-        !workDate ||
-        typeof workDate !== 'object' ||
-        !workDate.year ||
-        !workDate.month ||
-        !workDate.day
-      ) {
-        showStatusMessage('Invalid profile data. Missing or invalid work start date.', true)
-        return false
-      }
-  
-      // Update profile in userConfig
-      userConfig.update((cfg) => ({
-        ...cfg,
-        profile: {
-          ...cfg.profile,
-          ...data.profile,
-        },
-      }))
-  
-      // Update work start date
-      workStartDate.set(workDate)
-  
-      showStatusMessage('Profile data imported successfully.')
-      return true
-    }
-  
-    /**
-     * Import avatar settings from JSON
-     * @param {Object} data - Parsed data from JSON
-     * @returns {boolean} Whether import was successful
-     */
-    function importAvatarSettings(data) {
-      // Handle case where avatars is a property in a larger object
-      const avatarData = data.avatars || data
-  
-      if (!avatarData || typeof avatarData !== 'object') {
-        showStatusMessage('Invalid format for avatar settings. Expected an object.', true)
-        return false
-      }
-  
-      // Basic validation of avatar structure
-      if (typeof avatarData.enabled !== 'boolean') {
-        showStatusMessage('Invalid avatar settings. Missing or invalid "enabled" property.', true)
-        return false
-      }
-  
-      if (
-        !avatarData.me ||
-        typeof avatarData.me !== 'object' ||
-        !avatarData.visitor ||
-        typeof avatarData.visitor !== 'object'
-      ) {
-        showStatusMessage(
-          'Invalid avatar settings. Missing or invalid "me" or "visitor" properties.',
-          true
-        )
-        return false
-      }
-  
-      // Update avatars in userConfig
-      userConfig.update((cfg) => ({
-        ...cfg,
-        avatars: {
-          ...cfg.avatars,
-          ...avatarData,
-        },
-      }))
-  
-      showStatusMessage('Avatar settings imported successfully.')
-      return true
-    }
-  
-    /**
-     * Validate the structure of the loaded configuration
-     * @param {Object} data - The parsed configuration data
-     * @returns {boolean} - Whether the structure is valid
-     */
-    function validateConfigStructure(data) {
-      // Check for required top-level keys
-      if (!data || typeof data !== 'object') {
-        showStatusMessage('Invalid configuration: Not a valid object.', true)
-        return false
-      }
-  
-      // Check if this is an array of messages (legacy format)
-      if (Array.isArray(data)) {
-        // Validate as array of messages
-        for (let i = 0; i < data.length; i++) {
-          const msg = data[i]
-          if (!msg.id || !msg.sender || (msg.sender !== 'me' && msg.sender !== 'visitor')) {
-            showStatusMessage(`Invalid chat data: Message at index ${i} has invalid structure.`, true)
-            return false
-          }
-        }
-  
-        // Legacy format is valid - will only update chat messages
-        showStatusMessage('Note: This file only contains chat messages, not profile settings.', false)
-  
-        // Create a wrapper object with only chatMessages
-        data = { chatMessages: data }
-        return true
-      }
-  
-      // For comprehensive config, validate profile if present
-      if (data.profile && typeof data.profile === 'object') {
-        // Check required profile fields
-        const requiredProfileFields = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'GITHUB_USERNAME']
-        for (const field of requiredProfileFields) {
-          if (!data.profile[field]) {
-            showStatusMessage(
-              `Invalid configuration: Missing required profile field "${field}".`,
-              true
-            )
-            return false
-          }
-        }
-  
-        // Check work start date if present
-        if (data.profile.WORK_START_DATE && typeof data.profile.WORK_START_DATE === 'object') {
-          if (
-            !data.profile.WORK_START_DATE.year ||
-            !data.profile.WORK_START_DATE.month ||
-            !data.profile.WORK_START_DATE.day
-          ) {
-            showStatusMessage(
-              'Invalid configuration: Missing or invalid WORK_START_DATE components.',
-              true
-            )
-            return false
-          }
-        }
-      }
-  
-      // Check theme if present
-      if (data.activeTheme !== undefined && typeof data.activeTheme !== 'string') {
-        showStatusMessage('Invalid configuration: activeTheme must be a string.', true)
-        return false
-      }
-  
-      // Check avatars if present
-      if (data.avatars && typeof data.avatars === 'object') {
-        if (typeof data.avatars.enabled !== 'boolean') {
-          showStatusMessage('Invalid configuration: avatars.enabled must be a boolean.', true)
-          return false
-        }
-  
-        // Check me and visitor avatar objects
-        if (data.avatars.me && typeof data.avatars.me !== 'object') {
-          showStatusMessage('Invalid configuration: avatars.me must be an object.', true)
-          return false
-        }
-  
-        if (data.avatars.visitor && typeof data.avatars.visitor !== 'object') {
-          showStatusMessage('Invalid configuration: avatars.visitor must be an object.', true)
-          return false
-        }
-  
-        // Validate shape value if present
-        if (data.avatars.shape && !['circle', 'square'].includes(data.avatars.shape)) {
           showStatusMessage(
-            'Invalid configuration: avatars.shape must be "circle" or "square".',
+            `Invalid configuration: Missing required profile field "${field}".`,
             true
           )
           return false
         }
       }
-  
-      // Check chat messages if present
-      if (data.chatMessages !== undefined) {
-        if (!Array.isArray(data.chatMessages)) {
-          showStatusMessage('Invalid configuration: chatMessages is not an array.', true)
+
+      // Check work start date if present
+      if (data.profile.WORK_START_DATE && typeof data.profile.WORK_START_DATE === 'object') {
+        if (
+          !data.profile.WORK_START_DATE.year ||
+          !data.profile.WORK_START_DATE.month ||
+          !data.profile.WORK_START_DATE.day
+        ) {
+          showStatusMessage(
+            'Invalid configuration: Missing or invalid WORK_START_DATE components.',
+            true
+          )
           return false
         }
-  
-        // Check message structure (basic validation)
-        for (let i = 0; i < data.chatMessages.length; i++) {
-          const msg = data.chatMessages[i]
-          if (!msg.id || !msg.sender || (msg.sender !== 'me' && msg.sender !== 'visitor')) {
-            showStatusMessage(
-              `Invalid configuration: Message at index ${i} has invalid structure.`,
-              true
-            )
-            return false
-          }
+      }
+    }
+
+    // Check theme if present
+    if (data.activeTheme !== undefined && typeof data.activeTheme !== 'string') {
+      showStatusMessage('Invalid configuration: activeTheme must be a string.', true)
+      return false
+    }
+
+    // Check avatars if present
+    if (data.avatars && typeof data.avatars === 'object') {
+      if (typeof data.avatars.enabled !== 'boolean') {
+        showStatusMessage('Invalid configuration: avatars.enabled must be a boolean.', true)
+        return false
+      }
+
+      // Check me and visitor avatar objects
+      if (data.avatars.me && typeof data.avatars.me !== 'object') {
+        showStatusMessage('Invalid configuration: avatars.me must be an object.', true)
+        return false
+      }
+
+      if (data.avatars.visitor && typeof data.avatars.visitor !== 'object') {
+        showStatusMessage('Invalid configuration: avatars.visitor must be an object.', true)
+        return false
+      }
+
+      // Validate shape value if present
+      if (data.avatars.shape && !['circle', 'square'].includes(data.avatars.shape)) {
+        showStatusMessage(
+          'Invalid configuration: avatars.shape must be "circle" or "square".',
+          true
+        )
+        return false
+      }
+    }
+
+    // Check chat messages if present
+    if (data.chatMessages !== undefined) {
+      if (!Array.isArray(data.chatMessages)) {
+        showStatusMessage('Invalid configuration: chatMessages is not an array.', true)
+        return false
+      }
+
+      // Check message structure (basic validation)
+      for (let i = 0; i < data.chatMessages.length; i++) {
+        const msg = data.chatMessages[i]
+        if (!msg.id || !msg.sender || (msg.sender !== 'me' && msg.sender !== 'visitor')) {
+          showStatusMessage(
+            `Invalid configuration: Message at index ${i} has invalid structure.`,
+            true
+          )
+          return false
         }
       }
-  
-      return true
     }
-  
-    /**
-     * Update all stores with data from the parsed configuration
-     * @param {Object} data - The validated configuration data
-     */
-    function updateStoresFromConfig(data) {
-      // Update profile, theme, and avatars if present
-      if (data.profile || data.activeTheme || data.avatars) {
-        userConfig.update((currentConfig) => {
-          const newConfig = { ...currentConfig }
-  
-          // Update profile if present
-          if (data.profile) {
-            // Extract work start date to handle separately
-            const { WORK_START_DATE, ...profileWithoutDate } = data.profile
-  
-            // Update profile
-            newConfig.profile = {
-              ...currentConfig.profile,
-              ...profileWithoutDate,
-            }
-  
-            // Update work start date if present
-            if (WORK_START_DATE) {
-              workStartDate.set(WORK_START_DATE)
-            }
+
+    return true
+  }
+
+  /**
+   * Update all stores with data from the parsed configuration
+   * @param {Object} data - The validated configuration data
+   */
+  function updateStoresFromConfig(data) {
+    console.log('Updating stores from config:', JSON.parse(JSON.stringify(data)))
+
+    // Store the theme overrides for reapplication after userConfig update
+    const themeOverridesToApply = data.themeOverrides || data.theme
+
+    // First, handle components that don't trigger theme resets
+
+    // Update chat messages if present
+    if (data.chatMessages) {
+      console.log('Updating chat messages:', data.chatMessages.length, 'messages')
+      chatMessages.set(data.chatMessages)
+    }
+
+    // Update profile, theme, and avatars if present
+    // But EXCLUDE activeTheme which triggers the theme subscription
+    if (data.profile || data.avatars || data.layoutAnimationOverrides) {
+      userConfig.update((currentConfig) => {
+        console.log(
+          'Current userConfig before update (excluding activeTheme):',
+          JSON.parse(JSON.stringify(currentConfig))
+        )
+        const newConfig = { ...currentConfig }
+
+        // Update profile if present
+        if (data.profile) {
+          // Extract work start date to handle separately
+          const { WORK_START_DATE, ...profileWithoutDate } = data.profile
+
+          // Update profile with deep merge
+          newConfig.profile = {
+            ...currentConfig.profile,
+            ...profileWithoutDate,
           }
-  
-          // Update theme if present
-          if (data.activeTheme) {
-            newConfig.activeTheme = data.activeTheme
+
+          // Update work start date if present
+          if (WORK_START_DATE) {
+            workStartDate.set(WORK_START_DATE)
           }
-  
-          // Update avatars if present
-          if (data.avatars) {
-            newConfig.avatars = {
-              ...currentConfig.avatars,
-              ...data.avatars,
-            }
+        }
+
+        // Update avatars if present with proper deep merge
+        if (data.avatars) {
+          newConfig.avatars = {
+            ...currentConfig.avatars,
+            ...data.avatars,
+            // Ensure nested me/visitor objects are also merged deeply
+            me: {
+              ...(currentConfig.avatars?.me || {}),
+              ...(data.avatars?.me || {}),
+            },
+            visitor: {
+              ...(currentConfig.avatars?.visitor || {}),
+              ...(data.avatars?.visitor || {}),
+            },
           }
-  
-          return newConfig
-        })
-      }
-  
-      // Update chat messages if present
-      if (data.chatMessages) {
-        chatMessages.set(data.chatMessages)
+        }
+
+        // Handle layout animation overrides if present
+        if (data.layoutAnimationOverrides) {
+          if (!newConfig.layout) {
+            newConfig.layout = {}
+          }
+          if (!newConfig.layout.ANIMATION) {
+            newConfig.layout.ANIMATION = {}
+          }
+          newConfig.layout.ANIMATION = {
+            ...newConfig.layout.ANIMATION,
+            ...data.layoutAnimationOverrides,
+          }
+        }
+
+        console.log(
+          'New userConfig after update (excluding activeTheme):',
+          JSON.parse(JSON.stringify(newConfig))
+        )
+        return newConfig
+      })
+    }
+
+    // If we need to update the activeTheme, do it in isolation
+    // so we can reapply theme overrides immediately after
+    if (data.activeTheme) {
+      // Update activeTheme - this will trigger the subscription that resets the theme
+      userConfig.update((currentConfig) => ({
+        ...currentConfig,
+        activeTheme: data.activeTheme,
+      }))
+
+      // Immediately after the theme is reset by the subscription, apply our overrides
+      if (themeOverridesToApply) {
+        // Use setTimeout with 0ms to ensure this runs after the subscription
+        setTimeout(() => {
+          console.log(
+            'Reapplying theme overrides after activeTheme change:',
+            JSON.parse(JSON.stringify(themeOverridesToApply))
+          )
+          editableTheme.update((currentTheme) => ({
+            ...currentTheme,
+            ...themeOverridesToApply,
+          }))
+        }, 0)
       }
     }
-  </script>
-  
-  <!-- Export Format Selection -->
-  <div class="pb-2 mb-3 border-b border-gray-200">
+    // If we're not updating activeTheme (which would reset the theme),
+    // we can directly apply theme overrides
+    else if (themeOverridesToApply) {
+      console.log(
+        'Directly applying theme overrides (no activeTheme change):',
+        JSON.parse(JSON.stringify(themeOverridesToApply))
+      )
+      editableTheme.update((currentTheme) => ({
+        ...currentTheme,
+        ...themeOverridesToApply,
+      }))
+    }
+  }
+</script>
+
+<!-- Export Format Selection -->
+<div class="pb-2 mb-3 border-b border-gray-200">
+  <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Export Format</h4>
+  <div class="flex space-x-4">
+    <label class="flex items-center">
+      <input
+        type="radio"
+        id="format-json"
+        bind:group={exportFormat}
+        value="json"
+        class="mr-1 text-primary focus:ring-primary"
+        aria-describedby="tooltip-json-format"
+      />
+      <span class="text-sm">JSON</span>
+      <span class="ml-1 text-xs text-gray-500">(Complete Backup)</span>
+      <HelpIconTooltip
+        text="JSON format includes all settings including chat messages, theme, profile, and avatars - best for complete backups."
+        position="top"
+      />
+    </label>
+    <label class="flex items-center">
+      <input
+        type="radio"
+        id="format-js"
+        bind:group={exportFormat}
+        value="js"
+        class="mr-1 text-primary focus:ring-primary"
+        aria-describedby="tooltip-js-format"
+      />
+      <span class="text-sm">JavaScript</span>
+      <span class="ml-1 text-xs text-gray-500">(Profile Only)</span>
+      <HelpIconTooltip
+        text="JavaScript format exports profile settings only as a JS module that can be imported directly into your project. Doesn't include chat messages."
+        position="top"
+      />
+    </label>
+  </div>
+</div>
+
+<div class="space-y-3">
+  <!-- Download Configuration Button -->
+  <button
+    type="button"
+    on:click={downloadConfiguration}
+    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 flex items-center justify-center"
+  >
+    <svg
+      class="w-4 h-4 mr-2 text-white"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+      ></path>
+    </svg>
+    Download Configuration
+    <HelpIconTooltip
+      text="Save all your current settings to a file that you can use as a backup or share with others."
+      position="top"
+    />
+  </button>
+
+  <!-- Copy for GitHub Button -->
+  <button
+    type="button"
+    on:click={handleGitHubCopyRequest}
+    class="w-full mt-3 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center"
+  >
+    <svg class="w-4 h-4 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill-rule="evenodd"
+        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+        clip-rule="evenodd"
+      />
+    </svg>
+    Prepare for GitHub Update
+    <HelpIconTooltip
+      text="Copy your configuration to clipboard so you can update your profileChatterConfig.json file on GitHub. This will trigger an automatic rebuild of your SVG."
+      position="top"
+    />
+  </button>
+
+  <!-- Export Specific Parts -->
+  <div class="pt-2 mt-2 border-t border-gray-200">
     <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">
-      Export Format
+      Export Specific Parts
+      <HelpIconTooltip
+        text="Export individual components of your configuration separately, instead of exporting everything at once."
+        position="top"
+      />
     </h4>
-    <div class="flex space-x-4">
-      <label class="flex items-center">
-        <input
-          type="radio"
-          id="format-json"
-          bind:group={exportFormat}
-          value="json"
-          class="mr-1 text-primary focus:ring-primary"
-          aria-describedby="tooltip-json-format"
+    <div class="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        on:click={exportChatMessages}
+        class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+      >
+        <svg
+          class="w-3 h-3 mr-1 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        Export Chat Messages
+        <HelpIconTooltip
+          text="Save only your chat messages to a separate file. Useful if you want to back up or share just your conversations."
+          position="bottom"
         />
-        <span class="text-sm">JSON</span>
-        <span class="ml-1 text-xs text-gray-500">(Complete Backup)</span>
-        <HelpIconTooltip text="JSON format includes all settings including chat messages, theme, profile, and avatars - best for complete backups." position="top"/>
-      </label>
-      <label class="flex items-center">
-        <input
-          type="radio"
-          id="format-js"
-          bind:group={exportFormat}
-          value="js"
-          class="mr-1 text-primary focus:ring-primary"
-          aria-describedby="tooltip-js-format"
+      </button>
+
+      <button
+        type="button"
+        on:click={exportThemeSettings}
+        class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+      >
+        <svg
+          class="w-3 h-3 mr-1 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        Export Theme Settings
+        <HelpIconTooltip
+          text="Save just your theme customizations to a separate file. Useful for creating and sharing theme presets."
+          position="bottom"
         />
-        <span class="text-sm">JavaScript</span>
-        <span class="ml-1 text-xs text-gray-500">(Profile Only)</span>
-        <HelpIconTooltip text="JavaScript format exports profile settings only as a JS module that can be imported directly into your project. Doesn't include chat messages." position="top"/>
-      </label>
+      </button>
+
+      <button
+        type="button"
+        on:click={exportProfileData}
+        class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+      >
+        <svg
+          class="w-3 h-3 mr-1 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        Export Profile Data
+        <HelpIconTooltip
+          text="Save your personal and professional profile settings to a separate file, including name, profession, location, etc."
+          position="bottom"
+        />
+      </button>
+
+      <button
+        type="button"
+        on:click={exportAvatarSettings}
+        class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+      >
+        <svg
+          class="w-3 h-3 mr-1 text-gray-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          ></path>
+        </svg>
+        Export Avatar Settings
+        <HelpIconTooltip
+          text="Save your avatar configuration to a separate file, including avatar images, fallback text, and shape settings."
+          position="bottom"
+        />
+      </button>
     </div>
   </div>
-  
-  <div class="space-y-3">
-    <!-- Download Configuration Button -->
-    <button
-      type="button"
-      on:click={downloadConfiguration}
-      class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 flex items-center justify-center"
-    >
-      <svg
-        class="w-4 h-4 mr-2 text-white"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-        ></path>
-      </svg>
-      Download Configuration
-      <HelpIconTooltip text="Save all your current settings to a file that you can use as a backup or share with others." position="top"/>
-    </button>
-  
-    <!-- Copy for GitHub Button -->
-    <button
-      type="button"
-      on:click={handleGitHubCopyRequest}
-      class="w-full mt-3 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center"
-    >
-      <svg
-        class="w-4 h-4 mr-2 text-white"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-          clip-rule="evenodd"
-        />
-      </svg>
-      Prepare for GitHub Update
-      <HelpIconTooltip text="Copy your configuration to clipboard so you can update your profileChatterConfig.json file on GitHub. This will trigger an automatic rebuild of your SVG." position="top"/>
-    </button>
-  
-    <!-- Export Specific Parts -->
-    <div class="pt-2 mt-2 border-t border-gray-200">
-      <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">
-        Export Specific Parts
-        <HelpIconTooltip text="Export individual components of your configuration separately, instead of exporting everything at once." position="top"/>
-      </h4>
-      <div class="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          on:click={exportChatMessages}
-          class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-        >
-          <svg
-            class="w-3 h-3 mr-1 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-          </svg>
-          Export Chat Messages
-          <HelpIconTooltip text="Save only your chat messages to a separate file. Useful if you want to back up or share just your conversations." position="bottom"/>
-        </button>
-  
-        <button
-          type="button"
-          on:click={exportThemeSettings}
-          class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-        >
-          <svg
-            class="w-3 h-3 mr-1 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-          </svg>
-          Export Theme Settings
-          <HelpIconTooltip text="Save just your theme customizations to a separate file. Useful for creating and sharing theme presets." position="bottom"/>
-        </button>
-  
-        <button
-          type="button"
-          on:click={exportProfileData}
-          class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-        >
-          <svg
-            class="w-3 h-3 mr-1 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-          </svg>
-          Export Profile Data
-          <HelpIconTooltip text="Save your personal and professional profile settings to a separate file, including name, profession, location, etc." position="bottom"/>
-        </button>
-  
-        <button
-          type="button"
-          on:click={exportAvatarSettings}
-          class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-        >
-          <svg
-            class="w-3 h-3 mr-1 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-          </svg>
-          Export Avatar Settings
-          <HelpIconTooltip text="Save your avatar configuration to a separate file, including avatar images, fallback text, and shape settings." position="bottom"/>
-        </button>
-      </div>
-    </div>
-  
-    <!-- Toggle Upload Section Button -->
-    <button
-      type="button"
-      on:click={toggleUploadSection}
-      class="group w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm
+
+  <!-- Toggle Upload Section Button -->
+  <button
+    type="button"
+    on:click={toggleUploadSection}
+    class="group w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm
                 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
                 focus:ring-offset-2 focus:ring-primary flex items-center justify-center
                 transition-colors duration-200"
+  >
+    <svg
+      class="w-4 h-4 mr-2 text-gray-500"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
     >
-      <svg
-        class="w-4 h-4 mr-2 text-gray-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+      />
+    </svg>
+
+    <span class="text-gray-700 group-hover:text-gray-900">
+      {showUploadSection ? 'Hide Upload Section' : 'Upload Configuration'}
+    </span>
+    <HelpIconTooltip
+      text="Upload a previously exported configuration file to restore your settings."
+      position="top"
+    />
+  </button>
+
+  <!-- Upload Section (Expandable) -->
+  {#if showUploadSection}
+    <div
+      class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 transition-all"
+      transition:slide={{ duration: 300 }}
+    >
+      <p class="text-xs text-gray-600 mb-3">
+        Select a JSON configuration file to restore your saved settings.
+      </p>
+
+      <div class="flex flex-col space-y-2">
+        <!-- Hidden File Input -->
+        <input
+          type="file"
+          accept=".json"
+          bind:this={fileInput}
+          on:change={loadConfigurationFromFile}
+          class="hidden"
         />
-      </svg>
-  
-      <span class="text-gray-700 group-hover:text-gray-900">
-        {showUploadSection ? 'Hide Upload Section' : 'Upload Configuration'}
-      </span>
-      <HelpIconTooltip text="Upload a previously exported configuration file to restore your settings." position="top"/>
-    </button>
-  
-    <!-- Upload Section (Expandable) -->
-    {#if showUploadSection}
-      <div
-        class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 transition-all"
-        transition:slide={{ duration: 300 }}
-      >
-        <p class="text-xs text-gray-600 mb-3">
-          Select a JSON configuration file to restore your saved settings.
-        </p>
-  
-        <div class="flex flex-col space-y-2">
-          <!-- Hidden File Input -->
-          <input
-            type="file"
-            accept=".json"
-            bind:this={fileInput}
-            on:change={loadConfigurationFromFile}
-            class="hidden"
-          />
-  
-          <!-- Hidden File Input for Specific Parts -->
-          <input
-            type="file"
-            accept=".json"
-            bind:this={specificPartFileInput}
-            on:change={loadSpecificPartFromFile}
-            class="hidden"
-          />
-  
-          <!-- Styled File Selection Button -->
-          <button
-            type="button"
-            on:click={openFileInput}
-            class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-            disabled={isLoading}
-          >
-            {#if isLoading}
-              <div
-                class="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full mr-2"
-              ></div>
-              Processing...
-            {:else}
+
+        <!-- Hidden File Input for Specific Parts -->
+        <input
+          type="file"
+          accept=".json"
+          bind:this={specificPartFileInput}
+          on:change={loadSpecificPartFromFile}
+          class="hidden"
+        />
+
+        <!-- Styled File Selection Button -->
+        <button
+          type="button"
+          on:click={openFileInput}
+          class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+          disabled={isLoading}
+        >
+          {#if isLoading}
+            <div
+              class="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full mr-2"
+            ></div>
+            Processing...
+          {:else}
+            <svg
+              class="w-4 h-4 mr-2 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+              ></path>
+            </svg>
+            Select Configuration File
+          {/if}
+        </button>
+
+        <!-- Import Specific Part section -->
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <h5 class="text-xs font-medium text-gray-500 uppercase mb-2">
+            Import Specific Part
+            <HelpIconTooltip
+              text="Import just a specific part of a configuration, such as only the theme settings or only the chat messages."
+              position="top"
+            />
+          </h5>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              on:click={() => importSpecificPart('messages')}
+              class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+              disabled={isLoading}
+            >
               <svg
-                class="w-4 h-4 mr-2 text-gray-500"
+                class="w-3 h-3 mr-1 text-gray-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -981,151 +1117,119 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
                 ></path>
               </svg>
-              Select Configuration File
-            {/if}
-          </button>
-  
-          <!-- Import Specific Part section -->
-          <div class="mt-4 pt-4 border-t border-gray-200">
-            <h5 class="text-xs font-medium text-gray-500 uppercase mb-2">
-              Import Specific Part
-              <HelpIconTooltip text="Import just a specific part of a configuration, such as only the theme settings or only the chat messages." position="top"/>
-            </h5>
-  
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                on:click={() => importSpecificPart('messages')}
-                class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-                disabled={isLoading}
+              Import Chat Messages
+            </button>
+
+            <button
+              type="button"
+              on:click={() => importSpecificPart('theme')}
+              class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+              disabled={isLoading}
+            >
+              <svg
+                class="w-3 h-3 mr-1 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
-                <svg
-                  class="w-3 h-3 mr-1 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
-                  ></path>
-                </svg>
-                Import Chat Messages
-              </button>
-  
-              <button
-                type="button"
-                on:click={() => importSpecificPart('theme')}
-                class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-                disabled={isLoading}
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                ></path>
+              </svg>
+              Import Theme Settings
+            </button>
+
+            <button
+              type="button"
+              on:click={() => importSpecificPart('profile')}
+              class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+              disabled={isLoading}
+            >
+              <svg
+                class="w-3 h-3 mr-1 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
-                <svg
-                  class="w-3 h-3 mr-1 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                  ></path>
-                </svg>
-                Import Theme Settings
-              </button>
-              
-              <button
-                type="button"
-                on:click={() => importSpecificPart('profile')}
-                class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-                disabled={isLoading}
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              Import Profile Data
+            </button>
+
+            <button
+              type="button"
+              on:click={() => importSpecificPart('avatars')}
+              class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
+              disabled={isLoading}
+            >
+              <svg
+                class="w-3 h-3 mr-1 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
-                <svg
-                  class="w-3 h-3 mr-1 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
-                </svg>
-                Import Profile Data
-              </button>
-  
-              <button
-                type="button"
-                on:click={() => importSpecificPart('avatars')}
-                class="py-2 px-2 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary transition-colors duration-200 flex items-center justify-center"
-                disabled={isLoading}
-              >
-                <svg
-                  class="w-3 h-3 mr-1 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                Import Avatar Settings
-              </button>
-            </div>
-  
-            <p class="text-xs text-gray-500 mt-2">
-              Select the type of component to import, then choose the corresponding JSON file.
-            </p>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Import Avatar Settings
+            </button>
           </div>
-  
-          <p class="text-xs text-gray-500 mt-3">
-            Note: Only JSON files can be imported. JavaScript module files are for export only.
+
+          <p class="text-xs text-gray-500 mt-2">
+            Select the type of component to import, then choose the corresponding JSON file.
           </p>
         </div>
+
+        <p class="text-xs text-gray-500 mt-3">
+          Note: Only JSON files can be imported. JavaScript module files are for export only.
+        </p>
       </div>
-    {/if}
-  
-    <!-- Success/Error Message -->
-    {#if showSuccess}
-      <div
-        class="mt-2 p-2 rounded-md text-sm transition-opacity duration-300"
-        class:bg-green-100={!isError}
-        class:text-green-800={!isError}
-        class:bg-red-100={isError}
-        class:text-red-800={isError}
-        transition:fade={{ duration: 200 }}
-        aria-live="polite"
-      >
-        {@html message}
-      </div>
-    {/if}
-  </div>
-  
-  <style>
-    /* Button transition styling */
-    button {
-      transition:
-        transform 0.1s ease-in-out,
-        background-color 0.2s ease;
-    }
-  
-    button:active {
-      transform: scale(0.98);
-    }
-  </style>
+    </div>
+  {/if}
+
+  <!-- Success/Error Message -->
+  {#if showSuccess}
+    <div
+      class="mt-2 p-2 rounded-md text-sm transition-opacity duration-300"
+      class:bg-green-100={!isError}
+      class:text-green-800={!isError}
+      class:bg-red-100={isError}
+      class:text-red-800={isError}
+      transition:fade={{ duration: 200 }}
+      aria-live="polite"
+    >
+      {@html message}
+    </div>
+  {/if}
+</div>
+
+<style>
+  /* Button transition styling */
+  button {
+    transition:
+      transform 0.1s ease-in-out,
+      background-color 0.2s ease;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+</style>

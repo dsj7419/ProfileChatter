@@ -2,6 +2,11 @@
  * AvatarRenderer.js
  * Responsible for rendering avatar elements within the SVG chat visualization
  * Single Responsibility: Generate SVG markup for avatar display
+ * 
+ * IMPORTANT: For GitHub README compatibility, avatar images should be:
+ * 1. Base64 data URIs (preferred, works everywhere)
+ * 2. Local assets (embedded as Base64 by build-profile.js)
+ * External HTTP/HTTPS URLs will NOT display in GitHub READMEs due to CSP restrictions.
  */
 import { config } from '../../config/config.js';
 import TextProcessor from '../../utils/TextProcessor.js';
