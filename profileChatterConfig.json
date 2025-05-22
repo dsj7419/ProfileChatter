@@ -61,8 +61,44 @@
       "text": "I've been working at {company} for {workTenure}.\nCurrently, the weather here is {temperature} with {weatherDescription}."
     },
     {
-      "id": "msg-4",
+      "id": "msg-social",
+      "sender": "me",
+      "text": "You can also find me on X/Twitter, where I have {twitterFollowers} followers!"
+    },
+    {
+      "id": "msg-9",
+      "sender": "me",
+      "text": "Feel free to reach out if you want to collaborate! {emoji}"
+    },
+    {
+      "id": "msg-8",
+      "sender": "me",
+      "contentType": "chart",
+      "chartData": {
+        "type": "horizontalBar",
+        "title": "My Coding Activity (Last 7 Days)",
+        "maxValue": 100,
+        "items": "{wakatime_chart_data}"
+      }
+    },
+    {
+      "id": "msg-codestats",
       "sender": "visitor",
+      "text": "You've also accumulated {codestatsXP} XP on Code::Stats! Impressive!"
+    },
+    {
+      "id": "msg-7",
+      "sender": "me",
+      "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
+    },
+    {
+      "id": "msg-6",
+      "sender": "visitor",
+      "text": "What programming languages are you most proficient in?"
+    },
+    {
+      "id": "msg-4",
+      "sender": "me",
       "contentType": "chart",
       "chartData": {
         "type": "horizontalBar",
@@ -70,29 +106,44 @@
         "maxValue": 100,
         "items": [
           {
+            "label": "C++",
+            "value": 90,
+            "color": "#F34B7D"
+          },
+          {
+            "label": "C#",
+            "value": 90,
+            "color": "#178600"
+          },
+          {
+            "label": "Python",
+            "value": 90,
+            "color": "#3572A5"
+          },
+          {
             "label": "JavaScript",
             "value": 85,
-            "color": "#4285F4"
+            "color": "#F7DF1E"
           },
           {
             "label": "React",
-            "value": 75,
-            "color": "#4285F4"
+            "value": 85,
+            "color": "#61DAFB"
           },
           {
-            "label": "Node.js",
+            "label": "TypeScript",
             "value": 80,
-            "color": "#4285F4"
+            "color": "#3178C6"
+          },
+          {
+            "label": "HTML",
+            "value": 80,
+            "color": "#E34C26"
           },
           {
             "label": "CSS",
             "value": 70,
-            "color": "#4285F4"
-          },
-          {
-            "label": "Python",
-            "value": 60,
-            "color": "#4285F4"
+            "color": "#563D7C"
           }
         ]
       }
@@ -104,28 +155,33 @@
       "contentType": "chart",
       "chartData": {
         "type": "donut",
-        "title": "Project Breakdown",
+        "title": "ProfileChatter Project Distribution",
         "centerText": "100%",
         "items": [
           {
-            "label": "Frontend",
-            "value": 40,
+            "label": "Frontend (Svelte/Tailwind)",
+            "value": 25,
             "color": "#34A853"
           },
           {
-            "label": "Backend",
-            "value": 35,
+            "label": "Backend Preview Server (Node.js)",
+            "value": 25,
             "color": "#4285F4"
           },
           {
-            "label": "Testing",
+            "label": "OAuth & Security",
             "value": 15,
             "color": "#FBBC05"
           },
           {
-            "label": "Docs",
-            "value": 10,
+            "label": "Config Persistence & Validation",
+            "value": 20,
             "color": "#EA4335"
+          },
+          {
+            "label": "Chart & SVG Rendering",
+            "value": 15,
+            "color": "#00ACC1"
           }
         ]
       }
@@ -151,42 +207,6 @@
       "id": "msg-github-oauth-3",
       "sender": "me",
       "text": "I've contributed to {githubContributedRepos} repositories and made approximately {githubCommitsLastYear} commits in the past year."
-    },
-    {
-      "id": "msg-6",
-      "sender": "visitor",
-      "text": "What programming languages have you been using lately?"
-    },
-    {
-      "id": "msg-7",
-      "sender": "me",
-      "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
-    },
-    {
-      "id": "msg-codestats",
-      "sender": "visitor",
-      "text": "You've also accumulated {codestatsXP} XP on Code::Stats! Impressive!"
-    },
-    {
-      "id": "msg-8",
-      "sender": "me",
-      "contentType": "chart",
-      "chartData": {
-        "type": "horizontalBar",
-        "title": "My Coding Activity (Last 7 Days)",
-        "maxValue": 100,
-        "items": "{wakatime_chart_data}"
-      }
-    },
-    {
-      "id": "msg-9",
-      "sender": "me",
-      "text": "Feel free to reach out if you want to collaborate! {emoji}"
-    },
-    {
-      "id": "msg-social",
-      "sender": "me",
-      "text": "You can also find me on X/Twitter, where I have {twitterFollowers} followers!"
     }
   ],
   "themeOverrides": {
