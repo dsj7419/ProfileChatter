@@ -36,189 +36,113 @@
     {
       "id": "msg-1",
       "sender": "me",
-      "text": "Hey there! I'm {name}, a {profession} based in {location}."
+      "text": "👋 Hey there! I’m {name}, a {profession} from {location}."
     },
     {
       "id": "msg-2",
       "sender": "visitor",
-      "text": "Nice to meet you! Today is {currentDayOfWeek}, {currentDate} and I see the time there is {time}.",
-      "reaction": "👋"
+      "text": "Great to meet you! Today is {currentDayOfWeek}, {currentDate} at {time}.",
+      "reaction": "😊"
     },
     {
       "id": "msg-spotify",
       "sender": "visitor",
-      "text": "What music are you listening to while coding?",
+      "text": "What tunes power your coding flow?",
       "reaction": "🎵"
     },
     {
       "id": "msg-spotify-response",
       "sender": "me",
-      "text": "Right now I'm listening to {spotifyTrack}. Music helps me focus while coding!"
+      "text": "I’m jamming to {spotifyTrack} right now—it really fuels my focus!"
     },
     {
       "id": "msg-3",
       "sender": "me",
-      "text": "I've been working at {company} for {workTenure}.\nCurrently, the weather here is {temperature} with {weatherDescription}."
+      "text": "I’ve been at {company} for {workTenure}. It’s {weatherDescription} and {temperature} here today."
     },
     {
-      "id": "msg-social",
-      "sender": "me",
-      "text": "You can also find me on X/Twitter, where I have {twitterFollowers} followers!"
-    },
-    {
-      "id": "msg-9",
-      "sender": "me",
-      "text": "Feel free to reach out if you want to collaborate! {emoji}"
-    },
-    {
-      "id": "msg-8",
-      "sender": "me",
+      "id": "msg-skills-chart",
+      "sender": "visitor",
       "contentType": "chart",
       "chartData": {
         "type": "horizontalBar",
-        "title": "My Coding Activity (Last 7 Days)",
-        "maxValue": 100,
-        "items": "{wakatime_chart_data}"
-      }
-    },
-    {
-      "id": "msg-codestats",
-      "sender": "visitor",
-      "text": "You've also accumulated {codestatsXP} XP on Code::Stats! Impressive!"
-    },
-    {
-      "id": "msg-7",
-      "sender": "me",
-      "text": "My top language last week was {wakatime_top_language} ({wakatime_top_language_percent}%). {wakatime_summary}"
-    },
-    {
-      "id": "msg-6",
-      "sender": "visitor",
-      "text": "What programming languages are you most proficient in?"
-    },
-    {
-      "id": "msg-4",
-      "sender": "me",
-      "contentType": "chart",
-      "chartData": {
-        "type": "horizontalBar",
-        "title": "Skills Distribution",
+        "title": "Top Skills",
         "maxValue": 100,
         "items": [
-          {
-            "label": "C++",
-            "value": 90,
-            "color": "#F34B7D"
-          },
-          {
-            "label": "C#",
-            "value": 90,
-            "color": "#178600"
-          },
-          {
-            "label": "Python",
-            "value": 90,
-            "color": "#3572A5"
-          },
-          {
-            "label": "JavaScript",
-            "value": 85,
-            "color": "#F7DF1E"
-          },
-          {
-            "label": "React",
-            "value": 85,
-            "color": "#61DAFB"
-          },
-          {
-            "label": "TypeScript",
-            "value": 80,
-            "color": "#3178C6"
-          },
-          {
-            "label": "HTML",
-            "value": 80,
-            "color": "#E34C26"
-          },
-          {
-            "label": "CSS",
-            "value": 70,
-            "color": "#563D7C"
-          }
+          { "label": "JavaScript", "value": 90,  "color": "#F7DF1E" },
+          { "label": "Node.js",     "value": 85,  "color": "#339933" },
+          { "label": "React",       "value": 80,  "color": "#61DAFB" },
+          { "label": "Svelte",      "value": 75,  "color": "#FF3E00" },
+          { "label": "TypeScript",  "value": 70,  "color": "#3178C6" }
         ]
       }
     },
     {
-      "id": "msg-chart-donut",
+      "id": "msg-donut-chart",
       "sender": "visitor",
       "reaction": "💪",
       "contentType": "chart",
       "chartData": {
         "type": "donut",
-        "title": "ProfileChatter Project Distribution",
+        "title": "Project Breakdown",
         "centerText": "100%",
         "items": [
-          {
-            "label": "Frontend (Svelte/Tailwind)",
-            "value": 25,
-            "color": "#34A853"
-          },
-          {
-            "label": "Backend Preview Server (Node.js)",
-            "value": 25,
-            "color": "#4285F4"
-          },
-          {
-            "label": "OAuth & Security",
-            "value": 15,
-            "color": "#FBBC05"
-          },
-          {
-            "label": "Config Persistence & Validation",
-            "value": 20,
-            "color": "#EA4335"
-          },
-          {
-            "label": "Chart & SVG Rendering",
-            "value": 15,
-            "color": "#00ACC1"
-          }
+          { "label": "Frontend",                     "value": 25, "color": "#34A853" },
+          { "label": "Backend Preview Server",       "value": 25, "color": "#4285F4" },
+          { "label": "OAuth & Security",             "value": 15, "color": "#FBBC05" },
+          { "label": "Config Persistence & Validation", "value": 20, "color": "#EA4335" },
+          { "label": "Chart & SVG Rendering",        "value": 15, "color": "#00ACC1" }
         ]
       }
     },
     {
       "id": "msg-5",
       "sender": "me",
-      "text": "I'm currently focused on {currentProject}. I have {githubPublicRepos} public repositories and {githubFollowers} followers on GitHub.",
+      "text": "I’m currently focused on {currentProject}. On GitHub I’ve got {githubPublicRepos} repos and {githubFollowers} followers.",
       "reaction": "👍"
     },
     {
       "id": "msg-github-oauth",
-      "sender": "me",
-      "text": "My open source projects have received a total of {githubTotalStars} stars! I primarily code in {githubPrimaryLanguage}."
-    },
-    {
-      "id": "msg-github-oauth-2",
       "sender": "visitor",
-      "text": "That's impressive! How many repositories have you contributed to?",
+      "text": "Stars and contributions—tell me more!",
       "reaction": "🚀"
     },
     {
-      "id": "msg-github-oauth-3",
+      "id": "msg-github-oauth-2",
       "sender": "me",
-      "text": "I've contributed to {githubContributedRepos} repositories and made approximately {githubCommitsLastYear} commits in the past year."
+      "text": "My projects have earned {githubTotalStars} stars. I code mostly in {githubPrimaryLanguage}, have contributed to {githubContributedRepos} repos and made ~{githubCommitsLastYear} commits last year."
+    },
+    {
+      "id": "msg-6",
+      "sender": "visitor",
+      "text": "Which languages are running your projects?"
+    },
+    {
+      "id": "msg-wakatime",
+      "sender": "me",
+      "text": "Last week’s top language was {wakatime_top_language} ({wakatime_top_language_percent}%)—{wakatime_summary}"
+    },
+    {
+      "id": "msg-9",
+      "sender": "me",
+      "text": "Thanks for stopping by! Feel free to reach out if you’d like to collaborate. {emoji}"
+    },
+    {
+      "id": "msg-social",
+      "sender": "me",
+      "text": "You can also find me on X/Twitter (@{twitterUsername}) with {twitterFollowers} followers!"
     }
-  ],
+],
   "themeOverrides": {
     "ME_BUBBLE_COLOR": "#0B93F6",
     "VISITOR_BUBBLE_COLOR": "#E5E5EA",
     "ME_TEXT_COLOR": "#FFFFFF",
     "VISITOR_TEXT_COLOR": "#000000",
     "BACKGROUND_LIGHT": "#FFFFFF",
-    "BACKGROUND_DARK": "#000040",
+    "BACKGROUND_DARK": "#000000",
     "BUBBLE_RADIUS_PX": 18,
     "FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    "REACTION_FONT_SIZE_PX": 17,
+    "REACTION_FONT_SIZE_PX": 20,
     "REACTION_BG_COLOR": "#F1F1F1",
     "REACTION_BG_OPACITY": 0.9,
     "REACTION_TEXT_COLOR": "#000000",
@@ -272,6 +196,6 @@
     }
   },
   "layoutAnimationOverrides": {
-    "SCROLL_SPEED_MULTIPLIER": 1
+    "SCROLL_SPEED_MULTIPLIER": 1.1
   }
 }

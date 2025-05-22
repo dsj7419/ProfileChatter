@@ -288,8 +288,17 @@ class ChartRenderer {
     const contentAreaWidth = msg.layout.width;
     const chartSize = Math.min(contentAreaWidth - padX * 2, 200); // Cap at 200px
     
-    // Calculate title offset for chart positioning
-    const titleOffset = chartData.title ? (cs.TITLE_FONT_SIZE_PX || 15) + (cs.TITLE_BOTTOM_MARGIN_PX || 10) : 0;
+    // Calculate proper title offset for chart positioning (FIX: Use same logic as calculateDimensions)
+    let titleOffset = 0;
+    if (chartData.title) {
+      const titleMaxTextWidth = contentAreaWidth - padX * 2;
+      const wrappedTitle = TextProcessor.wrapText(TextProcessor.escapeXML(chartData.title), titleMaxTextWidth);
+      const titleLineHeight = (cs.TITLE_FONT_SIZE_PX || 15) * (cs.TITLE_LINE_HEIGHT_MULTIPLIER || 1.2);
+      
+      // Calculate actual title text height (same logic as in calculateDimensions)
+      const titleTextActualHeight = (wrappedTitle.lines.length * titleLineHeight) - (titleLineHeight - (cs.TITLE_FONT_SIZE_PX || 15));
+      titleOffset = titleTextActualHeight + (cs.TITLE_BOTTOM_MARGIN_PX || 10);
+    }
     
     const centerX = padX + chartSize / 2;
     const centerY = padY + titleOffset + chartSize / 2;
@@ -401,7 +410,7 @@ class ChartRenderer {
         </path>
       `;
       
-      // Create legend item
+      // Create legend item (FIX: Position legend below chart with proper spacing)
       const legendY = centerY + radius + 30 + index * ((cs.DONUT_LEGEND_FONT_SIZE_PX || 12) + (cs.DONUT_LEGEND_ITEM_SPACING_PX || 8));
       const legendMarkerSize = cs.DONUT_LEGEND_MARKER_SIZE_PX || 10;
       
