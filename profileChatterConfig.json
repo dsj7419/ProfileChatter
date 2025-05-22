@@ -69,11 +69,31 @@
         "title": "Top Skills",
         "maxValue": 100,
         "items": [
-          { "label": "JavaScript", "value": 90,  "color": "#F7DF1E" },
-          { "label": "Node.js",     "value": 85,  "color": "#339933" },
-          { "label": "React",       "value": 80,  "color": "#61DAFB" },
-          { "label": "Svelte",      "value": 75,  "color": "#FF3E00" },
-          { "label": "TypeScript",  "value": 70,  "color": "#3178C6" }
+          {
+            "label": "JavaScript",
+            "value": 90,
+            "color": "#F7DF1E"
+          },
+          {
+            "label": "Node.js",
+            "value": 85,
+            "color": "#339933"
+          },
+          {
+            "label": "React",
+            "value": 80,
+            "color": "#61DAFB"
+          },
+          {
+            "label": "Svelte",
+            "value": 75,
+            "color": "#FF3E00"
+          },
+          {
+            "label": "TypeScript",
+            "value": 70,
+            "color": "#3178C6"
+          }
         ]
       }
     },
@@ -87,11 +107,31 @@
         "title": "Project Breakdown",
         "centerText": "100%",
         "items": [
-          { "label": "Frontend",                     "value": 25, "color": "#34A853" },
-          { "label": "Backend Preview Server",       "value": 25, "color": "#4285F4" },
-          { "label": "OAuth & Security",             "value": 15, "color": "#FBBC05" },
-          { "label": "Config Persistence & Validation", "value": 20, "color": "#EA4335" },
-          { "label": "Chart & SVG Rendering",        "value": 15, "color": "#00ACC1" }
+          {
+            "label": "Frontend",
+            "value": 25,
+            "color": "#34A853"
+          },
+          {
+            "label": "Backend Preview Server",
+            "value": 25,
+            "color": "#4285F4"
+          },
+          {
+            "label": "OAuth & Security",
+            "value": 15,
+            "color": "#FBBC05"
+          },
+          {
+            "label": "Config Persistence & Validation",
+            "value": 20,
+            "color": "#EA4335"
+          },
+          {
+            "label": "Chart & SVG Rendering",
+            "value": 15,
+            "color": "#00ACC1"
+          }
         ]
       }
     },
@@ -132,14 +172,14 @@
       "sender": "me",
       "text": "You can also find me on X/Twitter (@{twitterUsername}) with {twitterFollowers} followers!"
     }
-],
+  ],
   "themeOverrides": {
     "ME_BUBBLE_COLOR": "#0B93F6",
     "VISITOR_BUBBLE_COLOR": "#E5E5EA",
     "ME_TEXT_COLOR": "#FFFFFF",
     "VISITOR_TEXT_COLOR": "#000000",
     "BACKGROUND_LIGHT": "#FFFFFF",
-    "BACKGROUND_DARK": "#000000",
+    "BACKGROUND_DARK": "#000040",
     "BUBBLE_RADIUS_PX": 18,
     "FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     "REACTION_FONT_SIZE_PX": 20,
