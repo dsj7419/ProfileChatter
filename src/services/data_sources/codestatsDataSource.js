@@ -59,7 +59,6 @@ async function getCodeStatsData() {
       }
     } 
     else {
-      // Node.js environment - try with node-fetch
       try {
         const { default: fetch } = await import('node-fetch');
         const response = await fetch(`https://codestats.net/api/users/${encodeURIComponent(username)}`);
