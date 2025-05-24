@@ -92,7 +92,21 @@ class DataService {
           getSpotifyData(),
           getGitHubOAuthData()
         ]);
-        Object.assign(baseData, weather, github, wakatime, twitter, codestats, spotify, githubOAuth);
+        Object.assign(baseData, weather, github, wakatime, codestats, spotify, githubOAuth);
+
+        // Handle Twitter followers with manual input priority
+        if (customData.profile?.TWITTER_FOLLOWERS) {
+          // Prioritize customData.profile.TWITTER_FOLLOWERS (from UI/profileChatterConfig.json)
+          baseData.twitterFollowers = customData.profile.TWITTER_FOLLOWERS;
+        } else if (config.profile.TWITTER_FOLLOWERS) {
+          // Then config.profile.TWITTER_FOLLOWERS (from src/config/config.js)
+          baseData.twitterFollowers = config.profile.TWITTER_FOLLOWERS;
+        } else if (config.twitter.enabled_api_fetch && twitter.twitterFollowers) {
+          // Then, if API fetching is enabled and successful, use that value
+          baseData.twitterFollowers = twitter.twitterFollowers;
+        }
+        // Finally, fall back to config.apiDefaults.TWITTER_FOLLOWERS (already set above)
+
       } catch (apiErr) {
         console.error('Error fetching APIs:', apiErr.message);
         console.info('Using defaults already in baseData.');

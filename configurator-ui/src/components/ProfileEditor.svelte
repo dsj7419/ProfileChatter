@@ -320,6 +320,23 @@
         <p class="mt-1 text-xs text-gray-500">Leave empty to disable Twitter integration</p>
       </div>
       
+      <!-- TWITTER_FOLLOWERS (Manual) -->
+      <div class="mb-3">
+        <label for="twitter-followers" class="block text-sm font-medium text-gray-700 mb-1">
+          Twitter Followers (Manual)
+          <HelpIconTooltip text="Enter your follower count manually. Live API fetching is disabled by default due to Twitter API costs." />
+        </label>
+        <input 
+          type="text" 
+          id="twitter-followers" 
+          value={$userConfig.profile.TWITTER_FOLLOWERS || "0"}
+          on:input={(e) => updateProfileField('TWITTER_FOLLOWERS', e.target.value)}
+          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          placeholder="1234"
+        />
+        <p class="mt-1 text-xs text-gray-500">Live API fetching is disabled by default due to Twitter API costs</p>
+      </div>
+      
       <!-- CODESTATS_USERNAME -->
       <div>
         <label for="codestats" class="block text-sm font-medium text-gray-700 mb-1">

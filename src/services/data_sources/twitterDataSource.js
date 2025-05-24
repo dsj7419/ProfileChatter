@@ -14,6 +14,12 @@ let twitterCache = { data: null, expiresAt: 0 }
  */
 export async function getTwitterData () {
   try {
+    // First check if API fetching is enabled
+    if (!config.twitter.enabled_api_fetch) {
+      console.info('Twitter API fetch is disabled. Manual follower count will be used.')
+      return {}
+    }
+
     const username = config.profile.TWITTER_USERNAME
     if (!username) {
       console.info('Twitter username not configured – skipping Twitter call.')
@@ -27,7 +33,10 @@ export async function getTwitterData () {
     }
 
     const token = process.env.TWITTER_BEARER_TOKEN
-    if (!token) throw new Error('TWITTER_BEARER_TOKEN not set in environment.')
+    if (!token) {
+      console.info('Twitter API fetch enabled but TWITTER_BEARER_TOKEN is missing. Manual follower count will be used.')
+      return {}
+    }
 
     const endpoint = `https://api.twitter.com/2/users/by/username/${encodeURIComponent(username)}?user.fields=public_metrics`
     const fetchImpl = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default
