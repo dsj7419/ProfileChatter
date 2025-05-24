@@ -15,12 +15,12 @@ let weatherCache = { data: null, expiresAt: 0 };
  */
 function getWeatherEmoji(weatherText) {
   const weatherMap = {
-    'sunny': '☀️',
-    'clear': '☀️',
     'mostly sunny': '🌤️',
     'partly sunny': '⛅',
-    'partly cloudy': '⛅',
     'mostly cloudy': '🌥️',
+    'partly cloudy': '⛅',
+    'sunny': '☀️',
+    'clear': '☀️',
     'cloudy': '☁️',
     'rain': '🌧️',
     'showers': '🌦️',
@@ -35,13 +35,17 @@ function getWeatherEmoji(weatherText) {
   
   const lowerWeatherText = weatherText.toLowerCase();
   
+  let bestMatch = '';
+  let bestEmoji = config.apiDefaults.WEATHER_EMOJI;
+  
   for (const [condition, emoji] of Object.entries(weatherMap)) {
-    if (lowerWeatherText.includes(condition)) {
-      return emoji;
+    if (lowerWeatherText.includes(condition) && condition.length > bestMatch.length) {
+      bestMatch = condition;
+      bestEmoji = emoji;
     }
   }
   
-  return config.apiDefaults.WEATHER_EMOJI;
+  return bestEmoji;
 }
 
 /**

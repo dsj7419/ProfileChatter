@@ -4,7 +4,8 @@
   // Define available themes
   const availableThemes = [
     { id: 'ios', name: 'iOS Style', description: 'Blue user bubbles, gray visitor bubbles, rounded corners' },
-    { id: 'android', name: 'Android Style', description: 'Light blue user bubbles, light gray visitor bubbles, less rounded corners' }
+    { id: 'android', name: 'Android Style', description: 'Light blue user bubbles, light gray visitor bubbles, less rounded corners' },
+    { id: 'discord', name: 'Discord Style', description: 'Blurple user bubbles, dark gray visitor bubbles, Discord fonts and feel.' }
   ];
   
   // For visual preview
@@ -18,6 +19,11 @@
       return {
         me: 'bg-[#D1E6FF] text-black rounded-lg',
         visitor: 'bg-[#F0F0F0] text-black rounded-lg'
+      };
+    } else if (themeId === 'discord') {
+      return {
+        me: 'bg-[#5865F2] text-white rounded-md',
+        visitor: 'bg-[#36393F] text-[#DCDDDE] rounded-md'
       };
     }
     
