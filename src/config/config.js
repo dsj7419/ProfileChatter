@@ -19,6 +19,10 @@ export const config = {
     yOffsetPx: 0
   },
 
+  weather: {
+    enabled: true
+  },
+
   themes: {
     ios: {
       ME_BUBBLE_COLOR: '#0B93F6',

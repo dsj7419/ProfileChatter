@@ -144,6 +144,13 @@ function validateAvatarsConfig(avatarsConfig, pathPrefix = 'config.avatars') {
   return isValid;
 }
 
+function validateWeatherConfig(weatherConfig, pathPrefix = 'config.weather') {
+  if (!validateObjectWithProps(weatherConfig, pathPrefix, ['enabled'])) return false;
+  let isValid = true;
+  isValid = isBoolean(weatherConfig.enabled, `${pathPrefix}.enabled`) && isValid;
+  return isValid;
+}
+
 function validateChartStyles(chartStyles, themeName) {
   const basePath = `config.themes.${themeName}.CHART_STYLES`;
   const requiredProps = [
@@ -453,7 +460,7 @@ export function validateConfiguration(config) {
 
   let overallIsValid = true;
 
-  const rootProps = ['activeTheme', 'avatars', 'themes', 'profile', 'cache', 'apiDefaults', 'layout', 'wakatime'];
+  const rootProps = ['activeTheme', 'avatars', 'weather', 'themes', 'profile', 'cache', 'apiDefaults', 'layout', 'wakatime'];
   if (!validateObjectWithProps(config, 'config', rootProps)) {
     overallIsValid = false; 
   }
@@ -476,6 +483,7 @@ export function validateConfiguration(config) {
     }
     
     overallIsValid = validateAvatarsConfig(config.avatars) && overallIsValid;
+    overallIsValid = validateWeatherConfig(config.weather) && overallIsValid;
     overallIsValid = validateProfileConfig(config.profile) && overallIsValid;
     overallIsValid = validateCacheConfig(config.cache) && overallIsValid;
     overallIsValid = validateApiDefaultsConfig(config.apiDefaults) && overallIsValid;
