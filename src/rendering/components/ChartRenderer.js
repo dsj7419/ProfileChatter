@@ -306,7 +306,7 @@ class ChartRenderer {
     // Donut chart parameters
     const radius = chartSize / 2 - 10; // Leave some margin
     const strokeWidth = parseInt(cs.DONUT_STROKE_WIDTH_PX || 30, 10);
-    const innerRadius = Math.max(0, radius - strokeWidth);
+    const innerRadius = Math.max(0, radius - strokeWidth); // The inner circle radius, ensure it's not negative
     
     // Calculate total value
     let total = 0;
