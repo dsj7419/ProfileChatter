@@ -81,8 +81,12 @@ function isValidDate(value, propertyPath) {
   return true;
 }
 function isStringRepresentingNumber(value, propertyPath) {
-  if (!isNonEmptyString(value, propertyPath)) {
+  if (!isString(value, propertyPath)) {
     return false;
+  }
+  if (value === '') {
+    // Allow empty strings for optional numeric fields
+    return true;
   }
   if (isNaN(Number(value))) {
     console.error(`Configuration error: ${propertyPath} must be a string representing a number, got '${value}'.`);
@@ -148,6 +152,13 @@ function validateWeatherConfig(weatherConfig, pathPrefix = 'config.weather') {
   if (!validateObjectWithProps(weatherConfig, pathPrefix, ['enabled'])) return false;
   let isValid = true;
   isValid = isBoolean(weatherConfig.enabled, `${pathPrefix}.enabled`) && isValid;
+  return isValid;
+}
+
+function validateTwitterConfig(twitterConfig, pathPrefix = 'config.twitter') {
+  if (!validateObjectWithProps(twitterConfig, pathPrefix, ['enabled_api_fetch'])) return false;
+  let isValid = true;
+  isValid = isBoolean(twitterConfig.enabled_api_fetch, `${pathPrefix}.enabled_api_fetch`) && isValid;
   return isValid;
 }
 
@@ -255,7 +266,7 @@ function validateTheme(theme, themeName) {
 }
 
 function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
-  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME', 'CODESTATS_USERNAME'];
+  const requiredProps = ['NAME', 'PROFESSION', 'LOCATION', 'COMPANY', 'CURRENT_PROJECT', 'GITHUB_USERNAME', 'WAKATIME_USERNAME', 'TWITTER_USERNAME', 'TWITTER_FOLLOWERS', 'CODESTATS_USERNAME'];
   
   if (!validateObjectWithProps(profileConfig, pathPrefix, requiredProps)) return false;
   
@@ -313,6 +324,7 @@ function validateProfileConfig(profileConfig, pathPrefix = 'config.profile') {
   if (profileConfig.TWITTER_USERNAME !== '') {
     isValid = isNonEmptyString(profileConfig.TWITTER_USERNAME, `${pathPrefix}.TWITTER_USERNAME`) && isValid;
   }
+  isValid = isStringRepresentingNumber(profileConfig.TWITTER_FOLLOWERS, `${pathPrefix}.TWITTER_FOLLOWERS`) && isValid;
   if (profileConfig.CODESTATS_USERNAME !== '') {
     isValid = isNonEmptyString(profileConfig.CODESTATS_USERNAME, `${pathPrefix}.CODESTATS_USERNAME`) && isValid;
   }
@@ -460,7 +472,7 @@ export function validateConfiguration(config) {
 
   let overallIsValid = true;
 
-  const rootProps = ['activeTheme', 'avatars', 'weather', 'themes', 'profile', 'cache', 'apiDefaults', 'layout', 'wakatime'];
+  const rootProps = ['activeTheme', 'avatars', 'weather', 'twitter', 'themes', 'profile', 'cache', 'apiDefaults', 'layout', 'wakatime'];
   if (!validateObjectWithProps(config, 'config', rootProps)) {
     overallIsValid = false; 
   }
@@ -484,6 +496,7 @@ export function validateConfiguration(config) {
     
     overallIsValid = validateAvatarsConfig(config.avatars) && overallIsValid;
     overallIsValid = validateWeatherConfig(config.weather) && overallIsValid;
+    overallIsValid = validateTwitterConfig(config.twitter) && overallIsValid;
     overallIsValid = validateProfileConfig(config.profile) && overallIsValid;
     overallIsValid = validateCacheConfig(config.cache) && overallIsValid;
     overallIsValid = validateApiDefaultsConfig(config.apiDefaults) && overallIsValid;

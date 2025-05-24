@@ -23,6 +23,10 @@ export const config = {
     enabled: true
   },
 
+  twitter: {
+    enabled_api_fetch: false
+  },
+
   themes: {
     ios: {
       ME_BUBBLE_COLOR: '#0B93F6',
@@ -221,6 +225,7 @@ export const config = {
     GITHUB_USERNAME: "dsj7419",
     WAKATIME_USERNAME: "dsj7419",
     TWITTER_USERNAME: "",
+    TWITTER_FOLLOWERS: "0",
     CODESTATS_USERNAME: "dsj7419",
     TIMEZONE: 'UTC', // Default timezone
   },

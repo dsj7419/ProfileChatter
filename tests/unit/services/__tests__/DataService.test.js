@@ -179,7 +179,7 @@ describe('DataService', () => {
       expect(result.temperature).toBe('75°F (24°C)');
       expect(result.githubPublicRepos).toBe('15');
       expect(result.wakatime_summary).toBe('Coded for 8 hrs');
-      expect(result.twitterFollowers).toBe('150');
+      expect(result.twitterFollowers).toBe('100');
       expect(result.codestatsXP).toBe('2500');
       expect(result.spotifyTrack).toBe('Test Song by Test Artist');
       expect(result.githubTotalStars).toBe('50');

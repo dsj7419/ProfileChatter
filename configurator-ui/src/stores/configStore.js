@@ -227,6 +227,7 @@ const initialProfileConfig = {
   GITHUB_USERNAME: "your_github",
   WAKATIME_USERNAME: "your_wakatime",
   TWITTER_USERNAME: "",
+  TWITTER_FOLLOWERS: "0",
   CODESTATS_USERNAME: "",
   TIMEZONE: "UTC" // Default timezone
 };
@@ -564,6 +565,7 @@ export const userConfig = writable({
   activeTheme: "ios",
   avatars: structuredClone(initialAvatarsConfig),
   weather: structuredClone(initialWeatherConfig),
+  twitter: { enabled_api_fetch: false },
   layout: { 
     ANIMATION: { 
       SCROLL_SPEED_MULTIPLIER: 1.0 
@@ -684,6 +686,7 @@ export function getPreviewConfiguration() {
     activeTheme: currentConfig.activeTheme,
     avatars: currentConfig.avatars,
     weather: currentConfig.weather,
+    twitter: currentConfig.twitter,
     chatMessages: currentMessages,
     themeOverrides: currentTheme,
     layoutAnimationOverrides: {

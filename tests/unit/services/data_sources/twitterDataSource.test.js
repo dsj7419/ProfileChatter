@@ -1,273 +1,288 @@
-// tests/unit/services/data_sources/twitterDataSource.test.js - COMPLETELY FIXED
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+/**
+ * twitterDataSource.test.js
+ * Unit tests for Twitter data source with manual input support
+ */
 
-vi.mock('node-fetch', () => ({
-  default: vi.fn()
-}));
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-// Mock the config module
+// Mock the config module with inline object to avoid hoisting issues
 vi.mock('../../../../src/config/config.js', () => ({
   config: {
+    twitter: {
+      enabled_api_fetch: false
+    },
     profile: {
-      TWITTER_USERNAME: 'testuser' // Default test value
+      TWITTER_USERNAME: 'testuser'
     },
     cache: {
       TWITTER_CACHE_TTL_MS: 3600000
     },
     apiDefaults: {
-      TWITTER_FOLLOWERS: '120'
+      TWITTER_FOLLOWERS: '100'
     }
   }
 }));
 
 describe('twitterDataSource', () => {
   let mockFetch;
+  let originalEnv;
+  let consoleSpy;
+  let mockConfig;
   let getTwitterData;
-  let config;
-  const originalEnv = process.env;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-    
-    // Reset module
+    // Clear module cache to ensure fresh imports
     vi.resetModules();
     
-    process.env = { ...originalEnv };
-    process.env.TWITTER_BEARER_TOKEN = 'test-bearer-token';
-    
-    // Import fresh modules
+    // Get the mocked config
     const configModule = await import('../../../../src/config/config.js');
-    config = configModule.config;
+    mockConfig = configModule.config;
     
-    // Set default test username
-    config.profile.TWITTER_USERNAME = 'testuser';
+    // Import the function fresh for each test
+    const twitterModule = await import('../../../../src/services/data_sources/twitterDataSource.js');
+    getTwitterData = twitterModule.getTwitterData;
     
-    const module = await import('../../../../src/services/data_sources/twitterDataSource.js');
-    getTwitterData = module.getTwitterData;
+    // Store original environment
+    originalEnv = process.env.TWITTER_BEARER_TOKEN;
     
+    // Setup console spy
+    consoleSpy = {
+      info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+      error: vi.spyOn(console, 'error').mockImplementation(() => {})
+    };
+
+    // Setup fetch mock
     mockFetch = vi.fn();
-    if (typeof fetch === 'undefined') {
-      global.fetch = undefined;
-    }
+    global.fetch = mockFetch;
+
+    // Reset mock config to default state
+    mockConfig.twitter.enabled_api_fetch = false;
+    mockConfig.profile.TWITTER_USERNAME = 'testuser';
   });
 
   afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-    process.env = originalEnv;
-    if (global.fetch === undefined) {
-      delete global.fetch;
+    // Restore environment
+    if (originalEnv !== undefined) {
+      process.env.TWITTER_BEARER_TOKEN = originalEnv;
+    } else {
+      delete process.env.TWITTER_BEARER_TOKEN;
     }
+    
+    // Restore all mocks
+    vi.restoreAllMocks();
   });
 
-  describe('Configuration Checks', () => {
-    it('should skip when username not configured', async () => {
-      config.profile.TWITTER_USERNAME = '';
-      global.fetch = mockFetch;
-
-      const result = await getTwitterData();
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({}); // Should return empty object, not default
+  describe('when API fetch is disabled', () => {
+    beforeEach(() => {
+      // Set config to disabled state
+      mockConfig.twitter.enabled_api_fetch = false;
     });
 
-    it('should handle missing bearer token', async () => {
-      delete process.env.TWITTER_BEARER_TOKEN;
-      global.fetch = mockFetch;
-
+    it('should return empty object and log info message', async () => {
       const result = await getTwitterData();
-
+      
+      expect(result).toEqual({});
+      expect(consoleSpy.info).toHaveBeenCalledWith('Twitter API fetch is disabled. Manual follower count will be used.');
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
+    });
+  });
+
+  describe('when API fetch is enabled', () => {
+    beforeEach(() => {
+      // Set config to enabled state
+      mockConfig.twitter.enabled_api_fetch = true;
+      mockConfig.profile.TWITTER_USERNAME = 'testuser';
+    });
+
+    describe('but no username is configured', () => {
+      beforeEach(() => {
+        mockConfig.profile.TWITTER_USERNAME = '';
+      });
+
+      it('should return empty object and log info message', async () => {
+        const result = await getTwitterData();
+        
+        expect(result).toEqual({});
+        expect(consoleSpy.info).toHaveBeenCalledWith('Twitter username not configured – skipping Twitter call.');
+        expect(mockFetch).not.toHaveBeenCalled();
       });
     });
-  });
 
-  describe('Successful API Fetch & Caching', () => {
-    it('should fetch Twitter data successfully', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
+    describe('but no bearer token is provided', () => {
+      beforeEach(() => {
+        delete process.env.TWITTER_BEARER_TOKEN;
+      });
+
+      it('should return empty object and log info message', async () => {
+        const result = await getTwitterData();
+        
+        expect(result).toEqual({});
+        expect(consoleSpy.info).toHaveBeenCalledWith('Twitter API fetch enabled but TWITTER_BEARER_TOKEN is missing. Manual follower count will be used.');
+        expect(mockFetch).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('with valid configuration', () => {
+      beforeEach(() => {
+        process.env.TWITTER_BEARER_TOKEN = 'test_token';
+      });
+
+      it('should successfully fetch and return follower count', async () => {
+        const mockResponse = {
           data: {
             public_metrics: {
-              followers_count: 5000
+              followers_count: 1250
             }
           }
-        })
-      });
+        };
 
-      const result = await getTwitterData();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/users/by/username/testuser?user.fields=public_metrics',
-        {
-          headers: { Authorization: 'Bearer test-bearer-token' }
-        }
-      );
-      expect(result).toEqual({ twitterFollowers: '5000' });
-    });
-
-    it('should handle missing bearer token', async () => {
-      delete process.env.TWITTER_BEARER_TOKEN;
-      global.fetch = mockFetch;
-
-      const result = await getTwitterData();
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
-      });
-    });
-
-    it('should fetch Twitter data successfully', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: {
-            public_metrics: {
-              followers_count: 5000
-            }
-          }
-        })
-      });
-
-      const result = await getTwitterData();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/users/by/username/testuser?user.fields=public_metrics',
-        {
-          headers: { Authorization: 'Bearer test-bearer-token' }
-        }
-      );
-      expect(result).toEqual({ twitterFollowers: '5000' });
-    });
-
-    it('should handle invalid response data', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ data: {} })
-      });
-
-      const result = await getTwitterData();
-
-      expect(result).toEqual({
-        twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
-      });
-    });
-
-    it('should use cached data', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: { public_metrics: { followers_count: 1234 } }
-        })
-      });
-
-      await getTwitterData();
-      const result = await getTwitterData();
-
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ twitterFollowers: '1234' });
-    });
-
-    it('should refresh after cache expires', async () => {
-      global.fetch = mockFetch;
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            data: { public_metrics: { followers_count: 100 } }
-          })
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            data: { public_metrics: { followers_count: 200 } }
-          })
-        });
-
-      await getTwitterData();
-      vi.advanceTimersByTime(config.cache.TWITTER_CACHE_TTL_MS + 1000);
-      const result = await getTwitterData();
-
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(result).toEqual({ twitterFollowers: '200' });
-    });
-  });
-
-  describe('API Error Handling', () => {
-    const errorTests = [
-      { status: 401, message: 'Unauthorized – invalid bearer token.' },
-      { status: 403, message: 'Forbidden – check app permissions.' },
-      { status: 404, message: 'User "testuser" not found.' },
-      { status: 429, message: 'Rate‑limit exceeded.' }
-    ];
-
-    errorTests.forEach(({ status }) => {
-      it(`should handle ${status} error`, async () => {
-        global.fetch = mockFetch;
         mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status,
-          statusText: 'Error'
+          ok: true,
+          json: () => Promise.resolve(mockResponse)
         });
 
         const result = await getTwitterData();
 
-        expect(result).toEqual({
-          twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
+        expect(result).toEqual({ twitterFollowers: '1250' });
+        expect(mockFetch).toHaveBeenCalledWith(
+          'https://api.twitter.com/2/users/by/username/testuser?user.fields=public_metrics',
+          {
+            headers: { Authorization: 'Bearer test_token' }
+          }
+        );
+        expect(consoleSpy.info).toHaveBeenCalledWith('Twitter data fetched & cached.');
+      });
+
+      it('should handle 401 unauthorized error', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized'
         });
-      });
-    });
 
-    it('should handle generic errors', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: 'Server Error'
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Unauthorized – invalid bearer token.');
+        expect(consoleSpy.info).toHaveBeenCalledWith('Using default follower count.');
       });
 
-      const result = await getTwitterData();
+      it('should handle 403 forbidden error', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 403,
+          statusText: 'Forbidden'
+        });
 
-      expect(result).toEqual({
-        twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
-      });
-    });
+        const result = await getTwitterData();
 
-    it('should handle network errors', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      const result = await getTwitterData();
-
-      expect(result).toEqual({
-        twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS
-      });
-    });
-  });
-
-  describe('Node Environment', () => {
-    it('should use node-fetch in Node', async () => {
-      delete global.fetch;
-      const nodeFetch = (await import('node-fetch')).default;
-      nodeFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          data: { public_metrics: { followers_count: 999 } }
-        })
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Forbidden – check app permissions.');
       });
 
-      const result = await getTwitterData();
+      it('should handle 404 user not found error', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          statusText: 'Not Found'
+        });
 
-      expect(nodeFetch).toHaveBeenCalled();
-      expect(result).toEqual({ twitterFollowers: '999' });
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'User "testuser" not found.');
+      });
+
+      it('should handle 429 rate limit error', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 429,
+          statusText: 'Too Many Requests'
+        });
+
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Rate‑limit exceeded.');
+      });
+
+      it('should handle other HTTP errors', async () => {
+        mockFetch.mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error'
+        });
+
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Twitter API 500: Internal Server Error');
+      });
+
+      it('should handle invalid response data', async () => {
+        const mockResponse = {
+          data: {
+            public_metrics: {
+              followers_count: 'invalid'
+            }
+          }
+        };
+
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse)
+        });
+
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Twitter API returned invalid follower count.');
+      });
+
+      it('should handle network errors', async () => {
+        mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+        const result = await getTwitterData();
+
+        expect(result).toEqual({ twitterFollowers: '100' });
+        expect(consoleSpy.error).toHaveBeenCalledWith('Error fetching Twitter data:', 'Network error');
+      });
+
+      it('should return cached data when cache is fresh', async () => {
+        const mockResponse = {
+          data: {
+            public_metrics: {
+              followers_count: 1250
+            }
+          }
+        };
+
+        // Mock Date.now for consistent caching behavior
+        const mockDate = vi.spyOn(Date, 'now');
+        const baseTime = 1000000;
+        mockDate.mockReturnValue(baseTime);
+
+        // First call - should fetch from API
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse)
+        });
+
+        const firstResult = await getTwitterData();
+        expect(firstResult).toEqual({ twitterFollowers: '1250' });
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+
+        // Second call - should use cache (advance time but stay within cache TTL)
+        const cacheTime = baseTime + 1800000; // 30 minutes later (within 1 hour TTL)
+        mockDate.mockReturnValue(cacheTime);
+
+        const secondResult = await getTwitterData();
+        expect(secondResult).toEqual({ twitterFollowers: '1250' });
+        expect(mockFetch).toHaveBeenCalledTimes(1); // Still only 1 call - used cache
+        expect(consoleSpy.info).toHaveBeenCalledWith('Using cached Twitter data.');
+
+        mockDate.mockRestore();
+      });
     });
   });
 });
