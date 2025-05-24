@@ -31,6 +31,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changes-detected: ${{ steps.diff.outputs.changed }}
+      timestamp: ${{ steps.ts.outputs.ts }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,23 +88,14 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Pull latest changes
+      - name: Upload artifacts
         if: steps.diff.outputs.changed == 'true' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-        run: |
-          git config --global user.name "ProfileChatter Bot"
-          git config --global user.email "action@github.com"
-          git pull --rebase --autostash origin main
-
-      - name: Commit & push updated SVG
-        if: steps.diff.outputs.changed == 'true' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-        uses: EndBug/add-and-commit@v9
+        uses: actions/upload-artifact@v4
         with:
-          add: 'dist/profile-chat.svg README.md'
-          message: 'Auto-update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}'
-          push: true
-          github_token: ${{ secrets.PROFILECHATTER_ACTION_COMMIT_TOKEN }}
-          committer_name: 'ProfileChatter Bot'
-          committer_email: 'action@github.com'
+          name: updated-files
+          path: |
+            dist/profile-chat.svg
+            README.md
 
       - name: Summary
         run: |
@@ -113,7 +107,34 @@ jobs:
               echo "✅ PR Check: SVG build completed with no changes needed."
             fi
           elif [[ "${{ steps.diff.outputs.changed }}" == "true" ]]; then
-            echo "✅ SVG regenerated and committed to main branch."
+            echo "✅ SVG generated successfully. Commit job will follow."
           else
             echo "ℹ️ No changes detected – nothing to commit."
           fi
+
+  commit:
+    needs: build
+    if: needs.build.outputs.changes-detected == 'true' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PROFILECHATTER_ACTION_COMMIT_TOKEN }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: updated-files
+
+      - name: Commit & push updated SVG
+        run: |
+          git config --global user.name "ProfileChatter Bot"
+          git config --global user.email "action@github.com"
+          git add dist/profile-chat.svg README.md
+          git commit -m "Auto-update profile chat SVG [skip ci] – ${{ needs.build.outputs.timestamp }}"
+          git push
+
+      - name: Summary
+        run: echo "✅ SVG committed successfully to main branch."
