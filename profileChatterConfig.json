@@ -7,7 +7,7 @@
     "CURRENT_PROJECT": "ProfileChatter, an SVG Generator",
     "GITHUB_USERNAME": "dsj7419",
     "WAKATIME_USERNAME": "dsj7419",
-    "TWITTER_USERNAME": "",
+    "TWITTER_USERNAME": "dsj7419",
     "CODESTATS_USERNAME": "dsj7419",
     "TIMEZONE": "America/Los_Angeles",
     "WORK_START_DATE": {
@@ -170,7 +170,8 @@
     {
       "id": "msg-social",
       "sender": "me",
-      "text": "You can also find me on X/Twitter (@{twitterUsername}) with {twitterFollowers} followers!"
+      "text": "You can also find me on X/Twitter (@dsj7419) with {twitterFollowers} followers!",
+      "reaction": "💖"
     }
   ],
   "themeOverrides": {
@@ -179,7 +180,7 @@
     "ME_TEXT_COLOR": "#FFFFFF",
     "VISITOR_TEXT_COLOR": "#000000",
     "BACKGROUND_LIGHT": "#FFFFFF",
-    "BACKGROUND_DARK": "#000040",
+    "BACKGROUND_DARK": "#000028",
     "BUBBLE_RADIUS_PX": 18,
     "FONT_FAMILY": "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     "REACTION_FONT_SIZE_PX": 20,
@@ -236,6 +237,6 @@
     }
   },
   "layoutAnimationOverrides": {
-    "SCROLL_SPEED_MULTIPLIER": 1.1
+    "SCROLL_SPEED_MULTIPLIER": 0.9
   }
 }
