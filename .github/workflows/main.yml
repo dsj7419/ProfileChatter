@@ -100,15 +100,20 @@ jobs:
           git config --global user.email "action@github.com"
           git pull --rebase --autostash origin main
 
-      - name: Commit & push updated SVG
-        # Only commit/push for main branch events when changes detected
-        if: steps.diff.outputs.changed == 'true' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: 'dist/profile-chat.svg README.md'
-          message: "Auto-update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
-          push: true
-          default_author: github_actor
+          - name: Commit & push updated SVG
+          if: steps.diff.outputs.changed == 'true' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+          uses: EndBug/add-and-commit@v9
+          with:
+            add: 'dist/profile-chat.svg README.md'
+            message: "Auto-update profile chat SVG [skip ci] – ${{ steps.ts.outputs.ts }}"
+            push: true
+            # The action will use the user associated with this token for the push.
+            # Ensure this PAT has 'repo' scope.
+            github_token: ${{ secrets.PROFILECHATTER_ACTION_COMMIT_TOKEN }}
+            # Optional: Explicitly set committer info if different from PAT owner
+            committer_name: ProfileChatter Bot 
+            committer_email: action@github.com
+            # default_author: github_actor
 
       - name: Summary
         run: |
