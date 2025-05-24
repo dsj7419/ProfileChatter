@@ -30,6 +30,17 @@
     };
   }
   
+  // Update weather config
+  function updateWeatherField(field, value) {
+    $userConfig = {
+      ...$userConfig,
+      weather: {
+        ...$userConfig.weather,
+        [field]: value
+      }
+    };
+  }
+  
   // Validate GitHub username
   $: formErrors.GITHUB_USERNAME = !isValidUsername($userConfig.profile.GITHUB_USERNAME);
   
@@ -213,6 +224,34 @@
       {#if formErrors.workStartDate}
         <p class="mt-2 text-sm text-red-600">Please enter a valid date</p>
       {/if}
+    </div>
+
+    <!-- Integration Settings Section -->
+    <div class="p-3 border border-gray-200 rounded-md bg-white">
+      <h3 class="text-sm font-medium text-gray-700 mb-3">Integration Settings</h3>
+      
+      <!-- Weather Integration Toggle -->
+      <div class="mb-3">
+        <label class="flex items-center">
+          <input 
+            type="checkbox" 
+            checked={$userConfig.weather?.enabled || false}
+            on:change={(e) => updateWeatherField('enabled', e.target.checked)}
+            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+          />
+          <span class="ml-2 text-sm font-medium text-gray-700">
+            Enable Weather Integration
+            <HelpIconTooltip text="When enabled, ProfileChatter will fetch current weather data from AccuWeather API. Requires WEATHER_API_KEY and LOCATION_KEY environment variables. When disabled, default weather values will be used." />
+          </span>
+        </label>
+        <p class="mt-1 text-xs text-gray-500">
+          {#if $userConfig.weather?.enabled}
+            Weather data will be fetched from AccuWeather API (requires API keys)
+          {:else}
+            Default weather values will be used
+          {/if}
+        </p>
+      </div>
     </div>
     
     <!-- Social Profiles Section -->

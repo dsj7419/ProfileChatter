@@ -240,6 +240,11 @@ const initialAvatarsConfig = {
   shape: "circle",
 };
 
+// Initial weather configuration
+const initialWeatherConfig = {
+  enabled: true
+};
+
 // Initial placeholder data
 const initialPlaceholderData = [
   // Profile Info category
@@ -558,6 +563,7 @@ export const userConfig = writable({
   profile: structuredClone(initialProfileConfig),
   activeTheme: "ios",
   avatars: structuredClone(initialAvatarsConfig),
+  weather: structuredClone(initialWeatherConfig),
   layout: { 
     ANIMATION: { 
       SCROLL_SPEED_MULTIPLIER: 1.0 
@@ -677,6 +683,7 @@ export function getPreviewConfiguration() {
     },
     activeTheme: currentConfig.activeTheme,
     avatars: currentConfig.avatars,
+    weather: currentConfig.weather,
     chatMessages: currentMessages,
     themeOverrides: currentTheme,
     layoutAnimationOverrides: {

@@ -54,6 +54,12 @@ function getWeatherEmoji(weatherText) {
  */
 async function getWeatherData() {
   try {
+    // Check if weather integration is disabled via configuration
+    if (!config.weather.enabled) {
+      console.info('Weather data fetching is disabled via configuration.');
+      return {};
+    }
+
     // Check if valid cached data exists
     if (weatherCache.data && Date.now() < weatherCache.expiresAt) {
       console.info('Using cached weather data.');
@@ -65,7 +71,8 @@ async function getWeatherData() {
     const locationKey = process.env.LOCATION_KEY;
     
     if (!apiKey || !locationKey) {
-      throw new Error("Weather API key or location key not provided in environment variables.");
+      console.info('Weather API key or location key not provided, skipping weather fetch.');
+      return {};
     }
     
     // For browser environments

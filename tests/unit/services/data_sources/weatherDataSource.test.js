@@ -1,13 +1,16 @@
-// tests/unit/services/data_sources/weatherDataSource.test.js - COMPLETELY FIXED
+// tests/unit/services/data_sources/weatherDataSource.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('node-fetch', () => ({
   default: vi.fn()
 }));
 
-// Mock the config module
+// Mock the config module 
 vi.mock('../../../../src/config/config.js', () => ({
   config: {
+    weather: {
+      enabled: true 
+    },
     cache: {
       WEATHER_CACHE_TTL_MS: 1800000
     },
@@ -233,11 +236,7 @@ describe('weatherDataSource', () => {
       const result = await getWeatherData();
 
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
+      expect(result).toEqual({});
     });
 
     it('should handle missing location key', async () => {
@@ -247,11 +246,7 @@ describe('weatherDataSource', () => {
       const result = await getWeatherData();
 
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
+      expect(result).toEqual({});
     });
   });
 
@@ -259,7 +254,7 @@ describe('weatherDataSource', () => {
     const weatherEmojiTests = [
       { text: 'Sunny', emoji: '☀️' },
       { text: 'Clear skies', emoji: '☀️' },
-      { text: 'Mostly Sunny', emoji: '🌤️' },  // FIXED: Now correctly matches "mostly sunny" with improved logic
+      { text: 'Mostly Sunny', emoji: '🌤️' },
       { text: 'Partly Cloudy', emoji: '⛅' },
       { text: 'Cloudy', emoji: '☁️' },
       { text: 'Rain', emoji: '🌧️' },
@@ -283,6 +278,39 @@ describe('weatherDataSource', () => {
         const result = await getWeatherData();
         expect(result.emoji).toBe(emoji);
       });
+    });
+  });
+
+  describe('Weather Configuration', () => {
+    it('should skip weather fetch when config.weather.enabled is false', async () => {
+      // Mock config with weather disabled
+      vi.doMock('../../../../src/config/config.js', () => ({
+        config: {
+          weather: {
+            enabled: false
+          },
+          cache: {
+            WEATHER_CACHE_TTL_MS: 1800000
+          },
+          apiDefaults: {
+            TEMPERATURE: "72°F (22°C)",
+            WEATHER_DESCRIPTION: "partly cloudy",
+            WEATHER_EMOJI: "⛅"
+          }
+        }
+      }));
+
+      // Re-import to get updated config
+      vi.resetModules();
+      const module = await import('../../../../src/services/data_sources/weatherDataSource.js');
+      const getWeatherDataDisabled = module.getWeatherData;
+      
+      global.fetch = mockFetch;
+
+      const result = await getWeatherDataDisabled();
+
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(result).toEqual({});
     });
   });
 });

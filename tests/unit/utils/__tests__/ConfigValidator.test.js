@@ -1,6 +1,7 @@
 /**
  * Unit tests for ConfigValidator.js
  * Tests configuration validation and helper functions
+ * FIXED: Added weather configuration to all test configs
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { validateConfiguration } from '../../../../src/utils/ConfigValidator.js';
@@ -30,6 +31,9 @@ describe('ConfigValidator', () => {
       shape: 'circle',
       xOffsetPx: 8,
       yOffsetPx: 0
+    },
+    weather: {
+      enabled: true
     },
     themes: {
       ios: {
@@ -332,9 +336,7 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('must be a string representing a number'));
     });
 
-    // NEW TESTS: Target specific uncovered lines
-
-    // NEW TEST: Profile config itself is null (targets validateObjectWithProps lines 264-265)
+    // Target specific uncovered lines
     it('should fail when profile config is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.profile = null;
@@ -343,7 +345,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.profile must be an object.');
     });
 
-    // NEW TEST: Profile config is not an object (targets validateObjectWithProps lines 264-265)
     it('should fail when profile config is not an object', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.profile = 'not-an-object';
@@ -352,7 +353,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.profile must be an object.');
     });
 
-    // NEW TEST: Layout ANIMATION object is null (targets validateObjectWithProps)
     it('should fail when layout ANIMATION object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.layout.ANIMATION = null;
@@ -361,7 +361,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.layout.ANIMATION must be an object.');
     });
 
-    // NEW TEST: Layout ANIMATION object is not an object (targets validateObjectWithProps)
     it('should fail when layout ANIMATION object is not an object', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.layout.ANIMATION = 'not-an-object';
@@ -370,7 +369,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.layout.ANIMATION must be an object.');
     });
 
-    // NEW TEST: DOT_ANIMATION_DURATION is not a number (targets lines 296-298)
     it('should fail when DOT_ANIMATION_DURATION is not a number', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.layout.ANIMATION.DOT_ANIMATION_DURATION = 'not-a-number';
@@ -379,7 +377,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.layout.ANIMATION.DOT_ANIMATION_DURATION must be a number, got string.');
     });
 
-    // NEW TEST: STATUS_INDICATOR object is null
     it('should fail when STATUS_INDICATOR object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.layout.STATUS_INDICATOR = null;
@@ -388,7 +385,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.layout.STATUS_INDICATOR must be an object.');
     });
 
-    // NEW TEST: TIMING object is null
     it('should fail when TIMING object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.layout.TIMING = null;
@@ -397,7 +393,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.layout.TIMING must be an object.');
     });
 
-    // NEW TEST: Avatars me object is null
     it('should fail when avatars me object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.avatars.me = null;
@@ -406,7 +401,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.avatars.me must be an object.');
     });
 
-    // NEW TEST: Avatars visitor object is null
     it('should fail when avatars visitor object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.avatars.visitor = null;
@@ -415,7 +409,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.avatars.visitor must be an object.');
     });
 
-    // NEW TEST: Theme CHART_STYLES object is null
     it('should fail when theme CHART_STYLES object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.themes.ios.CHART_STYLES = null;
@@ -424,7 +417,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.themes.ios.CHART_STYLES must be an object.');
     });
 
-    // NEW TEST: Wakatime defaults object is null
     it('should fail when wakatime defaults object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.wakatime.defaults = null;
@@ -433,7 +425,6 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.wakatime.defaults must be an object.');
     });
 
-    // NEW TEST: Cache object is null
     it('should fail when cache object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.cache = null;
@@ -442,13 +433,36 @@ describe('ConfigValidator', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.cache must be an object.');
     });
 
-    // NEW TEST: ApiDefaults object is null
     it('should fail when apiDefaults object is null', () => {
       const invalidConfig = createValidConfig();
       invalidConfig.apiDefaults = null;
       const result = validateConfiguration(invalidConfig);
       expect(result).toBe(false);
       expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.apiDefaults must be an object.');
+    });
+
+    // NEW TESTS: For weather configuration validation
+    it('should validate weather configuration correctly', () => {
+      const validConfig = createValidConfig();
+      validConfig.weather.enabled = false;
+      const result = validateConfiguration(validConfig);
+      expect(result).toBe(true);
+    });
+
+    it('should fail when weather config is missing', () => {
+      const invalidConfig = createValidConfig();
+      delete invalidConfig.weather;
+      const result = validateConfiguration(invalidConfig);
+      expect(result).toBe(false);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: Missing required property config.weather.');
+    });
+
+    it('should fail when weather.enabled is not a boolean', () => {
+      const invalidConfig = createValidConfig();
+      invalidConfig.weather.enabled = 'true';
+      const result = validateConfiguration(invalidConfig);
+      expect(result).toBe(false);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Configuration error: config.weather.enabled must be a boolean, got string.');
     });
   });
 });
