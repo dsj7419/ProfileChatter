@@ -3,7 +3,7 @@
 > **Animated chat bubbles that talk for you** – a fully‑automated SVG generator that drops a live, messaging‑style panel into your GitHub&nbsp;profile.  
 > Powered by Node 20, GitHub Actions, and a **zero‑config Configurator UI**.
 
-![ProfileChatter Demo](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1758068411{{CI_TIMESTAMP}})
+![ProfileChatter Demo](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1758089243{{CI_TIMESTAMP}})
 
 ---
 
@@ -327,7 +327,7 @@ and the build script will replace it with the top five languages from your last 
 ## 🖼️ Embedding in Your Profile README
 
 ```markdown
-![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1758068411{{CI_TIMESTAMP}})
+![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1758089243{{CI_TIMESTAMP}})
 ```
 
 Replace `<you>` with your GitHub username.  
