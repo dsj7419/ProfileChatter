@@ -130,11 +130,10 @@ describe('DataService', () => {
     })
 
     it('should successfully merge data from all API sources', async () => {
-      // Mock all data sources to return success data
+      // Mock all data sources to return success data (discriminated results)
       getWeatherData.mockResolvedValue({
-        temperature: '75°F (24°C)',
-        weatherDescription: 'partly cloudy',
-        emoji: '⛅',
+        status: 'ok',
+        value: { temperature: '75°F (24°C)', weatherDescription: 'partly cloudy', emoji: '⛅' },
       })
 
       getGitHubData.mockResolvedValue({
@@ -143,21 +142,21 @@ describe('DataService', () => {
       })
 
       getWakaTimeData.mockResolvedValue({
-        wakatime_summary: 'Coded for 8 hrs',
-        wakatime_top_language: 'JavaScript',
-        wakatime_top_language_percent: '65',
+        status: 'ok',
+        value: {
+          wakatime_summary: 'Coded for 8 hrs',
+          wakatime_top_language: 'JavaScript',
+          wakatime_top_language_percent: '65',
+        },
       })
 
-      getTwitterData.mockResolvedValue({
-        twitterFollowers: '150',
-      })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: { twitterFollowers: '150' } })
 
-      getCodeStatsData.mockResolvedValue({
-        codestatsXP: '2500',
-      })
+      getCodeStatsData.mockResolvedValue({ status: 'ok', value: { codestatsXP: '2500' } })
 
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Test Song by Test Artist',
+        status: 'ok',
+        value: { spotifyTrack: 'Test Song by Test Artist' },
       })
 
       getGitHubOAuthData.mockResolvedValue({

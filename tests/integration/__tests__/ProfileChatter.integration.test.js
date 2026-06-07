@@ -375,9 +375,8 @@ describe('ProfileChatter Integration Tests', () => {
 
       // Mock all data source functions to return their default values
       getWeatherData.mockResolvedValue({
-        temperature: '72°F (22°C)',
-        weatherDescription: 'partly cloudy',
-        emoji: '⛅',
+        status: 'ok',
+        value: { temperature: '72°F (22°C)', weatherDescription: 'partly cloudy', emoji: '⛅' },
       })
 
       getGitHubData.mockResolvedValue({
@@ -386,22 +385,22 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Not currently listening to music.',
+        status: 'ok',
+        value: { spotifyTrack: 'Not currently listening to music.' },
       })
 
       getWakaTimeData.mockResolvedValue({
-        wakatime_summary: 'No coding activity data available',
-        wakatime_top_language: 'N/A',
-        wakatime_top_language_percent: '0',
+        status: 'ok',
+        value: {
+          wakatime_summary: 'No coding activity data available',
+          wakatime_top_language: 'N/A',
+          wakatime_top_language_percent: '0',
+        },
       })
 
-      getTwitterData.mockResolvedValue({
-        twitterFollowers: '120',
-      })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: { twitterFollowers: '120' } })
 
-      getCodeStatsData.mockResolvedValue({
-        codestatsXP: '0',
-      })
+      getCodeStatsData.mockResolvedValue({ status: 'ok', value: { codestatsXP: '0' } })
 
       getGitHubOAuthData.mockResolvedValue({
         status: 'ok',
@@ -444,9 +443,8 @@ describe('ProfileChatter Integration Tests', () => {
 
       // Mock each data source function to return specific, non-default data
       getWeatherData.mockResolvedValue({
-        temperature: '75F Test',
-        weatherDescription: 'testing clouds',
-        emoji: '🧪',
+        status: 'ok',
+        value: { temperature: '75F Test', weatherDescription: 'testing clouds', emoji: '🧪' },
       })
 
       getGitHubData.mockResolvedValue({
@@ -455,22 +453,22 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Test Song by Test Artist',
+        status: 'ok',
+        value: { spotifyTrack: 'Test Song by Test Artist' },
       })
 
       getWakaTimeData.mockResolvedValue({
-        wakatime_summary: 'Coded for 40 hrs in the last week',
-        wakatime_top_language: 'JavaScript',
-        wakatime_top_language_percent: '65',
+        status: 'ok',
+        value: {
+          wakatime_summary: 'Coded for 40 hrs in the last week',
+          wakatime_top_language: 'JavaScript',
+          wakatime_top_language_percent: '65',
+        },
       })
 
-      getTwitterData.mockResolvedValue({
-        twitterFollowers: '500',
-      })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: { twitterFollowers: '500' } })
 
-      getCodeStatsData.mockResolvedValue({
-        codestatsXP: '15000',
-      })
+      getCodeStatsData.mockResolvedValue({ status: 'ok', value: { codestatsXP: '15000' } })
 
       getGitHubOAuthData.mockResolvedValue({
         status: 'ok',
@@ -552,22 +550,22 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Working Song by Developer',
+        status: 'ok',
+        value: { spotifyTrack: 'Working Song by Developer' },
       })
 
       getWakaTimeData.mockResolvedValue({
-        wakatime_summary: 'Coded for 30 hrs in the last week',
-        wakatime_top_language: 'Python',
-        wakatime_top_language_percent: '50',
+        status: 'ok',
+        value: {
+          wakatime_summary: 'Coded for 30 hrs in the last week',
+          wakatime_top_language: 'Python',
+          wakatime_top_language_percent: '50',
+        },
       })
 
-      getTwitterData.mockResolvedValue({
-        twitterFollowers: '200',
-      })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: { twitterFollowers: '200' } })
 
-      getCodeStatsData.mockResolvedValue({
-        codestatsXP: '8000',
-      })
+      getCodeStatsData.mockResolvedValue({ status: 'ok', value: { codestatsXP: '8000' } })
 
       getGitHubOAuthData.mockResolvedValue({
         status: 'ok',
@@ -612,12 +610,12 @@ describe('ProfileChatter Integration Tests', () => {
       validateConfiguration.mockReturnValue(false)
 
       // Mock data sources (they shouldn't be called due to early validation failure)
-      getWeatherData.mockResolvedValue({})
+      getWeatherData.mockResolvedValue({ status: 'ok', value: {} })
       getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
-      getSpotifyData.mockResolvedValue({})
-      getWakaTimeData.mockResolvedValue({})
-      getTwitterData.mockResolvedValue({})
-      getCodeStatsData.mockResolvedValue({})
+      getSpotifyData.mockResolvedValue({ status: 'ok', value: {} })
+      getWakaTimeData.mockResolvedValue({ status: 'ok', value: {} })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: {} })
+      getCodeStatsData.mockResolvedValue({ status: 'ok', value: {} })
       getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customContext = {

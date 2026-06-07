@@ -1,120 +1,95 @@
 /**
  * spotifyDataSource.js
- * Responsible for fetching and caching Spotify track data
- * Single Responsibility: Spotify data acquisition
+ * Single Responsibility: Spotify track acquisition (currently / recently played)
+ *
+ * Returns a discriminated source result (see sourceResult.js). "Nothing playing"
+ * (204 / no item) is a SUCCESS (`ok` with the default track string) — the user
+ * simply isn't listening. Auth, rate-limit, server, and network failures return
+ * `fallback` carrying the default AND the error, so they are distinguishable.
+ *
+ * Spotify keeps a bespoke fetch (rather than fetchJson) because 204 is a valid,
+ * body-less success it must interpret — not an error.
  */
-import { config } from '../../config/config.js';
-import spotifyOAuthService from '../auth/spotifyOAuthService.js';
+import { config } from '../../config/config.js'
+import spotifyOAuthService from '../auth/spotifyOAuthService.js'
+import { ok, fallback } from '../utils/sourceResult.js'
 
-// Initialize module-level cache store
-let spotifyCache = { data: null, expiresAt: 0 };
+let spotifyCache = { result: null, expiresAt: 0 }
 
-/**
- * Fetch Spotify track data with robust error handling and caching
- * @returns {Promise<Object>} - Currently playing or recently played track info
- */
-async function getSpotifyData() {
+const nothingPlaying = () => ({ spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING })
+
+async function getSpotifyData(deps = {}) {
+  if (spotifyCache.result && Date.now() < spotifyCache.expiresAt) {
+    return spotifyCache.result
+  }
+
+  let token
   try {
-    // Check if valid cached data exists
-    if (spotifyCache.data && Date.now() < spotifyCache.expiresAt) {
-      console.info('Using cached Spotify data.');
-      return spotifyCache.data;
-    }
+    token = await spotifyOAuthService.getAccessToken()
+  } catch (authError) {
+    console.warn(`Spotify auth unavailable, using default: ${authError.message}`)
+    return fallback(nothingPlaying(), authError)
+  }
 
-    // Get access token from OAuth service
-    let token;
-    try {
-      token = await spotifyOAuthService.getAccessToken();
-    } catch (authError) {
-      console.info('Spotify authentication error:', authError.message);
-      return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-    }
-
-    // Try to get currently playing track first
-    let trackData = null;
-    
-    if (typeof fetch === 'function') {
-      // Browser environment
-      trackData = await fetchSpotifyData(fetch, token);
-    } else {
-      // Node.js environment
-      try {
-        const { default: nodeFetch } = await import('node-fetch');
-        trackData = await fetchSpotifyData(nodeFetch, token);
-      } catch (error) {
-        console.error('Error importing node-fetch:', error.message);
-        return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-      }
-    }
-
-    // Cache the successful API response
-    spotifyCache.data = trackData;
-    spotifyCache.expiresAt = Date.now() + config.cache.SPOTIFY_CACHE_TTL_MS;
-    console.info('Spotify data fetched from API and cached.');
-    
-    return trackData;
+  try {
+    const value = await fetchSpotifyTrack(token, deps)
+    const result = ok(value)
+    spotifyCache = { result, expiresAt: Date.now() + config.cache.SPOTIFY_CACHE_TTL_MS }
+    return result
   } catch (error) {
-    console.error('Error fetching Spotify data:', error.message);
-    console.info('Using default Spotify data due to API error.');
-    return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
+    console.warn(`Spotify data unavailable, using default: ${error.message}`)
+    return fallback(nothingPlaying(), error)
+  }
+}
+
+function classifyHardError(status) {
+  if (status === 401 || status === 403 || status === 429 || status >= 500) {
+    const err = new Error(`Spotify API error (${status})`)
+    err.status = status // carried into the source result so PR-5b can flag 401/403/429
+    throw err
   }
 }
 
 /**
- * Helper function to fetch Spotify data using provided fetch implementation
- * @param {Function} fetchFn - Fetch function to use
- * @param {string} token - Spotify Bearer token
- * @returns {Promise<Object>} - Processed Spotify data
+ * Resolve the track to display. Returns { spotifyTrack }. Throws on hard errors
+ * (auth/rate-limit/server/network) so the caller can classify them as fallback.
+ * @param {string} token
+ * @param {{ fetchImpl?: typeof fetch }} [deps]
  */
-async function fetchSpotifyData(fetchFn, token) {
-  // Try currently playing endpoint
-  try {
-    const response = await fetchFn('https://api.spotify.com/v1/me/player/currently-playing', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.status === 200) {
-      const data = await response.json();
-      if (data && data.item) {
-        const trackName = data.item.name;
-        const artistName = data.item.artists[0].name;
-        return { spotifyTrack: `${trackName} by ${artistName}` };
-      }
-    } else if (response.status === 204) {
-      // 204 means no content (not currently playing) - try recently played instead
-      console.info('Not currently playing any tracks. Checking recently played...');
-    } else if (response.status === 401) {
-      console.error('Spotify API error (401): Unauthorized. Your token may be invalid or expired.');
-      return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-    } else if (response.status === 429) {
-      console.error('Spotify API error (429): Rate limit exceeded.');
-      return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-    } else {
-      console.error(`Spotify API error (${response.status}): ${response.statusText}`);
-      return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-    }
-    
-    // Fallback to recently played if not currently playing
-    const recentResponse = await fetchFn('https://api.spotify.com/v1/me/player/recently-played?limit=1', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (recentResponse.status === 200) {
-      const recentData = await recentResponse.json();
-      if (recentData && recentData.items && recentData.items.length > 0) {
-        const track = recentData.items[0].track;
-        const trackName = track.name;
-        const artistName = track.artists[0].name;
-        return { spotifyTrack: `${trackName} by ${artistName}` };
-      }
-    }
-    
-    // If we get here, no current or recent tracks were found
-    return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
-  } catch (error) {
-    console.error('Error in Spotify API request:', error.message);
-    return { spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING };
+async function fetchSpotifyTrack(token, deps = {}) {
+  const fetchImpl = deps.fetchImpl || (typeof fetch === 'function' ? fetch : undefined)
+  if (typeof fetchImpl !== 'function') {
+    throw new Error('No fetch implementation available')
   }
+  const headers = { Authorization: `Bearer ${token}` }
+
+  const current = await fetchImpl('https://api.spotify.com/v1/me/player/currently-playing', {
+    headers,
+  })
+  if (current.status === 200) {
+    const data = await current.json()
+    if (data && data.item) {
+      return { spotifyTrack: `${data.item.name} by ${data.item.artists[0].name}` }
+    }
+  } else if (current.status !== 204) {
+    classifyHardError(current.status)
+  }
+
+  const recent = await fetchImpl('https://api.spotify.com/v1/me/player/recently-played?limit=1', {
+    headers,
+  })
+  if (recent.status === 200) {
+    const recentData = await recent.json()
+    if (recentData && recentData.items && recentData.items.length > 0) {
+      const track = recentData.items[0].track
+      return { spotifyTrack: `${track.name} by ${track.artists[0].name}` }
+    }
+  } else {
+    classifyHardError(recent.status)
+  }
+
+  // Nothing currently or recently playing — a successful "not listening" state.
+  return nothingPlaying()
 }
 
-export { getSpotifyData };
+export { getSpotifyData }

@@ -1,12 +1,16 @@
 /**
  * weatherDataSource.js
- * Responsible for fetching and caching weather data
- * Single Responsibility: Weather data acquisition
+ * Single Responsibility: Weather data acquisition (AccuWeather)
+ *
+ * Returns a discriminated source result (see sourceResult.js): `ok` with live
+ * values (or `ok({})` when weather is disabled / not configured — an intentional
+ * skip, not a failure), or `fallback` carrying defaults AND the error.
  */
-import { config } from '../../config/config.js';
+import { config } from '../../config/config.js'
+import { fetchJson } from '../utils/httpClient.js'
+import { ok, fallback } from '../utils/sourceResult.js'
 
-// Initialize module-level cache store
-let weatherCache = { data: null, expiresAt: 0 };
+let weatherCache = { result: null, expiresAt: 0 }
 
 /**
  * Maps weather conditions to appropriate emojis
@@ -19,170 +23,70 @@ function getWeatherEmoji(weatherText) {
     'partly sunny': '⛅',
     'mostly cloudy': '🌥️',
     'partly cloudy': '⛅',
-    'sunny': '☀️',
-    'clear': '☀️',
-    'cloudy': '☁️',
-    'rain': '🌧️',
-    'showers': '🌦️',
-    'thunderstorm': '⛈️',
-    'snow': '❄️',
-    'ice': '🧊',
-    'fog': '🌫️',
-    'windy': '💨'
-  };
+    sunny: '☀️',
+    clear: '☀️',
+    cloudy: '☁️',
+    rain: '🌧️',
+    showers: '🌦️',
+    thunderstorm: '⛈️',
+    snow: '❄️',
+    ice: '🧊',
+    fog: '🌫️',
+    windy: '💨',
+  }
 
-  if (!weatherText) return config.apiDefaults.WEATHER_EMOJI;
-  
-  const lowerWeatherText = weatherText.toLowerCase();
-  
-  let bestMatch = '';
-  let bestEmoji = config.apiDefaults.WEATHER_EMOJI;
-  
+  if (!weatherText) return config.apiDefaults.WEATHER_EMOJI
+
+  const lowerWeatherText = weatherText.toLowerCase()
+  let bestMatch = ''
+  let bestEmoji = config.apiDefaults.WEATHER_EMOJI
+
   for (const [condition, emoji] of Object.entries(weatherMap)) {
     if (lowerWeatherText.includes(condition) && condition.length > bestMatch.length) {
-      bestMatch = condition;
-      bestEmoji = emoji;
+      bestMatch = condition
+      bestEmoji = emoji
     }
   }
-  
-  return bestEmoji;
+  return bestEmoji
 }
 
-/**
- * Fetch weather data from AccuWeather API with robust error handling and caching
- * @returns {Promise<Object>} - Weather data (temperature, description, emoji)
- */
-async function getWeatherData() {
+async function getWeatherData(deps = {}) {
+  // Disabled or not configured → intentional skip (no failure to flag).
+  if (!config.weather.enabled) return ok({})
+  if (weatherCache.result && Date.now() < weatherCache.expiresAt) return weatherCache.result
+
+  const apiKey = process.env.WEATHER_API_KEY
+  const locationKey = process.env.LOCATION_KEY
+  if (!apiKey || !locationKey) return ok({})
+
+  const defaults = {
+    temperature: config.apiDefaults.TEMPERATURE,
+    weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+    emoji: config.apiDefaults.WEATHER_EMOJI,
+  }
+
   try {
-    // Check if weather integration is disabled via configuration
-    if (!config.weather.enabled) {
-      console.info('Weather data fetching is disabled via configuration.');
-      return {};
+    const data = await fetchJson(
+      `https://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=${apiKey}`,
+      { ...deps }
+    )
+    if (!data || data.length === 0) {
+      throw new Error('AccuWeather API returned empty data.')
     }
-
-    // Check if valid cached data exists
-    if (weatherCache.data && Date.now() < weatherCache.expiresAt) {
-      console.info('Using cached weather data.');
-      return weatherCache.data;
-    }
-
-    // Get API key and location key from environment variables
-    const apiKey = process.env.WEATHER_API_KEY;
-    const locationKey = process.env.LOCATION_KEY;
-    
-    if (!apiKey || !locationKey) {
-      console.info('Weather API key or location key not provided, skipping weather fetch.');
-      return {};
-    }
-    
-    // For browser environments
-    if (typeof fetch === 'function') {
-      const response = await fetch(
-        `https://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=${apiKey}`
-      );
-      
-      if (!response.ok) {
-        // Handle specific HTTP error status codes
-        switch (response.status) {
-          case 401:
-            throw new Error(`AccuWeather API error (${response.status}): Unauthorized. Your WEATHER_API_KEY may be invalid.`);
-          case 400:
-          case 403:
-            throw new Error(`AccuWeather API error (${response.status}): Bad request or forbidden. Check your LOCATION_KEY and API key permissions.`);
-          case 429:
-            throw new Error(`AccuWeather API error (${response.status}): Rate limit exceeded. You may have reached your AccuWeather API quota.`);
-          default:
-            throw new Error(`AccuWeather API server error (${response.status}): ${response.statusText}`);
-        }
-      }
-      
-      const data = await response.json();
-      
-      if (data && data.length > 0) {
-        const weatherData = data[0];
-        const tempF = weatherData.Temperature.Imperial.Value;
-        const tempC = Math.round((tempF - 32) * 5 / 9);
-        
-        const result = {
-          temperature: `${tempF}°F (${tempC}°C)`,
-          weatherDescription: weatherData.WeatherText.toLowerCase(),
-          emoji: getWeatherEmoji(weatherData.WeatherText)
-        };
-
-        // Cache the successful API response
-        weatherCache.data = result;
-        weatherCache.expiresAt = Date.now() + config.cache.WEATHER_CACHE_TTL_MS;
-        console.info('Weather data fetched from API and cached.');
-        
-        return result;
-      } else {
-        throw new Error("AccuWeather API returned empty data.");
-      }
-    } 
-    else {
-      // Node.js environment - try with node-fetch
-      try {
-        const { default: fetch } = await import('node-fetch');
-        const response = await fetch(
-          `https://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=${apiKey}`
-        );
-        
-        if (!response.ok) {
-          // Handle specific HTTP error status codes
-          switch (response.status) {
-            case 401:
-              throw new Error(`AccuWeather API error (${response.status}): Unauthorized. Your WEATHER_API_KEY may be invalid.`);
-            case 400:
-            case 403:
-              throw new Error(`AccuWeather API error (${response.status}): Bad request or forbidden. Check your LOCATION_KEY and API key permissions.`);
-            case 429:
-              throw new Error(`AccuWeather API error (${response.status}): Rate limit exceeded. You may have reached your AccuWeather API quota.`);
-            default:
-              throw new Error(`AccuWeather API server error (${response.status}): ${response.statusText}`);
-          }
-        }
-        
-        const data = await response.json();
-        
-        if (data && data.length > 0) {
-          const weatherData = data[0];
-          const tempF = weatherData.Temperature.Imperial.Value;
-          const tempC = Math.round((tempF - 32) * 5 / 9);
-          
-          const result = {
-            temperature: `${tempF}°F (${tempC}°C)`,
-            weatherDescription: weatherData.WeatherText.toLowerCase(),
-            emoji: getWeatherEmoji(weatherData.WeatherText)
-          };
-
-          // Cache the successful API response
-          weatherCache.data = result;
-          weatherCache.expiresAt = Date.now() + config.cache.WEATHER_CACHE_TTL_MS;
-          console.info('Weather data fetched from API and cached.');
-          
-          return result;
-        } else {
-          throw new Error("AccuWeather API returned empty data.");
-        }
-      } catch (error) {
-        console.error('Error fetching AccuWeather data in Node environment:', error.message);
-        console.info('Using default weather data due to API error.');
-        return {
-          temperature: config.apiDefaults.TEMPERATURE,
-          weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-          emoji: config.apiDefaults.WEATHER_EMOJI
-        };
-      }
-    }
+    const weatherData = data[0]
+    const tempF = weatherData.Temperature.Imperial.Value
+    const tempC = Math.round(((tempF - 32) * 5) / 9)
+    const result = ok({
+      temperature: `${tempF}°F (${tempC}°C)`,
+      weatherDescription: weatherData.WeatherText.toLowerCase(),
+      emoji: getWeatherEmoji(weatherData.WeatherText),
+    })
+    weatherCache = { result, expiresAt: Date.now() + config.cache.WEATHER_CACHE_TTL_MS }
+    return result
   } catch (error) {
-    console.error('Error fetching AccuWeather data:', error.message);
-    console.info('Using default weather data due to API error.');
-    return {
-      temperature: config.apiDefaults.TEMPERATURE,
-      weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-      emoji: config.apiDefaults.WEATHER_EMOJI
-    };
+    console.warn(`Weather data unavailable, using defaults: ${error.message}`)
+    return fallback(defaults, error)
   }
 }
 
-export { getWeatherData };
+export { getWeatherData }

@@ -101,32 +101,25 @@ class DataService {
             getSpotifyData(),
             getGitHubOAuthData(),
           ])
-        // github + githubOAuth return discriminated results { status, value, error, fetchedAt }.
+        // All sources now return discriminated results { status, value, error, fetchedAt }.
         // Unwrap their values for rendering and record per-source status so PR-5b can build a
         // staleness manifest — a fallback is no longer indistinguishable from live data.
+        const sources = { weather, github, wakatime, twitter, codestats, spotify, githubOAuth }
         Object.assign(
           baseData,
-          weather,
+          weather.value || {},
           github.value || {},
-          wakatime,
-          codestats,
-          spotify,
+          wakatime.value || {},
+          codestats.value || {},
+          spotify.value || {},
           githubOAuth.value || {}
         )
-        this.lastSourceStatuses = [
-          {
-            source: 'github',
-            status: github.status,
-            error: github.error,
-            fetchedAt: github.fetchedAt,
-          },
-          {
-            source: 'githubOAuth',
-            status: githubOAuth.status,
-            error: githubOAuth.error,
-            fetchedAt: githubOAuth.fetchedAt,
-          },
-        ]
+        this.lastSourceStatuses = Object.entries(sources).map(([source, r]) => ({
+          source,
+          status: r.status,
+          error: r.error,
+          fetchedAt: r.fetchedAt,
+        }))
 
         // Handle Twitter followers with manual input priority
         if (customData.profile?.TWITTER_FOLLOWERS) {
@@ -135,9 +128,9 @@ class DataService {
         } else if (config.profile.TWITTER_FOLLOWERS) {
           // Then config.profile.TWITTER_FOLLOWERS (from src/config/config.js)
           baseData.twitterFollowers = config.profile.TWITTER_FOLLOWERS
-        } else if (config.twitter.enabled_api_fetch && twitter.twitterFollowers) {
+        } else if (config.twitter.enabled_api_fetch && twitter.value?.twitterFollowers) {
           // Then, if API fetching is enabled and successful, use that value
-          baseData.twitterFollowers = twitter.twitterFollowers
+          baseData.twitterFollowers = twitter.value.twitterFollowers
         }
         // Finally, fall back to config.apiDefaults.TWITTER_FOLLOWERS (already set above)
       } catch (apiErr) {

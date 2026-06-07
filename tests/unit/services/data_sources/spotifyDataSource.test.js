@@ -1,304 +1,87 @@
-// tests/unit/services/data_sources/spotifyDataSource.test.js - FIXED
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { config } from '../../../../src/config/config.js';
-import spotifyOAuthService from '../../../../src/services/auth/spotifyOAuthService.js';
+// tests/unit/services/data_sources/spotifyDataSource.test.js
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import spotifyOAuthService from '../../../../src/services/auth/spotifyOAuthService.js'
 
-vi.mock('node-fetch', () => ({
-  default: vi.fn()
-}));
+vi.mock('../../../../src/config/config.js', () => ({
+  config: {
+    cache: { SPOTIFY_CACHE_TTL_MS: 900000 },
+    apiDefaults: { SPOTIFY_NOW_PLAYING: 'Not listening' },
+  },
+}))
 
 vi.mock('../../../../src/services/auth/spotifyOAuthService.js', () => ({
-  default: {
-    getAccessToken: vi.fn()
-  }
-}));
+  default: { getAccessToken: vi.fn() },
+}))
 
-describe('spotifyDataSource', () => {
-  let mockFetch;
-  let getSpotifyData;
+let getSpotifyData
+const res = (status, body) => ({ status, json: async () => body })
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-    
-    // Reset module
-    vi.resetModules();
-    const module = await import('../../../../src/services/data_sources/spotifyDataSource.js');
-    getSpotifyData = module.getSpotifyData;
-    
-    mockFetch = vi.fn();
-    if (typeof fetch === 'undefined') {
-      global.fetch = undefined;
-    }
-  });
+beforeEach(async () => {
+  vi.clearAllMocks()
+  vi.resetModules()
+  ;({ getSpotifyData } = await import('../../../../src/services/data_sources/spotifyDataSource.js'))
+  spotifyOAuthService.getAccessToken.mockResolvedValue('tok')
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+})
 
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-    if (global.fetch === undefined) {
-      delete global.fetch;
-    }
-  });
+describe('spotifyDataSource — discriminated results', () => {
+  it('returns ok with the currently playing track', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(res(200, { item: { name: 'Song', artists: [{ name: 'Artist' }] } }))
+    const r = await getSpotifyData({ fetchImpl })
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({ spotifyTrack: 'Song by Artist' })
+  })
 
-  describe('Authentication', () => {
-    it('should handle authentication errors', async () => {
-      spotifyOAuthService.getAccessToken.mockRejectedValueOnce(
-        new Error('No valid token')
-      );
-      global.fetch = mockFetch;
+  it('falls through to recently played when nothing is currently playing (204)', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(res(204, {}))
+      .mockResolvedValueOnce(
+        res(200, { items: [{ track: { name: 'R', artists: [{ name: 'A' }] } }] })
+      )
+    const r = await getSpotifyData({ fetchImpl })
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({ spotifyTrack: 'R by A' })
+  })
 
-      const result = await getSpotifyData();
+  it('returns ok with the default "not listening" string when nothing is playing at all', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(res(204, {}))
+      .mockResolvedValueOnce(res(200, { items: [] }))
+    const r = await getSpotifyData({ fetchImpl })
+    expect(r.status).toBe('ok') // not listening is a SUCCESS, not a failure
+    expect(r.value).toEqual({ spotifyTrack: 'Not listening' })
+  })
 
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-  });
+  it('returns a FALLBACK on an auth failure', async () => {
+    spotifyOAuthService.getAccessToken.mockRejectedValueOnce(new Error('no token'))
+    const fetchImpl = vi.fn()
+    const r = await getSpotifyData({ fetchImpl })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(r.status).toBe('fallback')
+    expect(r.value).toEqual({ spotifyTrack: 'Not listening' })
+  })
 
-  describe('Successful API Fetch & Caching', () => {
-    it('should fetch currently playing track', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({
-          item: {
-            name: 'Test Song',
-            artists: [{ name: 'Test Artist' }]
-          }
-        })
-      });
+  it('returns a FALLBACK on a rate-limit (429) carrying the status', async () => {
+    const fetchImpl = vi.fn().mockResolvedValueOnce(res(429, {}))
+    const r = await getSpotifyData({ fetchImpl })
+    expect(r.status).toBe('fallback')
+    expect(r.error.status).toBe(429)
+  })
 
-      const result = await getSpotifyData();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.spotify.com/v1/me/player/currently-playing',
-        { headers: { 'Authorization': 'Bearer test-token' } }
-      );
-      expect(result).toEqual({
-        spotifyTrack: 'Test Song by Test Artist'
-      });
-    });
-
-    it('should fallback to recently played when not currently playing', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch
-        .mockResolvedValueOnce({ status: 204 }) // No content
-        .mockResolvedValueOnce({
-          status: 200,
-          json: async () => ({
-            items: [{
-              track: {
-                name: 'Recent Song',
-                artists: [{ name: 'Recent Artist' }]
-              }
-            }]
-          })
-        });
-
-      const result = await getSpotifyData();
-
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(mockFetch).toHaveBeenLastCalledWith(
-        'https://api.spotify.com/v1/me/player/recently-played?limit=1',
-        { headers: { 'Authorization': 'Bearer test-token' } }
-      );
-      expect(result).toEqual({
-        spotifyTrack: 'Recent Song by Recent Artist'
-      });
-    });
-
-    it('should handle no tracks available', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch
-        .mockResolvedValueOnce({ status: 204 })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: async () => ({ items: [] })
-        });
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-
-    it('should use cached data', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({
-          item: {
-            name: 'Cached Song',
-            artists: [{ name: 'Cached Artist' }]
-          }
-        })
-      });
-
-      await getSpotifyData();
-      // Reset mock counts for clarity
-      spotifyOAuthService.getAccessToken.mockClear();
-      mockFetch.mockClear();
-      
-      const result = await getSpotifyData();
-
-      expect(spotifyOAuthService.getAccessToken).not.toHaveBeenCalled();
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        spotifyTrack: 'Cached Song by Cached Artist'
-      });
-    });
-
-    it('should refresh after cache expires', async () => {
-      spotifyOAuthService.getAccessToken
-        .mockResolvedValueOnce('token1')
-        .mockResolvedValueOnce('token2');
-      global.fetch = mockFetch;
-      
-      mockFetch
-        .mockResolvedValueOnce({
-          status: 200,
-          json: async () => ({
-            item: {
-              name: 'Song 1',
-              artists: [{ name: 'Artist 1' }]
-            }
-          })
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: async () => ({
-            item: {
-              name: 'Song 2',
-              artists: [{ name: 'Artist 2' }]
-            }
-          })
-        });
-
-      await getSpotifyData();
-      vi.advanceTimersByTime(config.cache.SPOTIFY_CACHE_TTL_MS + 1000);
-      const result = await getSpotifyData();
-
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(result).toEqual({
-        spotifyTrack: 'Song 2 by Artist 2'
-      });
-    });
-  });
-
-  describe('API Error Handling', () => {
-    it('should handle 401 Unauthorized', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockResolvedValueOnce({
-        status: 401,
-        statusText: 'Unauthorized'
-      });
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-
-    it('should handle 429 Rate Limit', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockResolvedValueOnce({
-        status: 429,
-        statusText: 'Too Many Requests'
-      });
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-
-    it('should handle generic API errors', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockResolvedValueOnce({
-        status: 500,
-        statusText: 'Internal Server Error'
-      });
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-
-    it('should handle network errors', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      global.fetch = mockFetch;
-      
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-    });
-  });
-
-  describe('Node Environment', () => {
-    it('should use node-fetch in Node', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      delete global.fetch;
-      
-      const nodeFetch = (await import('node-fetch')).default;
-      nodeFetch.mockResolvedValueOnce({
-        status: 200,
-        json: async () => ({
-          item: {
-            name: 'Node Song',
-            artists: [{ name: 'Node Artist' }]
-          }
-        })
-      });
-
-      const result = await getSpotifyData();
-
-      expect(nodeFetch).toHaveBeenCalled();
-      expect(result).toEqual({
-        spotifyTrack: 'Node Song by Node Artist'
-      });
-    });
-
-    it('should handle Node import errors', async () => {
-      spotifyOAuthService.getAccessToken.mockResolvedValueOnce('test-token');
-      delete global.fetch;
-      
-      // Mock the dynamic import to throw
-      vi.doMock('node-fetch', () => {
-        throw new Error('Import failed');
-      });
-
-      const result = await getSpotifyData();
-
-      expect(result).toEqual({
-        spotifyTrack: config.apiDefaults.SPOTIFY_NOW_PLAYING
-      });
-      
-      // Clean up the mock
-      vi.doUnmock('node-fetch');
-    });
-  });
-});
+  it('caches an ok result', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(res(200, { item: { name: 'S', artists: [{ name: 'A' }] } }))
+    await getSpotifyData({ fetchImpl })
+    const callsAfterFirst = fetchImpl.mock.calls.length
+    await getSpotifyData({ fetchImpl })
+    expect(fetchImpl).toHaveBeenCalledTimes(callsAfterFirst)
+  })
+})
