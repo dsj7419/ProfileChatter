@@ -224,6 +224,25 @@ describe('DataService', () => {
       expect(bySource.githubOAuth.status).toBe('ok')
     })
 
+    it('resets source statuses each run (no stale leak when a later run fails early)', async () => {
+      // Run 1: populate statuses with a github fallback.
+      getWeatherData.mockResolvedValue({})
+      getWakaTimeData.mockResolvedValue({})
+      getTwitterData.mockResolvedValue({})
+      getCodeStatsData.mockResolvedValue({})
+      getSpotifyData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'fallback', value: {}, error: { message: 'x' } })
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
+      await DataService.getDynamicData()
+      expect(DataService.lastSourceStatuses.some((s) => s.source === 'github')).toBe(true)
+
+      // Run 2: a source throws so the remote phase fails before statuses are populated.
+      // The reused singleton must NOT retain run 1's statuses.
+      getWeatherData.mockRejectedValueOnce(new Error('boom'))
+      await DataService.getDynamicData()
+      expect(DataService.lastSourceStatuses).toEqual([])
+    })
+
     it('should handle API failures gracefully', async () => {
       // Mock all APIs to fail to test error handling
       getWeatherData.mockRejectedValue(new Error('Weather API failed'))
