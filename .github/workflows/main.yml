@@ -24,6 +24,7 @@ on:
 
 permissions:
   contents: write
+  issues: write # PR-5b-ii: status-alert reconciler opens/updates/closes one stable issue
 
 env:
   NODE_VERSION: '24'
@@ -67,6 +68,18 @@ jobs:
           PAT_GITHUB_OAUTH: ${{ secrets.PAT_GITHUB_OAUTH }}
           GITHUB_DATA_MODE: 'ci'
         run: node src/build-profile.js
+
+      # PR-5b-ii: monitoring sidecar. Reconciles ONE stable status-alert issue
+      # from dist/status-manifest.json. Non-PR only (PRs must never touch issues).
+      # continue-on-error so a transient Issues-API problem is shown red but never
+      # blocks the SVG build/commit; the step itself writes a loud summary note.
+      - name: Reconcile status alert
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node src/report-status-alert.js
 
       - name: Record timestamp
         id: ts

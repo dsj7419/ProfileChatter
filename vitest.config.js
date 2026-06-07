@@ -12,6 +12,7 @@ export default defineConfig({
       exclude: [
         'src/main.js',
         'src/build-profile.js',
+        'src/report-status-alert.js', // thin CI entry glue; logic lives in runStatusAlert.js
         'src/config/timezones.js', // Pure data
         'src/rendering/fontData.js', // Pure data
         'src/routes/**', // Express routes for OAuth, test via integration/e2e
