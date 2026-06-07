@@ -1,76 +1,49 @@
 /**
  * twitterDataSource.js
- * Responsible for fetching and caching Twitter/X follower count
- * Single Responsibility: Twitter data acquisition
+ * Single Responsibility: Twitter/X follower count acquisition
+ *
+ * Returns a discriminated source result (see sourceResult.js). Twitter is
+ * normally manual: when API fetch is disabled, the username is unset, or no
+ * bearer token is present, this returns `ok({})` — an intentional skip (the
+ * manual follower count is used downstream), NOT a failure. A configured fetch
+ * that fails returns `fallback` with the default AND the error.
  */
 import { config } from '../../config/config.js'
+import { fetchJson } from '../utils/httpClient.js'
+import { ok, fallback } from '../utils/sourceResult.js'
 
-// Module‑level cache
-let twitterCache = { data: null, expiresAt: 0 }
+let twitterCache = { result: null, expiresAt: 0 }
 
-/**
- * Fetch Twitter follower count with robust error‑handling & caching
- * @returns {Promise<{twitterFollowers:string}>}
- */
-export async function getTwitterData () {
+export async function getTwitterData(deps = {}) {
+  if (!config.twitter.enabled_api_fetch) return ok({})
+
+  const username = config.profile.TWITTER_USERNAME
+  if (!username) return ok({})
+
+  const token = process.env.TWITTER_BEARER_TOKEN
+  if (!token) return ok({})
+
+  if (twitterCache.result && Date.now() < twitterCache.expiresAt) {
+    return twitterCache.result
+  }
+
   try {
-    // First check if API fetching is enabled
-    if (!config.twitter.enabled_api_fetch) {
-      console.info('Twitter API fetch is disabled. Manual follower count will be used.')
-      return {}
-    }
-
-    const username = config.profile.TWITTER_USERNAME
-    if (!username) {
-      console.info('Twitter username not configured – skipping Twitter call.')
-      return {}
-    }
-
-    // serve from cache when fresh
-    if (twitterCache.data && Date.now() < twitterCache.expiresAt) {
-      console.info('Using cached Twitter data.')
-      return twitterCache.data
-    }
-
-    const token = process.env.TWITTER_BEARER_TOKEN
-    if (!token) {
-      console.info('Twitter API fetch enabled but TWITTER_BEARER_TOKEN is missing. Manual follower count will be used.')
-      return {}
-    }
-
-    const endpoint = `https://api.twitter.com/2/users/by/username/${encodeURIComponent(username)}?user.fields=public_metrics`
-    const fetchImpl = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default
-
-    const res = await fetchImpl(endpoint, {
-      headers: { Authorization: `Bearer ${token}` }
+    const endpoint = `https://api.twitter.com/2/users/by/username/${encodeURIComponent(
+      username
+    )}?user.fields=public_metrics`
+    const json = await fetchJson(endpoint, {
+      headers: { Authorization: `Bearer ${token}` },
+      ...deps,
     })
-
-    if (!res.ok) {
-      switch (res.status) {
-        case 401: throw new Error('Unauthorized – invalid bearer token.')
-        case 403: throw new Error('Forbidden – check app permissions.')
-        case 404: throw new Error(`User "${username}" not found.`)
-        case 429: throw new Error('Rate‑limit exceeded.')
-        default:  throw new Error(`Twitter API ${res.status}: ${res.statusText}`)
-      }
-    }
-
-    const json = await res.json()
     const count = json?.data?.public_metrics?.followers_count
-    if (typeof count !== 'number') throw new Error('Twitter API returned invalid follower count.')
-
-    const result = { twitterFollowers: count.toString() }
-
-    // cache & return
-    twitterCache = {
-      data: result,
-      expiresAt: Date.now() + config.cache.TWITTER_CACHE_TTL_MS
+    if (typeof count !== 'number') {
+      throw new Error('Twitter API returned invalid follower count.')
     }
-    console.info('Twitter data fetched & cached.')
+    const result = ok({ twitterFollowers: count.toString() })
+    twitterCache = { result, expiresAt: Date.now() + config.cache.TWITTER_CACHE_TTL_MS }
     return result
   } catch (err) {
-    console.error('Error fetching Twitter data:', err.message)
-    console.info('Using default follower count.')
-    return { twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS }
+    console.warn(`Twitter data unavailable, using default follower count: ${err.message}`)
+    return fallback({ twitterFollowers: config.apiDefaults.TWITTER_FOLLOWERS }, err)
   }
 }

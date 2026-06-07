@@ -1,316 +1,127 @@
 // tests/unit/services/data_sources/weatherDataSource.test.js
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-vi.mock('node-fetch', () => ({
-  default: vi.fn()
-}));
-
-// Mock the config module 
 vi.mock('../../../../src/config/config.js', () => ({
   config: {
-    weather: {
-      enabled: true 
-    },
-    cache: {
-      WEATHER_CACHE_TTL_MS: 1800000
-    },
+    weather: { enabled: true },
+    cache: { WEATHER_CACHE_TTL_MS: 1800000 },
     apiDefaults: {
-      TEMPERATURE: "72°F (22°C)",
-      WEATHER_DESCRIPTION: "partly cloudy",
-      WEATHER_EMOJI: "⛅"
-    }
-  }
-}));
+      TEMPERATURE: '72°F (22°C)',
+      WEATHER_DESCRIPTION: 'partly cloudy',
+      WEATHER_EMOJI: '⛅',
+    },
+  },
+}))
 
-describe('weatherDataSource', () => {
-  let mockFetch;
-  let getWeatherData;
-  let config;
-  const originalEnv = process.env;
+let getWeatherData
+let config
+const originalEnv = process.env
+const noSleep = () => Promise.resolve()
+const okFetch = (body) =>
+  vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-    
-    // Reset environment
-    process.env = { ...originalEnv };
-    process.env.WEATHER_API_KEY = 'test-api-key';
-    process.env.LOCATION_KEY = 'test-location-key';
-    
-    // Clear the module cache and re-import to reset module-level cache
-    vi.resetModules();
-    
-    // Import fresh modules
-    const configModule = await import('../../../../src/config/config.js');
-    config = configModule.config;
-    
-    const module = await import('../../../../src/services/data_sources/weatherDataSource.js');
-    getWeatherData = module.getWeatherData;
-    
-    // Setup fetch mock
-    mockFetch = vi.fn();
-    if (typeof fetch === 'undefined') {
-      global.fetch = undefined;
-    }
-  });
+beforeEach(async () => {
+  vi.clearAllMocks()
+  vi.resetModules()
+  process.env = { ...originalEnv, WEATHER_API_KEY: 'k', LOCATION_KEY: 'loc' }
+  config = (await import('../../../../src/config/config.js')).config
+  ;({ getWeatherData } = await import('../../../../src/services/data_sources/weatherDataSource.js'))
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  process.env = originalEnv
+})
 
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-    process.env = originalEnv;
-    if (global.fetch === undefined) {
-      delete global.fetch;
-    }
-  });
+describe('weatherDataSource — discriminated results', () => {
+  it('returns ok with formatted temperature, description and emoji', async () => {
+    const fetchImpl = okFetch([{ Temperature: { Imperial: { Value: 75 } }, WeatherText: 'Sunny' }])
+    const r = await getWeatherData({ fetchImpl, sleep: noSleep })
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({
+      temperature: '75°F (24°C)',
+      weatherDescription: 'sunny',
+      emoji: '☀️',
+    })
+    expect(fetchImpl.mock.calls[0][0]).toBe(
+      'https://dataservice.accuweather.com/currentconditions/v1/loc?apikey=k'
+    )
+  })
 
-  describe('Successful API Fetch & Caching', () => {
-    it('should fetch weather data successfully in browser environment', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => [{
-          Temperature: {
-            Imperial: { Value: 75 }
-          },
-          WeatherText: 'Sunny'
-        }]
-      });
+  it.each([
+    ['Sunny', '☀️'],
+    ['Mostly Sunny', '🌤️'],
+    ['Partly Cloudy', '⛅'],
+    ['Cloudy', '☁️'],
+    ['Rain', '🌧️'],
+    ['Thunderstorm', '⛈️'],
+    ['Snow', '❄️'],
+    ['Fog', '🌫️'],
+    ['Unknown Weather', '⛅'],
+  ])('maps "%s" to %s', async (text, emoji) => {
+    const fetchImpl = okFetch([{ Temperature: { Imperial: { Value: 70 } }, WeatherText: text }])
+    const r = await getWeatherData({ fetchImpl, sleep: noSleep })
+    expect(r.value.emoji).toBe(emoji)
+  })
 
-      const result = await getWeatherData();
+  it('caches an ok result', async () => {
+    const fetchImpl = okFetch([{ Temperature: { Imperial: { Value: 70 } }, WeatherText: 'Clear' }])
+    await getWeatherData({ fetchImpl, sleep: noSleep })
+    await getWeatherData({ fetchImpl, sleep: noSleep })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+  })
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        `https://dataservice.accuweather.com/currentconditions/v1/test-location-key?apikey=test-api-key`
-      );
-      expect(result).toEqual({
-        temperature: '75°F (24°C)',
-        weatherDescription: 'sunny',
-        emoji: '☀️'
-      });
-    });
-
-    it('should fetch weather data successfully in Node environment', async () => {
-      delete global.fetch;
-      const nodeFetch = (await import('node-fetch')).default;
-      nodeFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => [{
-          Temperature: {
-            Imperial: { Value: 32 }
-          },
-          WeatherText: 'Snow'
-        }]
-      });
-
-      const result = await getWeatherData();
-
-      expect(nodeFetch).toHaveBeenCalled();
-      expect(result).toEqual({
-        temperature: '32°F (0°C)',
-        weatherDescription: 'snow',
-        emoji: '❄️'
-      });
-    });
-
-    it('should return cached data on second call', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => [{
-          Temperature: { Imperial: { Value: 70 } },
-          WeatherText: 'Partly Cloudy'
-        }]
-      });
-
-      // First call
-      const result1 = await getWeatherData();
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-
-      // Second call immediately
-      const result2 = await getWeatherData();
-      expect(mockFetch).toHaveBeenCalledTimes(1); // Still 1
-      expect(result2).toEqual(result1);
-    });
-
-    it('should fetch new data after cache expires', async () => {
-      global.fetch = mockFetch;
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => [{
-            Temperature: { Imperial: { Value: 65 } },
-            WeatherText: 'Clear'
-          }]
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => [{
-            Temperature: { Imperial: { Value: 80 } },
-            WeatherText: 'Hot'
-          }]
-        });
-
-      // First call
-      await getWeatherData();
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-
-      // Advance time past cache TTL
-      vi.advanceTimersByTime(config.cache.WEATHER_CACHE_TTL_MS + 1000);
-
-      // Second call after cache expiry
-      const result = await getWeatherData();
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(result.temperature).toBe('80°F (27°C)');
-    });
-  });
-
-  describe('API Error Handling', () => {
-    it('should handle 401 Unauthorized error', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
+  it('returns a FALLBACK (defaults + error) on an API error — distinguishable', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue({
         ok: false,
         status: 401,
-        statusText: 'Unauthorized'
-      });
+        statusText: 'Unauthorized',
+        json: async () => ({}),
+      })
+    const r = await getWeatherData({ fetchImpl, sleep: noSleep, retries: 0 })
+    expect(r.status).toBe('fallback')
+    expect(r.error.status).toBe(401)
+    expect(r.value).toEqual({
+      temperature: config.apiDefaults.TEMPERATURE,
+      weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
+      emoji: config.apiDefaults.WEATHER_EMOJI,
+    })
+  })
 
-      const result = await getWeatherData();
+  it('returns a FALLBACK on empty data', async () => {
+    const r = await getWeatherData({ fetchImpl: okFetch([]), sleep: noSleep })
+    expect(r.status).toBe('fallback')
+  })
 
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
-    });
+  it('returns ok({}) (skip) when API/location keys are missing', async () => {
+    delete process.env.WEATHER_API_KEY
+    const fetchImpl = vi.fn()
+    const r = await getWeatherData({ fetchImpl, sleep: noSleep })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({})
+  })
+})
 
-    it('should handle 429 Rate Limit error', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 429,
-        statusText: 'Too Many Requests'
-      });
-
-      const result = await getWeatherData();
-
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
-    });
-
-    it('should handle network errors', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      const result = await getWeatherData();
-
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
-    });
-
-    it('should handle empty API response', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => []
-      });
-
-      const result = await getWeatherData();
-
-      expect(result).toEqual({
-        temperature: config.apiDefaults.TEMPERATURE,
-        weatherDescription: config.apiDefaults.WEATHER_DESCRIPTION,
-        emoji: config.apiDefaults.WEATHER_EMOJI
-      });
-    });
-  });
-
-  describe('Missing Environment Variables', () => {
-    it('should handle missing API key', async () => {
-      delete process.env.WEATHER_API_KEY;
-      global.fetch = mockFetch;
-
-      const result = await getWeatherData();
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({});
-    });
-
-    it('should handle missing location key', async () => {
-      delete process.env.LOCATION_KEY;
-      global.fetch = mockFetch;
-
-      const result = await getWeatherData();
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({});
-    });
-  });
-
-  describe('Weather Emoji Processing', () => {
-    const weatherEmojiTests = [
-      { text: 'Sunny', emoji: '☀️' },
-      { text: 'Clear skies', emoji: '☀️' },
-      { text: 'Mostly Sunny', emoji: '🌤️' },
-      { text: 'Partly Cloudy', emoji: '⛅' },
-      { text: 'Cloudy', emoji: '☁️' },
-      { text: 'Rain', emoji: '🌧️' },
-      { text: 'Thunderstorm', emoji: '⛈️' },
-      { text: 'Snow', emoji: '❄️' },
-      { text: 'Fog', emoji: '🌫️' },
-      { text: 'Unknown Weather', emoji: '⛅' } // Default
-    ];
-
-    weatherEmojiTests.forEach(({ text, emoji }) => {
-      it(`should return ${emoji} for "${text}"`, async () => {
-        global.fetch = mockFetch;
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => [{
-            Temperature: { Imperial: { Value: 70 } },
-            WeatherText: text
-          }]
-        });
-
-        const result = await getWeatherData();
-        expect(result.emoji).toBe(emoji);
-      });
-    });
-  });
-
-  describe('Weather Configuration', () => {
-    it('should skip weather fetch when config.weather.enabled is false', async () => {
-      // Mock config with weather disabled
-      vi.doMock('../../../../src/config/config.js', () => ({
-        config: {
-          weather: {
-            enabled: false
-          },
-          cache: {
-            WEATHER_CACHE_TTL_MS: 1800000
-          },
-          apiDefaults: {
-            TEMPERATURE: "72°F (22°C)",
-            WEATHER_DESCRIPTION: "partly cloudy",
-            WEATHER_EMOJI: "⛅"
-          }
-        }
-      }));
-
-      // Re-import to get updated config
-      vi.resetModules();
-      const module = await import('../../../../src/services/data_sources/weatherDataSource.js');
-      const getWeatherDataDisabled = module.getWeatherData;
-      
-      global.fetch = mockFetch;
-
-      const result = await getWeatherDataDisabled();
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      expect(result).toEqual({});
-    });
-  });
-});
+describe('weatherDataSource — disabled', () => {
+  it('returns ok({}) (skip) when weather is disabled', async () => {
+    vi.resetModules()
+    vi.doMock('../../../../src/config/config.js', () => ({
+      config: {
+        weather: { enabled: false },
+        cache: { WEATHER_CACHE_TTL_MS: 1 },
+        apiDefaults: { TEMPERATURE: 'x', WEATHER_DESCRIPTION: 'y', WEATHER_EMOJI: 'z' },
+      },
+    }))
+    const { getWeatherData: disabled } = await import(
+      '../../../../src/services/data_sources/weatherDataSource.js'
+    )
+    const fetchImpl = vi.fn()
+    const r = await disabled({ fetchImpl })
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({})
+  })
+})

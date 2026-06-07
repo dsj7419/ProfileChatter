@@ -1,195 +1,65 @@
 /**
  * wakatimeDataSource.js
- * Responsible for fetching and caching WakaTime coding activity data
- * Single Responsibility: WakaTime data acquisition
+ * Single Responsibility: WakaTime coding activity acquisition
+ *
+ * Returns a discriminated source result (see sourceResult.js): `ok` with live
+ * values (or `ok({})` when WakaTime is disabled — an intentional skip), or
+ * `fallback` carrying defaults AND the error.
  */
-import { config } from '../../config/config.js';
-import { getLanguageColor } from '../utils/languageColors.js';
+import { config } from '../../config/config.js'
+import { getLanguageColor } from '../utils/languageColors.js'
+import { fetchJson } from '../utils/httpClient.js'
+import { ok, fallback } from '../utils/sourceResult.js'
 
-// Initialize module-level cache store
-let wakatimeCache = { data: null, expiresAt: 0 };
+let wakatimeCache = { result: null, expiresAt: 0 }
 
-/**
- * Fetch WakaTime coding activity data with robust error handling and caching
- * @returns {Promise<Object>} - Coding activity data
- */
-async function getWakaTimeData() {
+async function getWakaTimeData(deps = {}) {
+  if (!config.wakatime.enabled) return ok({})
+  if (wakatimeCache.result && Date.now() < wakatimeCache.expiresAt) return wakatimeCache.result
+
+  const apiKey = process.env.WAKATIME_API_KEY
+  const username = config.profile.WAKATIME_USERNAME
+  if (!apiKey || !username) {
+    // Enabled but misconfigured → a real failure (distinct from disabled skip).
+    return fallback(
+      config.wakatime.defaults,
+      new Error('WakaTime enabled but API key or username is not configured.')
+    )
+  }
+
   try {
-    // Check if WakaTime integration is enabled
-    if (!config.wakatime.enabled) {
-      console.info('WakaTime integration is disabled.');
-      return {};
+    const authHeader = 'Basic ' + Buffer.from(apiKey).toString('base64')
+    const data = await fetchJson(
+      `https://wakatime.com/api/v1/users/${username}/stats/last_7_days`,
+      { headers: { Authorization: authHeader, Accept: 'application/json' }, ...deps }
+    )
+    if (!data || !data.data) {
+      throw new Error('WakaTime API returned empty or invalid data.')
     }
-    
-    // Check if valid cached data exists
-    if (wakatimeCache.data && Date.now() < wakatimeCache.expiresAt) {
-      console.info('Using cached WakaTime data.');
-      return wakatimeCache.data;
+    const stats = data.data
+    const result = {
+      wakatime_summary: `Coded for ${stats.human_readable_total_including_other_language || '0 hrs'} in the last week`,
+      wakatime_top_language: 'None',
+      wakatime_top_language_percent: '0',
+      wakatime_chart_data: [],
     }
-
-    // Get API key from environment variables
-    const apiKey = process.env.WAKATIME_API_KEY;
-    if (!apiKey) {
-      throw new Error("WakaTime API key not provided in environment variables.");
+    if (stats.languages && stats.languages.length > 0) {
+      const topLang = stats.languages[0]
+      result.wakatime_top_language = topLang.name
+      result.wakatime_top_language_percent = Math.round(topLang.percent).toString()
+      result.wakatime_chart_data = stats.languages.slice(0, 5).map((lang) => ({
+        label: lang.name,
+        value: Math.round(lang.percent),
+        color: getLanguageColor(lang.name),
+      }))
     }
-
-    // Get username from config
-    const username = config.profile.WAKATIME_USERNAME;
-    if (!username) {
-      throw new Error("WakaTime username not configured.");
-    }
-
-    // For browser environments
-    if (typeof fetch === 'function') {
-      // Use browser's btoa() for base64 encoding in browser environments
-      const authHeader = 'Basic ' + btoa(apiKey);
-      
-      // Fetch data from WakaTime API for the last 7 days
-      const response = await fetch(
-        `https://wakatime.com/api/v1/users/${username}/stats/last_7_days`,
-        {
-          headers: {
-            'Authorization': authHeader,
-            'Accept': 'application/json'
-          }
-        }
-      );
-      
-      if (!response.ok) {
-        // Handle specific HTTP error status codes
-        switch (response.status) {
-          case 401:
-            throw new Error(`WakaTime API error (${response.status}): Unauthorized. Your WAKATIME_API_KEY may be invalid.`);
-          case 403:
-            throw new Error(`WakaTime API error (${response.status}): Forbidden. Check your API key permissions.`);
-          case 404:
-            throw new Error(`WakaTime API error (${response.status}): User '${username}' not found. Check your WAKATIME_USERNAME in config.`);
-          case 429:
-            throw new Error(`WakaTime API error (${response.status}): Rate limit exceeded.`);
-          default:
-            throw new Error(`WakaTime API server error (${response.status}): ${response.statusText}`);
-        }
-      }
-      
-      const data = await response.json();
-      
-      if (data && data.data) {
-        const stats = data.data;
-        
-        // Extract important data from the response
-        let result = {
-          wakatime_summary: `Coded for ${stats.human_readable_total_including_other_language || "0 hrs"} in the last week`,
-          wakatime_top_language: "None",
-          wakatime_top_language_percent: "0",
-          wakatime_chart_data: []
-        };
-        
-        // Extract top language data if available
-        if (stats.languages && stats.languages.length > 0) {
-          const topLang = stats.languages[0];
-          result.wakatime_top_language = topLang.name;
-          result.wakatime_top_language_percent = Math.round(topLang.percent).toString();
-          
-          // Format data for chart rendering (top 5 languages)
-          result.wakatime_chart_data = stats.languages.slice(0, 5).map(lang => ({
-            label: lang.name,
-            value: Math.round(lang.percent),
-            color: getLanguageColor(lang.name) // Using imported helper
-          }));
-        }
-
-        // Cache the successful API response
-        wakatimeCache.data = result;
-        wakatimeCache.expiresAt = Date.now() + config.wakatime.cacheTtlMs;
-        console.info('WakaTime data fetched from API and cached.');
-        
-        return result;
-      } else {
-        throw new Error("WakaTime API returned empty or invalid data.");
-      }
-    } 
-    else {
-      // Node.js environment - try with node-fetch
-      try {
-        const { default: fetch } = await import('node-fetch');
-        
-        // Use Node.js Buffer for base64 encoding in Node environments
-        const authHeader = 'Basic ' + Buffer.from(apiKey).toString('base64');
-        
-        // Fetch data from WakaTime API for the last 7 days
-        const response = await fetch(
-          `https://wakatime.com/api/v1/users/${username}/stats/last_7_days`,
-          {
-            headers: {
-              'Authorization': authHeader,
-              'Accept': 'application/json'
-            }
-          }
-        );
-        
-        if (!response.ok) {
-          // Handle specific HTTP error status codes
-          switch (response.status) {
-            case 401:
-              throw new Error(`WakaTime API error (${response.status}): Unauthorized. Your WAKATIME_API_KEY may be invalid.`);
-            case 403:
-              throw new Error(`WakaTime API error (${response.status}): Forbidden. Check your API key permissions.`);
-            case 404:
-              throw new Error(`WakaTime API error (${response.status}): User '${username}' not found. Check your WAKATIME_USERNAME in config.`);
-            case 429:
-              throw new Error(`WakaTime API error (${response.status}): Rate limit exceeded.`);
-            default:
-              throw new Error(`WakaTime API server error (${response.status}): ${response.statusText}`);
-          }
-        }
-        
-        const data = await response.json();
-        
-        if (data && data.data) {
-          const stats = data.data;
-          
-          // Extract important data from the response
-          let result = {
-            wakatime_summary: `Coded for ${stats.human_readable_total_including_other_language || "0 hrs"} in the last week`,
-            wakatime_top_language: "None",
-            wakatime_top_language_percent: "0",
-            wakatime_chart_data: []
-          };
-          
-          // Extract top language data if available
-          if (stats.languages && stats.languages.length > 0) {
-            const topLang = stats.languages[0];
-            result.wakatime_top_language = topLang.name;
-            result.wakatime_top_language_percent = Math.round(topLang.percent).toString();
-            
-            // Format data for chart rendering (top 5 languages)
-            result.wakatime_chart_data = stats.languages.slice(0, 5).map(lang => ({
-              label: lang.name,
-              value: Math.round(lang.percent),
-              color: getLanguageColor(lang.name) // Using imported helper
-            }));
-          }
-
-          // Cache the successful API response
-          wakatimeCache.data = result;
-          wakatimeCache.expiresAt = Date.now() + config.wakatime.cacheTtlMs;
-          console.info('WakaTime data fetched from API and cached.');
-          
-          return result;
-        } else {
-          throw new Error("WakaTime API returned empty or invalid data.");
-        }
-      } catch (error) {
-        console.error('Error fetching WakaTime data in Node environment:', error.message);
-        console.info('Using default WakaTime data due to API error.');
-        return config.wakatime.defaults;
-      }
-    }
+    const okResult = ok(result)
+    wakatimeCache = { result: okResult, expiresAt: Date.now() + config.wakatime.cacheTtlMs }
+    return okResult
   } catch (error) {
-    console.error('Error fetching WakaTime data:', error.message);
-    console.info('Using default WakaTime data due to API error.');
-    return config.wakatime.defaults;
+    console.warn(`WakaTime data unavailable, using defaults: ${error.message}`)
+    return fallback(config.wakatime.defaults, error)
   }
 }
 
-export { getWakaTimeData };
+export { getWakaTimeData }
