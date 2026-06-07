@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store'
 import { applyConfig } from './initConfigLoader.js'
+import { getPreviewToken } from '../lib/previewToken.js'
 
 // Initial default values
 const defaultThemes = {
@@ -531,9 +532,10 @@ async function saveLocalConfigToServer() {
     const fullConfig = getPreviewConfiguration()
     console.log('Saving configuration to local file system...')
 
+    const token = await getPreviewToken('http://localhost:3001')
     const response = await fetch('http://localhost:3001/api/save-local-config', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Preview-Token': token },
       body: JSON.stringify(fullConfig),
     })
 

@@ -2,6 +2,7 @@
 <script>
     import { getPreviewConfiguration } from '../stores/configStore.js'
     import HelpIconTooltip from '../lib/ui/HelpIconTooltip.svelte'
+    import { getPreviewToken } from '../lib/previewToken.js'
   
     // Props for GitHub authentication status
     export let isAuthenticated = false
@@ -30,7 +31,10 @@
         isLoadingRepos = true
         repoError = null
         
-        const res = await fetch(`${previewServer}/api/github/user-repos`)
+        const token = await getPreviewToken(previewServer)
+        const res = await fetch(`${previewServer}/api/github/user-repos`, {
+          headers: { 'X-Preview-Token': token },
+        })
         
         if (!res.ok) {
           const data = await res.json().catch(() => ({}))
@@ -76,9 +80,10 @@
         // Get the current configuration from the store
         const configContent = JSON.stringify(getPreviewConfiguration(), null, 2)
         
+        const token = await getPreviewToken(previewServer)
         const res = await fetch(`${previewServer}/api/github/save-config`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Preview-Token': token },
           body: JSON.stringify({
             repoFullName: selectedRepoFullName,
             filePath,

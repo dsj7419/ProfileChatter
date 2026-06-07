@@ -6,8 +6,9 @@
       chatMessages, 
       editableTheme,
       getPreviewConfiguration,
-      previewMode 
+      previewMode
     } from '../stores/configStore.js';
+    import { getPreviewToken } from '../lib/previewToken.js';
     
     // State for SVG preview
     let generatedSvgMarkup = '';
@@ -216,10 +217,12 @@
         });
         
         // Send POST request to preview server
+        const token = await getPreviewToken(previewServer);
         const response = await fetch(`${previewServer}/generate-preview`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Preview-Token': token
           },
           body: JSON.stringify(fullConfigData)
         });

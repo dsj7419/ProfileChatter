@@ -31,16 +31,19 @@ import { resolveBindHost, isExternalBind, isDebugEndpointEnabled } from './serve
 import {
   getAllowedOrigins,
   resolveCorsOrigin,
-  isStateChangingRequestAllowed,
+  authorizeStateChange,
   validateConfigPayload,
   validateGithubSaveTarget,
 } from './serverSecurity.js'
+import { generateSessionToken, isLoopbackHost } from './serverAuth.js'
 
 // Constants
 const PORT = 3001
 // Default to loopback; LAN exposure is opt-in only (see serverConfig.js).
 const HOST = resolveBindHost(process.env)
 const ALLOWED_ORIGINS = getAllowedOrigins(process.env)
+// Per-process session token; handed to the SPA via loopback-only GET /preview-token
+const PREVIEW_TOKEN = generateSessionToken()
 const FRONTEND_URL = 'http://127.0.0.1:5173'
 const FIVE_MINUTES_SEC = 5 * 60
 const FIVE_MINUTES_MS = FIVE_MINUTES_SEC * 1000
@@ -821,7 +824,7 @@ const server = http.createServer(async (req, res) => {
     )
     res.setHeader('Vary', 'Origin')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Preview-Token')
 
     // Handle preflight request
     if (req.method === 'OPTIONS') {
@@ -831,16 +834,20 @@ const server = http.createServer(async (req, res) => {
       return
     }
 
-    // CSRF guard: reject cross-origin attempts at state-changing / token-backed endpoints
+    // Auth guard: state-changing / token-backed endpoints require an allowed
+    // origin (CSRF) AND a valid session token.
     const isStateChanging =
       req.method === 'POST' || (req.method === 'GET' && path === '/api/github/user-repos')
     if (isStateChanging) {
-      const originCheck = isStateChangingRequestAllowed(req.headers, ALLOWED_ORIGINS)
-      if (!originCheck.allowed) {
-        logger.warn('Blocked cross-origin request:', originCheck.reason, path)
-        res.statusCode = 403
+      const auth = authorizeStateChange(req.headers, {
+        expectedToken: PREVIEW_TOKEN,
+        allowedOrigins: ALLOWED_ORIGINS,
+      })
+      if (!auth.allowed) {
+        logger.warn('Blocked state-changing request:', auth.status, auth.error, path)
+        res.statusCode = auth.status
         res.setHeader('Content-Type', 'application/json')
-        res.end(JSON.stringify({ error: 'Forbidden: cross-origin request rejected' }))
+        res.end(JSON.stringify({ error: auth.error }))
         return
       }
     }
@@ -855,6 +862,21 @@ const server = http.createServer(async (req, res) => {
         await routes.handleOAuthCallback(req, res, query, path)
       } else if (path === '/oauth-status') {
         await routes.handleOAuthStatus(req, res)
+      } else if (path === '/preview-token') {
+        // Hand the per-process token to the local SPA. Loopback-Host only, so a
+        // LAN caller on the opt-in external-bind path cannot obtain it; CORS
+        // already restricts which browser origin may read the response.
+        if (!isLoopbackHost(req.headers.host)) {
+          logger.warn('Blocked /preview-token from non-loopback host:', req.headers.host)
+          res.statusCode = 403
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Forbidden' }))
+        } else {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Cache-Control', 'no-store')
+          res.end(JSON.stringify({ token: PREVIEW_TOKEN }))
+        }
       } else if (path === '/api/initial-config-data') {
         await routes.handleConfigData(req, res)
       } else if (path === '/api/github/user-repos') {

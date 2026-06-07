@@ -9,6 +9,8 @@
  * unit-tested without an HTTP server.
  */
 
+import { isValidPreviewToken } from './serverAuth.js'
+
 const DEFAULT_ALLOWED_ORIGINS = ['http://127.0.0.1:5173', 'http://localhost:5173']
 
 /**
@@ -150,4 +152,22 @@ export function validateGithubSaveTarget(target = {}) {
   }
 
   return { valid: true }
+}
+
+/**
+ * Authorize a state-changing request: cross-origin check first (403), then a
+ * valid session token (401). Both must pass.
+ * @param {Record<string, string | undefined>} headers
+ * @param {{ expectedToken: string, allowedOrigins: string[] }} ctx
+ * @returns {{ allowed: boolean, status: number, error?: string }}
+ */
+export function authorizeStateChange(headers = {}, { expectedToken, allowedOrigins }) {
+  const origin = isStateChangingRequestAllowed(headers, allowedOrigins)
+  if (!origin.allowed) {
+    return { allowed: false, status: 403, error: 'Forbidden: cross-origin request rejected' }
+  }
+  if (!isValidPreviewToken(headers['x-preview-token'], expectedToken)) {
+    return { allowed: false, status: 401, error: 'Unauthorized: missing or invalid preview token' }
+  }
+  return { allowed: true, status: 200 }
 }
