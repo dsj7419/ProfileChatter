@@ -20,6 +20,10 @@ class DataService {
   lastSourceStatuses = []
 
   async getDynamicData(customData = {}) {
+    // Reset per-run status first so a run that fails early can never surface a
+    // previous run's statuses through this reused singleton.
+    this.lastSourceStatuses = []
+
     // initialise base object so we have something even on catastrophic failure
     let baseData = {
       currentDayOfWeek: 'N/A',
