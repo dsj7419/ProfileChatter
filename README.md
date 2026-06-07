@@ -379,7 +379,10 @@ PRs are welcome! We have a comprehensive test suite (~400+ tests) integrated int
 
 ## 📝 License
 
-[UNLICENSE](LICENSE) – public domain, no strings attached.
+[MIT](LICENSE) © 2025 Dan Johnson.
+
+Third-party materials bundled or embedded in the output (the Inter font and
+GitHub language colors) are credited in [NOTICE](NOTICE).
 
 ---
 

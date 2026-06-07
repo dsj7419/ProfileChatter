@@ -1,0 +1,40 @@
+ProfileChatter
+Copyright (c) 2025 Dan Johnson
+
+This product is licensed under the MIT License (see LICENSE).
+
+It includes the following third-party materials:
+
+--------------------------------------------------------------------------------
+Inter (font)
+--------------------------------------------------------------------------------
+A subset of the Inter typeface is embedded as base64 WOFF2 in
+`src/rendering/fontData.js` and is rendered into the generated SVG output.
+
+  - Project: Inter — https://github.com/rsms/inter
+  - License: SIL Open Font License, Version 1.1
+            https://opensource.org/license/ofl-1-1
+  - Copyright: Copyright (c) 2016 The Inter Project Authors
+              (https://github.com/rsms/inter)
+
+The SIL OFL permits embedding the font in documents/output. The font is used
+here only as embedded glyph data for rendering text in the generated SVG.
+
+--------------------------------------------------------------------------------
+Programming-language colors
+--------------------------------------------------------------------------------
+The language-to-color mapping in `src/services/utils/languageColors.js` is based
+on GitHub's language color scheme, as published in GitHub Linguist.
+
+  - Source: GitHub Linguist (languages.yml)
+            https://github.com/github-linguist/linguist
+  - License: MIT License
+
+The values in this repository were transcribed/curated by hand from that scheme;
+if any color diverges from the upstream source, the upstream value should be
+treated as authoritative.
+
+--------------------------------------------------------------------------------
+
+No other third-party assets or data are bundled in this repository. Runtime
+npm dependencies retain their own licenses as declared in their packages.
