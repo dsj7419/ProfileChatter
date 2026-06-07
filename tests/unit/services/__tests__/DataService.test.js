@@ -223,6 +223,44 @@ describe('DataService', () => {
       expect(bySource.githubOAuth.status).toBe('ok')
     })
 
+    it('records a classification per source (live / skip / fallback) for the status manifest', async () => {
+      // An intentional ok({}) skip must be distinguishable from live ok(data) and
+      // from a configured fallback — the manifest is built off this classification.
+      getWeatherData.mockResolvedValue({ status: 'ok', value: {}, fetchedAt: 1 }) // skip
+      getGitHubData.mockResolvedValue({
+        status: 'ok',
+        value: { githubFollowers: '5' },
+        fetchedAt: 1,
+      }) // live
+      getWakaTimeData.mockResolvedValue({
+        status: 'ok',
+        value: { wakatime_summary: 'x' },
+        fetchedAt: 1,
+      })
+      getTwitterData.mockResolvedValue({ status: 'ok', value: {}, fetchedAt: 1 }) // skip
+      getCodeStatsData.mockResolvedValue({
+        status: 'ok',
+        value: { codestatsXP: '9' },
+        fetchedAt: 1,
+      })
+      getSpotifyData.mockResolvedValue({ status: 'ok', value: { spotifyTrack: 'x' }, fetchedAt: 1 })
+      getGitHubOAuthData.mockResolvedValue({
+        status: 'fallback',
+        value: { githubTotalStars: '0' },
+        error: { message: 'Unauthorized', status: 401 },
+        fetchedAt: 1,
+      })
+
+      await DataService.getDynamicData()
+
+      const bySource = Object.fromEntries(DataService.lastSourceStatuses.map((s) => [s.source, s]))
+      expect(bySource.weather.classification).toBe('skip')
+      expect(bySource.github.classification).toBe('live')
+      expect(bySource.wakatime.classification).toBe('live')
+      expect(bySource.twitter.classification).toBe('skip')
+      expect(bySource.githubOAuth.classification).toBe('fallback')
+    })
+
     it('resets source statuses each run (no stale leak when a later run fails early)', async () => {
       // Run 1: populate statuses with a github fallback.
       getWeatherData.mockResolvedValue({})

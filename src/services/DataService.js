@@ -12,6 +12,7 @@ import { getCodeStatsData } from './data_sources/codestatsDataSource.js'
 import { getSpotifyData } from './data_sources/spotifyDataSource.js'
 import { getGitHubOAuthData } from './data_sources/githubOAuthDataSource.js'
 import DateTimeFormatService from './DateTimeFormatService.js'
+import { classifySource } from './utils/statusManifest.js'
 
 /* ---------- service ------------------------------------------------------ */
 class DataService {
@@ -117,6 +118,7 @@ class DataService {
         this.lastSourceStatuses = Object.entries(sources).map(([source, r]) => ({
           source,
           status: r.status,
+          classification: classifySource(r),
           error: r.error,
           fetchedAt: r.fetchedAt,
         }))

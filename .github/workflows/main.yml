@@ -96,6 +96,7 @@ jobs:
           path: |
             dist/profile-chat.svg
             README.md
+            dist/status-manifest.json
 
       - name: Summary
         run: |
