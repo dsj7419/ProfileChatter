@@ -61,11 +61,18 @@ coverage
 *.sw?
 .DS_Store
 
-# Repomix
+# Repomix — ignore generated exports, but keep the config tracked so the team can run it
 *repomix*
+!repomix.config.json
+profilechatter-full-export.md
 
-# Docs
+# Docs / internal artifacts — never push these
 ProfileChatter.docx
 
 # Tokens - Do Not Share!
 .tokens/*
+
+# Forensics output + internal planning (may reference unpatched issues)
+.forensics/
+*FORENSICS*
+plans/
