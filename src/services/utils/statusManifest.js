@@ -108,3 +108,20 @@ export function renderStepSummary(manifest) {
     '',
   ].join('\n')
 }
+
+/**
+ * Build the manifest, write it as machine-readable JSON, and (in CI) append the
+ * markdown step summary. fs writers are injected so build-profile.js stays thin
+ * glue and this is unit-testable without touching disk.
+ * @param {Array} statuses - DataService.lastSourceStatuses
+ * @param {{ generatedAt?: number, manifestPath: string, stepSummaryPath?: string,
+ *           writeFile: (p:string,c:string)=>void, appendFile: (p:string,c:string)=>void }} opts
+ * @returns {ReturnType<typeof buildStatusManifest>}
+ */
+export function emitStatusManifest(statuses, opts) {
+  const { generatedAt, manifestPath, stepSummaryPath, writeFile, appendFile } = opts
+  const manifest = buildStatusManifest(statuses, { generatedAt })
+  writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
+  if (stepSummaryPath) appendFile(stepSummaryPath, `${renderStepSummary(manifest)}\n`)
+  return manifest
+}

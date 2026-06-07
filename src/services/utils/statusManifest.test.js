@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest'
-import { classifySource, buildStatusManifest, renderStepSummary } from './statusManifest.js'
+import { describe, it, expect, vi } from 'vitest'
+import {
+  classifySource,
+  buildStatusManifest,
+  renderStepSummary,
+  emitStatusManifest,
+} from './statusManifest.js'
 import { ok, fallback, errored } from './sourceResult.js'
 import { HttpError } from './httpClient.js'
 
@@ -157,5 +162,50 @@ describe('renderStepSummary (GitHub Actions markdown)', () => {
     const clean = [statusEntry({ source: 'github', classification: 'live' })]
     const md = renderStepSummary(buildStatusManifest(clean, { generatedAt: 1 }))
     expect(md).toMatch(/no .*alert|healthy/i)
+  })
+})
+
+describe('emitStatusManifest', () => {
+  const deps = () => ({ writeFile: vi.fn(), appendFile: vi.fn() })
+
+  it('writes the manifest as pretty JSON and returns it', () => {
+    const { writeFile, appendFile } = deps()
+    const manifest = emitStatusManifest(MIXED, {
+      generatedAt: 5,
+      manifestPath: 'dist/status-manifest.json',
+      writeFile,
+      appendFile,
+    })
+    expect(writeFile).toHaveBeenCalledTimes(1)
+    const [path, contents] = writeFile.mock.calls[0]
+    expect(path).toBe('dist/status-manifest.json')
+    expect(JSON.parse(contents)).toEqual(manifest)
+    expect(manifest.generatedAt).toBe(5)
+  })
+
+  it('appends the step summary when a step-summary path is provided (CI)', () => {
+    const { writeFile, appendFile } = deps()
+    emitStatusManifest(MIXED, {
+      generatedAt: 5,
+      manifestPath: 'dist/status-manifest.json',
+      stepSummaryPath: '/gh/step-summary',
+      writeFile,
+      appendFile,
+    })
+    expect(appendFile).toHaveBeenCalledTimes(1)
+    const [path, markdown] = appendFile.mock.calls[0]
+    expect(path).toBe('/gh/step-summary')
+    expect(markdown).toContain('ProfileChatter source status')
+  })
+
+  it('does not append a step summary when no path is set (local build)', () => {
+    const { writeFile, appendFile } = deps()
+    emitStatusManifest(MIXED, {
+      generatedAt: 5,
+      manifestPath: 'dist/status-manifest.json',
+      writeFile,
+      appendFile,
+    })
+    expect(appendFile).not.toHaveBeenCalled()
   })
 })

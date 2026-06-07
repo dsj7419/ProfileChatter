@@ -9,9 +9,11 @@
  * External HTTP/HTTPS URLs will NOT display in GitHub READMEs due to CSP restrictions.
  */
 import { generateChatSVG } from './ProfileChatter.js'
-import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs'
+import { writeFileSync, appendFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { config } from './config/config.js'
+import DataService from './services/DataService.js'
+import { emitStatusManifest } from './services/utils/statusManifest.js'
 
 /**
  * Embed local avatar image as a base64 data URI
@@ -210,6 +212,23 @@ generateChatSVG(customContext)
     // Write SVG to file
     writeFileSync('dist/profile-chat.svg', svg)
     console.log('✅ SVG written to dist/profile-chat.svg')
+
+    // Emit the per-source status manifest (PR-5b-i observability): machine-readable
+    // JSON + a GitHub Actions step summary, so a green build can no longer hide a
+    // configured source that quietly fell back. Intentional skips do not alarm.
+    const manifest = emitStatusManifest(DataService.lastSourceStatuses, {
+      manifestPath: 'dist/status-manifest.json',
+      stepSummaryPath: process.env.GITHUB_STEP_SUMMARY,
+      writeFile: writeFileSync,
+      appendFile: appendFileSync,
+    })
+    console.log(
+      `📊 Status manifest: ${manifest.summary.live} live, ${manifest.summary.skip} skip, ` +
+        `${manifest.summary.fallback} fallback, ${manifest.summary.error} error` +
+        (manifest.summary.alerting
+          ? ` (alerting — ${manifest.summary.highSignal} high-signal)`
+          : '')
+    )
   })
   .catch((error) => {
     console.error('Error generating SVG:', error)
