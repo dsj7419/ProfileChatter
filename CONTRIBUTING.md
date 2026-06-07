@@ -15,7 +15,7 @@ Thank you for your interest in contributing to ProfileChatter! 🎉 We're excite
    cd ProfileChatter
    ```
 
-3. **Install dependencies**:
+3. **Install dependencies** (a single root install covers the Configurator UI too, via npm workspaces):
 
    ```bash
    npm install
@@ -45,6 +45,12 @@ ProfileChatter maintains high code quality standards to ensure consistency and m
 ```bash
 npm run lint
 npm run format
+```
+
+Or run the full local gate (lint + tests with coverage + configurator build) in one shot — the same checks CI enforces:
+
+```bash
+npm run verify
 ```
 
 ## Running Tests

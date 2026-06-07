@@ -45,6 +45,7 @@ jspm_packages/
 # Build / output directories
 dist/*
 !dist/profile-chat.svg
+configurator-ui/dist/
 out/
 
 # Coverage directory used by tools like istanbul

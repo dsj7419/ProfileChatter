@@ -44,6 +44,7 @@ git clone https://github.com/<you>/ProfileChatter.git
 cd ProfileChatter
 
 # 2 – Install dependencies & view the default output
+#  └─ one root install covers the Configurator UI too (npm workspaces)
 npm install
 npm run build
 #  └─ open dist/profile-chat.svg to preview the out‑of‑the‑box experience

@@ -12,6 +12,6 @@
     "rules": {
       "no-unused-vars": "warn"
     },
-    "ignorePatterns": ["dist/*"]
+    "ignorePatterns": ["**/dist/", "**/node_modules/", "**/coverage/"]
   }
   
