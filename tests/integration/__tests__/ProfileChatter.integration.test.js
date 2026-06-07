@@ -4,42 +4,42 @@
  * Tests the overall flow from configuration to SVG generation with minimal mocking
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateChatSVG } from '../../../src/ProfileChatter.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { generateChatSVG } from '../../../src/ProfileChatter.js'
 
 // Mock all the data source functions (external API calls)
 vi.mock('../../../src/services/data_sources/weatherDataSource.js', () => ({
-  getWeatherData: vi.fn()
-}));
+  getWeatherData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/githubDataSource.js', () => ({
-  getGitHubData: vi.fn()
-}));
+  getGitHubData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/spotifyDataSource.js', () => ({
-  getSpotifyData: vi.fn()
-}));
+  getSpotifyData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/wakatimeDataSource.js', () => ({
-  getWakaTimeData: vi.fn()
-}));
+  getWakaTimeData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/twitterDataSource.js', () => ({
-  getTwitterData: vi.fn()
-}));
+  getTwitterData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/codestatsDataSource.js', () => ({
-  getCodeStatsData: vi.fn()
-}));
+  getCodeStatsData: vi.fn(),
+}))
 
 vi.mock('../../../src/services/data_sources/githubOAuthDataSource.js', () => ({
-  getGitHubOAuthData: vi.fn()
-}));
+  getGitHubOAuthData: vi.fn(),
+}))
 
 // Mock the config validator
 vi.mock('../../../src/utils/ConfigValidator.js', () => ({
-  validateConfiguration: vi.fn()
-}));
+  validateConfiguration: vi.fn(),
+}))
 
 // Mock DateTimeFormatService to return consistent values for testing
 vi.mock('../../../src/services/DateTimeFormatService.js', () => ({
@@ -57,17 +57,17 @@ vi.mock('../../../src/services/DateTimeFormatService.js', () => ({
       time24: '10:30',
       dateTime: 'May 23, 2025 at 10:30 AM',
       timezone: 'UTC',
-      timezoneAbbr: 'UTC'
+      timezoneAbbr: 'UTC',
     })),
-    formatWorkTenure: vi.fn(() => '18 years, 1 month and 7 days')
-  }
-}));
+    formatWorkTenure: vi.fn(() => '18 years, 1 month and 7 days'),
+  },
+}))
 
 // Mock the config with a minimal but complete configuration
 vi.mock('../../../src/config/config.js', () => ({
   config: {
     activeTheme: 'ios',
-    
+
     avatars: {
       enabled: true,
       me: { imageUrl: '', fallbackText: 'DJ' },
@@ -75,7 +75,7 @@ vi.mock('../../../src/config/config.js', () => ({
       sizePx: 32,
       shape: 'circle',
       xOffsetPx: 8,
-      yOffsetPx: 0
+      yOffsetPx: 0,
     },
 
     themes: {
@@ -87,8 +87,9 @@ vi.mock('../../../src/config/config.js', () => ({
         BACKGROUND_LIGHT: '#FFFFFF',
         BACKGROUND_DARK: '#000000',
         BUBBLE_RADIUS_PX: 18,
-        FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-        
+        FONT_FAMILY:
+          "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+
         REACTION_FONT_SIZE_PX: 20,
         REACTION_BG_COLOR: '#F1F1F1',
         REACTION_BG_OPACITY: 0.9,
@@ -106,11 +107,14 @@ vi.mock('../../../src/config/config.js', () => ({
           VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
           BAR_HEIGHT_PX: 18,
           BAR_SPACING_PX: 10,
-          LABEL_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          LABEL_FONT_FAMILY:
+            "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           LABEL_FONT_SIZE_PX: 13,
-          VALUE_TEXT_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          VALUE_TEXT_FONT_FAMILY:
+            "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           VALUE_TEXT_FONT_SIZE_PX: 12,
-          TITLE_FONT_FAMILY: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          TITLE_FONT_FAMILY:
+            "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           TITLE_FONT_SIZE_PX: 15,
           TITLE_LINE_HEIGHT_MULTIPLIER: 1.3,
           TITLE_BOTTOM_MARGIN_PX: 10,
@@ -120,7 +124,8 @@ vi.mock('../../../src/config/config.js', () => ({
           GRID_LINE_COLOR: '#F5F5F5',
           DONUT_STROKE_WIDTH_PX: 30,
           DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
-          DONUT_CENTER_TEXT_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          DONUT_CENTER_TEXT_FONT_FAMILY:
+            "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           ME_DONUT_CENTER_TEXT_COLOR: '#FFFFFF',
           VISITOR_DONUT_CENTER_TEXT_COLOR: '#000000',
           ME_DONUT_LEGEND_TEXT_COLOR: '#FFFFFF',
@@ -130,17 +135,17 @@ vi.mock('../../../src/config/config.js', () => ({
           DONUT_LEGEND_MARKER_SIZE_PX: 10,
           DONUT_ANIMATION_DURATION_SEC: 1.0,
           DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.2,
-          
+
           ME_TITLE_COLOR: '#FFFFFF',
           ME_LABEL_COLOR: '#E2F0FF',
           ME_VALUE_TEXT_COLOR: '#FFFFFF',
-          
+
           VISITOR_TITLE_COLOR: '#000000',
           VISITOR_LABEL_COLOR: '#444444',
-          VISITOR_VALUE_TEXT_COLOR: '#000000'
-        }
+          VISITOR_VALUE_TEXT_COLOR: '#000000',
+        },
       },
-      
+
       android: {
         ME_BUBBLE_COLOR: '#D1E6FF',
         VISITOR_BUBBLE_COLOR: '#F0F0F0',
@@ -150,7 +155,7 @@ vi.mock('../../../src/config/config.js', () => ({
         BACKGROUND_DARK: '#121212',
         BUBBLE_RADIUS_PX: 8,
         FONT_FAMILY: "'Roboto', sans-serif",
-        
+
         REACTION_FONT_SIZE_PX: 14,
         REACTION_BG_COLOR: '#E8E8E8',
         REACTION_BG_OPACITY: 1.0,
@@ -199,9 +204,9 @@ vi.mock('../../../src/config/config.js', () => ({
 
           VISITOR_TITLE_COLOR: '#212121',
           VISITOR_LABEL_COLOR: '#616161',
-          VISITOR_VALUE_TEXT_COLOR: '#212121'
-        }
-      }
+          VISITOR_VALUE_TEXT_COLOR: '#212121',
+        },
+      },
     },
 
     profile: {
@@ -215,7 +220,7 @@ vi.mock('../../../src/config/config.js', () => ({
       WAKATIME_USERNAME: 'testuser',
       TWITTER_USERNAME: 'testuser',
       CODESTATS_USERNAME: 'testuser',
-      TIMEZONE: 'UTC'
+      TIMEZONE: 'UTC',
     },
 
     cache: {
@@ -224,7 +229,7 @@ vi.mock('../../../src/config/config.js', () => ({
       GITHUB_OAUTH_CACHE_TTL_MS: 3600000,
       TWITTER_CACHE_TTL_MS: 3600000,
       CODESTATS_CACHE_TTL_MS: 7200000,
-      SPOTIFY_CACHE_TTL_MS: 900000
+      SPOTIFY_CACHE_TTL_MS: 900000,
     },
 
     apiDefaults: {
@@ -239,7 +244,7 @@ vi.mock('../../../src/config/config.js', () => ({
       GITHUB_PRIMARY_LANGUAGE: 'None',
       TWITTER_FOLLOWERS: '120',
       CODESTATS_XP: '0',
-      SPOTIFY_NOW_PLAYING: 'Not currently listening to music.'
+      SPOTIFY_NOW_PLAYING: 'Not currently listening to music.',
     },
 
     layout: {
@@ -268,7 +273,7 @@ vi.mock('../../../src/config/config.js', () => ({
         ANIMATION_DELAY_SEC: 0.2,
         FADE_IN_DURATION_SEC: 0.3,
         READ_DELAY_SEC: 1.5,
-        READ_TRANSITION_SEC: 0.2
+        READ_TRANSITION_SEC: 0.2,
       },
 
       VISIBLE_MESSAGES: 6,
@@ -283,7 +288,7 @@ vi.mock('../../../src/config/config.js', () => ({
         SENDER_CHANGE_DELAY_MS: 1800,
         MESSAGE_VERTICAL_SPACING: 32,
         BOTTOM_MARGIN: 40,
-        ANIMATION_END_BUFFER_MS: 2000
+        ANIMATION_END_BUFFER_MS: 2000,
       },
 
       ANIMATION: {
@@ -310,8 +315,8 @@ vi.mock('../../../src/config/config.js', () => ({
         SCROLL_DELAY_BUFFER_SEC: 2.2,
         MIN_SCROLL_DURATION_SEC: 1.2,
         SCROLL_PIXELS_PER_SEC: 18,
-        SCROLL_SPEED_MULTIPLIER: 1.0
-      }
+        SCROLL_SPEED_MULTIPLIER: 1.0,
+      },
     },
 
     wakatime: {
@@ -320,228 +325,259 @@ vi.mock('../../../src/config/config.js', () => ({
         wakatime_summary: 'No coding activity data available',
         wakatime_top_language: 'N/A',
         wakatime_top_language_percent: '0',
-        wakatime_chart_data: []
+        wakatime_chart_data: [],
       },
-      cacheTtlMs: 7200000
-    }
-  }
-}));
+      cacheTtlMs: 7200000,
+    },
+  },
+}))
 
 // Import mocked modules to access their mock functions
-import { getWeatherData } from '../../../src/services/data_sources/weatherDataSource.js';
-import { getGitHubData } from '../../../src/services/data_sources/githubDataSource.js';
-import { getSpotifyData } from '../../../src/services/data_sources/spotifyDataSource.js';
-import { getWakaTimeData } from '../../../src/services/data_sources/wakatimeDataSource.js';
-import { getTwitterData } from '../../../src/services/data_sources/twitterDataSource.js';
-import { getCodeStatsData } from '../../../src/services/data_sources/codestatsDataSource.js';
-import { getGitHubOAuthData } from '../../../src/services/data_sources/githubOAuthDataSource.js';
-import { validateConfiguration } from '../../../src/utils/ConfigValidator.js';
+import { getWeatherData } from '../../../src/services/data_sources/weatherDataSource.js'
+import { getGitHubData } from '../../../src/services/data_sources/githubDataSource.js'
+import { getSpotifyData } from '../../../src/services/data_sources/spotifyDataSource.js'
+import { getWakaTimeData } from '../../../src/services/data_sources/wakatimeDataSource.js'
+import { getTwitterData } from '../../../src/services/data_sources/twitterDataSource.js'
+import { getCodeStatsData } from '../../../src/services/data_sources/codestatsDataSource.js'
+import { getGitHubOAuthData } from '../../../src/services/data_sources/githubOAuthDataSource.js'
+import { validateConfiguration } from '../../../src/utils/ConfigValidator.js'
 
 // Mock console methods to check for expected logging
-let consoleMocks;
+let consoleMocks
 
 describe('ProfileChatter Integration Tests', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    
+    vi.clearAllMocks()
+
     // Set up console mocks
     consoleMocks = {
       error: vi.spyOn(console, 'error').mockImplementation(() => {}),
       warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
       log: vi.spyOn(console, 'log').mockImplementation(() => {}),
-      info: vi.spyOn(console, 'info').mockImplementation(() => {})
-    };
-  });
+      info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+    }
+  })
 
   afterEach(() => {
     // Restore console methods
-    consoleMocks.error.mockRestore();
-    consoleMocks.warn.mockRestore();
-    consoleMocks.log.mockRestore();
-    consoleMocks.info.mockRestore();
-    
-    vi.restoreAllMocks();
-  });
+    consoleMocks.error.mockRestore()
+    consoleMocks.warn.mockRestore()
+    consoleMocks.log.mockRestore()
+    consoleMocks.info.mockRestore()
+
+    vi.restoreAllMocks()
+  })
 
   describe('generateChatSVG()', () => {
     it('Scenario 1: Successful End-to-End Flow with Basic customContext', async () => {
       // Arrange
-      validateConfiguration.mockReturnValue(true);
-      
+      validateConfiguration.mockReturnValue(true)
+
       // Mock all data source functions to return their default values
       getWeatherData.mockResolvedValue({
         temperature: '72°F (22°C)',
         weatherDescription: 'partly cloudy',
-        emoji: '⛅'
-      });
-      
+        emoji: '⛅',
+      })
+
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '12',
-        githubFollowers: '48'
-      });
-      
+        status: 'ok',
+        value: { githubPublicRepos: '12', githubFollowers: '48' },
+      })
+
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Not currently listening to music.'
-      });
-      
+        spotifyTrack: 'Not currently listening to music.',
+      })
+
       getWakaTimeData.mockResolvedValue({
         wakatime_summary: 'No coding activity data available',
         wakatime_top_language: 'N/A',
-        wakatime_top_language_percent: '0'
-      });
-      
+        wakatime_top_language_percent: '0',
+      })
+
       getTwitterData.mockResolvedValue({
-        twitterFollowers: '120'
-      });
-      
+        twitterFollowers: '120',
+      })
+
       getCodeStatsData.mockResolvedValue({
-        codestatsXP: '0'
-      });
-      
+        codestatsXP: '0',
+      })
+
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '0',
-        githubCommitsLastYear: '0',
-        githubContributedRepos: '0',
-        githubPrimaryLanguage: 'None'
-      });
+        status: 'ok',
+        value: {
+          githubTotalStars: '0',
+          githubCommitsLastYear: '0',
+          githubContributedRepos: '0',
+          githubPrimaryLanguage: 'None',
+        },
+      })
 
       const customContext = {
         profile: { NAME: 'John Doe' },
         activeTheme: 'ios',
         chatMessages: [
           { id: '1', sender: 'me', text: 'Hello {name}!' },
-          { id: '2', sender: 'visitor', text: 'Hi there! How are you?' }
-        ]
-      };
+          { id: '2', sender: 'visitor', text: 'Hi there! How are you?' },
+        ],
+      }
 
       // Act
-      const result = await generateChatSVG(customContext);
+      const result = await generateChatSVG(customContext)
 
       // Assert
-      expect(result).toBeDefined();
-      expect(typeof result).toBe('string');
-      expect(result.startsWith('<svg')).toBe(true);
-      expect(result.endsWith('</svg>')).toBe(true);
-      expect(result).toContain('John Doe'); // Profile name should be in the SVG
-      expect(result).toContain('Hello John Doe!'); // Chat message with placeholder replacement
-      expect(result).toContain('#0B93F6'); // iOS theme color should be present
-      expect(consoleMocks.error).not.toHaveBeenCalledWith(expect.stringMatching(/Error generating SVG/));
-    });
+      expect(result).toBeDefined()
+      expect(typeof result).toBe('string')
+      expect(result.startsWith('<svg')).toBe(true)
+      expect(result.endsWith('</svg>')).toBe(true)
+      expect(result).toContain('John Doe') // Profile name should be in the SVG
+      expect(result).toContain('Hello John Doe!') // Chat message with placeholder replacement
+      expect(result).toContain('#0B93F6') // iOS theme color should be present
+      expect(consoleMocks.error).not.toHaveBeenCalledWith(
+        expect.stringMatching(/Error generating SVG/)
+      )
+    })
 
     it('Scenario 2: Flow with Specific Mocked API Data & All Placeholders Used', async () => {
       // Arrange
-      validateConfiguration.mockReturnValue(true);
-      
+      validateConfiguration.mockReturnValue(true)
+
       // Mock each data source function to return specific, non-default data
       getWeatherData.mockResolvedValue({
         temperature: '75F Test',
         weatherDescription: 'testing clouds',
-        emoji: '🧪'
-      });
-      
+        emoji: '🧪',
+      })
+
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '25',
-        githubFollowers: '150'
-      });
-      
+        status: 'ok',
+        value: { githubPublicRepos: '25', githubFollowers: '150' },
+      })
+
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Test Song by Test Artist'
-      });
-      
+        spotifyTrack: 'Test Song by Test Artist',
+      })
+
       getWakaTimeData.mockResolvedValue({
         wakatime_summary: 'Coded for 40 hrs in the last week',
         wakatime_top_language: 'JavaScript',
-        wakatime_top_language_percent: '65'
-      });
-      
+        wakatime_top_language_percent: '65',
+      })
+
       getTwitterData.mockResolvedValue({
-        twitterFollowers: '500'
-      });
-      
+        twitterFollowers: '500',
+      })
+
       getCodeStatsData.mockResolvedValue({
-        codestatsXP: '15000'
-      });
-      
+        codestatsXP: '15000',
+      })
+
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '100',
-        githubCommitsLastYear: '250',
-        githubContributedRepos: '15',
-        githubPrimaryLanguage: 'TypeScript'
-      });
+        status: 'ok',
+        value: {
+          githubTotalStars: '100',
+          githubCommitsLastYear: '250',
+          githubContributedRepos: '15',
+          githubPrimaryLanguage: 'TypeScript',
+        },
+      })
 
       const customContext = {
         profile: { NAME: 'Jane Developer' },
         activeTheme: 'android',
         chatMessages: [
-          { id: '1', sender: 'me', text: 'Weather is {temperature} with {weatherDescription} {emoji}' },
-          { id: '2', sender: 'visitor', text: 'I have {githubPublicRepos} repos and {githubFollowers} followers' },
+          {
+            id: '1',
+            sender: 'me',
+            text: 'Weather is {temperature} with {weatherDescription} {emoji}',
+          },
+          {
+            id: '2',
+            sender: 'visitor',
+            text: 'I have {githubPublicRepos} repos and {githubFollowers} followers',
+          },
           { id: '3', sender: 'me', text: 'Currently listening to: {spotifyTrack}' },
-          { id: '4', sender: 'visitor', text: 'My top language is {wakatime_top_language} at {wakatime_top_language_percent}%' },
-          { id: '5', sender: 'me', text: 'Follow me on Twitter! I have {twitterFollowers} followers' },
+          {
+            id: '4',
+            sender: 'visitor',
+            text: 'My top language is {wakatime_top_language} at {wakatime_top_language_percent}%',
+          },
+          {
+            id: '5',
+            sender: 'me',
+            text: 'Follow me on Twitter! I have {twitterFollowers} followers',
+          },
           { id: '6', sender: 'visitor', text: 'Code::Stats XP: {codestatsXP}' },
-          { id: '7', sender: 'me', text: 'GitHub stats: {githubTotalStars} stars, {githubCommitsLastYear} commits' }
-        ]
-      };
+          {
+            id: '7',
+            sender: 'me',
+            text: 'GitHub stats: {githubTotalStars} stars, {githubCommitsLastYear} commits',
+          },
+        ],
+      }
 
       // Act
-      const result = await generateChatSVG(customContext);
+      const result = await generateChatSVG(customContext)
 
       // Assert
-      expect(result).toBeDefined();
-      expect(result).toContain('75F Test'); // Specific weather temperature
-      expect(result).toContain('testing clouds'); // Specific weather description
-      expect(result).toContain('🧪'); // Specific weather emoji
-      expect(result).toContain('25'); // Specific GitHub repos
-      expect(result).toContain('150'); // Specific GitHub followers
+      expect(result).toBeDefined()
+      expect(result).toContain('75F Test') // Specific weather temperature
+      expect(result).toContain('testing clouds') // Specific weather description
+      expect(result).toContain('🧪') // Specific weather emoji
+      expect(result).toContain('25') // Specific GitHub repos
+      expect(result).toContain('150') // Specific GitHub followers
       // Check for Spotify track (may be wrapped across lines)
-      expect(result).toContain('Test Song by Test'); // Specific Spotify track (partial match due to wrapping)
-      expect(result).toContain('Artist'); // Second part of Spotify track
-      expect(result).toContain('JavaScript'); // Specific WakaTime language
-      expect(result).toContain('65%'); // Specific WakaTime percentage
-      expect(result).toContain('500'); // Specific Twitter followers
-      expect(result).toContain('15000'); // Specific Code::Stats XP
-      expect(result).toContain('100'); // Specific GitHub stars
-      expect(result).toContain('250'); // Specific GitHub commits
-      expect(result).toContain('#D1E6FF'); // Android theme color should be present
-    });
+      expect(result).toContain('Test Song by Test') // Specific Spotify track (partial match due to wrapping)
+      expect(result).toContain('Artist') // Second part of Spotify track
+      expect(result).toContain('JavaScript') // Specific WakaTime language
+      expect(result).toContain('65%') // Specific WakaTime percentage
+      expect(result).toContain('500') // Specific Twitter followers
+      expect(result).toContain('15000') // Specific Code::Stats XP
+      expect(result).toContain('100') // Specific GitHub stars
+      expect(result).toContain('250') // Specific GitHub commits
+      expect(result).toContain('#D1E6FF') // Android theme color should be present
+    })
 
     it('Scenario 3: One Data Source Fails, All Fall Back to Defaults', async () => {
       // Arrange
-      validateConfiguration.mockReturnValue(true);
-      
+      validateConfiguration.mockReturnValue(true)
+
       // Mock getWeatherData to reject with an error
-      getWeatherData.mockRejectedValue(new Error('Weather API failed'));
-      
+      getWeatherData.mockRejectedValue(new Error('Weather API failed'))
+
       // Mock other data sources to succeed with sample data
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '20',
-        githubFollowers: '100'
-      });
-      
+        status: 'ok',
+        value: { githubPublicRepos: '20', githubFollowers: '100' },
+      })
+
       getSpotifyData.mockResolvedValue({
-        spotifyTrack: 'Working Song by Developer'
-      });
-      
+        spotifyTrack: 'Working Song by Developer',
+      })
+
       getWakaTimeData.mockResolvedValue({
         wakatime_summary: 'Coded for 30 hrs in the last week',
         wakatime_top_language: 'Python',
-        wakatime_top_language_percent: '50'
-      });
-      
+        wakatime_top_language_percent: '50',
+      })
+
       getTwitterData.mockResolvedValue({
-        twitterFollowers: '200'
-      });
-      
+        twitterFollowers: '200',
+      })
+
       getCodeStatsData.mockResolvedValue({
-        codestatsXP: '8000'
-      });
-      
+        codestatsXP: '8000',
+      })
+
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '50',
-        githubCommitsLastYear: '150',
-        githubContributedRepos: '10',
-        githubPrimaryLanguage: 'JavaScript'
-      });
+        status: 'ok',
+        value: {
+          githubTotalStars: '50',
+          githubCommitsLastYear: '150',
+          githubContributedRepos: '10',
+          githubPrimaryLanguage: 'JavaScript',
+        },
+      })
 
       const customContext = {
         profile: { NAME: 'Test User' },
@@ -549,73 +585,71 @@ describe('ProfileChatter Integration Tests', () => {
         chatMessages: [
           { id: '1', sender: 'me', text: 'Weather: {temperature} {weatherDescription}' },
           { id: '2', sender: 'visitor', text: 'GitHub: {githubPublicRepos} repos' },
-          { id: '3', sender: 'me', text: 'Music: {spotifyTrack}' }
-        ]
-      };
+          { id: '3', sender: 'me', text: 'Music: {spotifyTrack}' },
+        ],
+      }
 
       // Act
-      const result = await generateChatSVG(customContext);
+      const result = await generateChatSVG(customContext)
 
       // Assert
-      expect(result).toBeDefined();
-      expect(result.startsWith('<svg')).toBe(true);
-      expect(result.endsWith('</svg>')).toBe(true);
-      
+      expect(result).toBeDefined()
+      expect(result.startsWith('<svg')).toBe(true)
+      expect(result.endsWith('</svg>')).toBe(true)
+
       // When one API fails, DataService.getDynamicData() catches the error and uses defaults for all
-      expect(result).toContain('72°F (22°C)'); // Default temperature
-      expect(result).toContain('partly cloudy'); // Default weather description
-      expect(result).toContain('12'); // Default GitHub repos (not the mocked 20)
-      expect(result).toContain('listening to music'); // Default Spotify text (partial match due to line wrapping)
-      
+      expect(result).toContain('72°F (22°C)') // Default temperature
+      expect(result).toContain('partly cloudy') // Default weather description
+      expect(result).toContain('12') // Default GitHub repos (not the mocked 20)
+      expect(result).toContain('listening to music') // Default Spotify text (partial match due to line wrapping)
+
       // Should have logged an error about fetching APIs, but SVG generation should still succeed
-      expect(consoleMocks.error).toHaveBeenCalledWith('Error fetching APIs:', 'Weather API failed');
-    });
+      expect(consoleMocks.error).toHaveBeenCalledWith('Error fetching APIs:', 'Weather API failed')
+    })
 
     it('Scenario 4: validateConfiguration returns false', async () => {
       // Arrange
-      validateConfiguration.mockReturnValue(false);
-      
+      validateConfiguration.mockReturnValue(false)
+
       // Mock data sources (they shouldn't be called due to early validation failure)
-      getWeatherData.mockResolvedValue({});
-      getGitHubData.mockResolvedValue({});
-      getSpotifyData.mockResolvedValue({});
-      getWakaTimeData.mockResolvedValue({});
-      getTwitterData.mockResolvedValue({});
-      getCodeStatsData.mockResolvedValue({});
-      getGitHubOAuthData.mockResolvedValue({});
+      getWeatherData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
+      getSpotifyData.mockResolvedValue({})
+      getWakaTimeData.mockResolvedValue({})
+      getTwitterData.mockResolvedValue({})
+      getCodeStatsData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customContext = {
         profile: { NAME: 'Test User' },
         activeTheme: 'ios',
-        chatMessages: [
-          { id: '1', sender: 'me', text: 'This should not be rendered' }
-        ]
-      };
+        chatMessages: [{ id: '1', sender: 'me', text: 'This should not be rendered' }],
+      }
 
       // Act
-      const result = await generateChatSVG(customContext);
+      const result = await generateChatSVG(customContext)
 
       // Assert
-      expect(result).toBeDefined();
-      expect(result).toContain('Configuration Error!');
-      expect(result).toContain('Please check console logs');
-      expect(result).toContain('for details.');
-      expect(result.startsWith('<svg')).toBe(true);
-      expect(result.endsWith('</svg>')).toBe(true);
-      
+      expect(result).toBeDefined()
+      expect(result).toContain('Configuration Error!')
+      expect(result).toContain('Please check console logs')
+      expect(result).toContain('for details.')
+      expect(result.startsWith('<svg')).toBe(true)
+      expect(result.endsWith('</svg>')).toBe(true)
+
       // Should have logged configuration error
       expect(consoleMocks.error).toHaveBeenCalledWith(
         expect.stringContaining('Critical configuration errors found')
-      );
-      
+      )
+
       // Data source functions should not have been called
-      expect(getWeatherData).not.toHaveBeenCalled();
-      expect(getGitHubData).not.toHaveBeenCalled();
-      expect(getSpotifyData).not.toHaveBeenCalled();
-      expect(getWakaTimeData).not.toHaveBeenCalled();
-      expect(getTwitterData).not.toHaveBeenCalled();
-      expect(getCodeStatsData).not.toHaveBeenCalled();
-      expect(getGitHubOAuthData).not.toHaveBeenCalled();
-    });
-  });
-});
+      expect(getWeatherData).not.toHaveBeenCalled()
+      expect(getGitHubData).not.toHaveBeenCalled()
+      expect(getSpotifyData).not.toHaveBeenCalled()
+      expect(getWakaTimeData).not.toHaveBeenCalled()
+      expect(getTwitterData).not.toHaveBeenCalled()
+      expect(getCodeStatsData).not.toHaveBeenCalled()
+      expect(getGitHubOAuthData).not.toHaveBeenCalled()
+    })
+  })
+})

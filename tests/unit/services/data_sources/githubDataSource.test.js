@@ -1,174 +1,92 @@
-// tests/unit/services/data_sources/githubDataSource.test.js - FIXED
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { config } from '../../../../src/config/config.js';
+// tests/unit/services/data_sources/githubDataSource.test.js
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { config } from '../../../../src/config/config.js'
 
-vi.mock('node-fetch', () => ({
-  default: vi.fn()
-}));
+let getGitHubData
 
-describe('githubDataSource', () => {
-  let mockFetch;
-  let getGitHubData;
+beforeEach(async () => {
+  vi.resetModules() // reset module-level cache between tests
+  ;({ getGitHubData } = await import('../../../../src/services/data_sources/githubDataSource.js'))
+})
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+})
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-    
-    // Clear module cache and re-import
-    vi.resetModules();
-    const module = await import('../../../../src/services/data_sources/githubDataSource.js');
-    getGitHubData = module.getGitHubData;
-    
-    mockFetch = vi.fn();
-    if (typeof fetch === 'undefined') {
-      global.fetch = undefined;
-    }
-  });
+const noSleep = () => Promise.resolve()
+const okFetch = (body) =>
+  vi.fn().mockResolvedValue({ ok: true, status: 200, statusText: 'OK', json: async () => body })
 
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
-    if (global.fetch === undefined) {
-      delete global.fetch;
-    }
-  });
+describe('githubDataSource — discriminated results', () => {
+  it('returns an ok result with live values', async () => {
+    const fetchImpl = okFetch({ public_repos: 42, followers: 100 })
+    const r = await getGitHubData({ fetchImpl, sleep: noSleep })
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({ githubPublicRepos: '42', githubFollowers: '100' })
+    expect(typeof r.fetchedAt).toBe('number')
+  })
 
-  describe('Successful API Fetch & Caching', () => {
-    it('should fetch GitHub data successfully', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
+  it('caches an ok result (second call does not refetch)', async () => {
+    const fetchImpl = okFetch({ public_repos: 50, followers: 150 })
+    await getGitHubData({ fetchImpl, sleep: noSleep })
+    const r2 = await getGitHubData({ fetchImpl, sleep: noSleep })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(r2.status).toBe('ok')
+  })
+
+  it('refetches after the cache TTL expires', async () => {
+    vi.useFakeTimers()
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          public_repos: 42,
-          followers: 100
-        })
-      });
-
-      const result = await getGitHubData();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `https://api.github.com/users/${config.profile.GITHUB_USERNAME}`,
-        { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-      );
-      expect(result).toEqual({
-        githubPublicRepos: '42',
-        githubFollowers: '100'
-      });
-    });
-
-    it('should use cached data on second call', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockResolvedValueOnce({
+        status: 200,
+        json: async () => ({ public_repos: 10, followers: 20 }),
+      })
+      .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          public_repos: 50,
-          followers: 150
-        })
-      });
+        status: 200,
+        json: async () => ({ public_repos: 15, followers: 25 }),
+      })
+    await getGitHubData({ fetchImpl, sleep: noSleep })
+    vi.advanceTimersByTime(config.cache.GITHUB_CACHE_TTL_MS + 1000)
+    const r = await getGitHubData({ fetchImpl, sleep: noSleep })
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+    expect(r.value.githubPublicRepos).toBe('15')
+  })
 
-      const result1 = await getGitHubData();
-      const result2 = await getGitHubData();
+  it('returns a FALLBACK (defaults + error) on an auth error — distinguishable from ok', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        json: async () => ({}),
+      })
+    const r = await getGitHubData({ fetchImpl, sleep: noSleep, retries: 0 })
+    expect(r.status).toBe('fallback')
+    expect(r.value).toEqual({
+      githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+      githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS,
+    })
+    expect(r.error.status).toBe(401)
+  })
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(result2).toEqual(result1);
-    });
+  it('returns a FALLBACK on a network error', async () => {
+    const fetchImpl = vi.fn().mockRejectedValue(new Error('Network failure'))
+    const r = await getGitHubData({ fetchImpl, sleep: noSleep, retries: 0 })
+    expect(r.status).toBe('fallback')
+    expect(r.value.githubPublicRepos).toBe(config.apiDefaults.GITHUB_PUBLIC_REPOS)
+  })
 
-    it('should fetch new data after cache expires', async () => {
-      global.fetch = mockFetch;
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ public_repos: 10, followers: 20 })
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ public_repos: 15, followers: 25 })
-        });
+  it('does not cache a fallback (recovers on the next call)', async () => {
+    const failing = vi.fn().mockRejectedValue(new Error('down'))
+    const first = await getGitHubData({ fetchImpl: failing, sleep: noSleep, retries: 0 })
+    expect(first.status).toBe('fallback')
 
-      await getGitHubData();
-      vi.advanceTimersByTime(config.cache.GITHUB_CACHE_TTL_MS + 1000);
-      const result = await getGitHubData();
-
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(result).toEqual({
-        githubPublicRepos: '15',
-        githubFollowers: '25'
-      });
-    });
-  });
-
-  describe('API Error Handling', () => {
-    const errorTests = [
-      { status: 401, description: 'Unauthorized' },
-      { status: 403, description: 'Rate limit' },
-      { status: 429, description: 'Too many requests' },
-      { status: 404, description: 'User not found' },
-      { status: 500, description: 'Server error' }
-    ];
-
-    errorTests.forEach(({ status, description }) => {
-      it(`should handle ${status} ${description} error`, async () => {
-        global.fetch = mockFetch;
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status,
-          statusText: description
-        });
-
-        const result = await getGitHubData();
-
-        expect(result).toEqual({
-          githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
-          githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
-        });
-      });
-    });
-
-    it('should handle network errors', async () => {
-      global.fetch = mockFetch;
-      mockFetch.mockRejectedValueOnce(new Error('Network failure'));
-
-      const result = await getGitHubData();
-
-      expect(result).toEqual({
-        githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
-        githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
-      });
-    });
-  });
-
-  describe('Node Environment', () => {
-    it('should use node-fetch in Node environment', async () => {
-      delete global.fetch;
-      const nodeFetch = (await import('node-fetch')).default;
-      nodeFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          public_repos: 30,
-          followers: 60
-        })
-      });
-
-      const result = await getGitHubData();
-
-      expect(nodeFetch).toHaveBeenCalled();
-      expect(result).toEqual({
-        githubPublicRepos: '30',
-        githubFollowers: '60'
-      });
-    });
-
-    it('should handle errors in Node environment', async () => {
-      delete global.fetch;
-      const nodeFetch = (await import('node-fetch')).default;
-      nodeFetch.mockRejectedValueOnce(new Error('Node fetch error'));
-
-      const result = await getGitHubData();
-
-      expect(result).toEqual({
-        githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
-        githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
-      });
-    });
-  });
-});
+    const recovered = okFetch({ public_repos: 1, followers: 2 })
+    const second = await getGitHubData({ fetchImpl: recovered, sleep: noSleep })
+    expect(second.status).toBe('ok')
+  })
+})
