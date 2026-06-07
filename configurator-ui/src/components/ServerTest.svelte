@@ -2,6 +2,7 @@
 
 <script>
   import { onMount } from 'svelte';
+  import { getPreviewToken } from '../lib/previewToken.js';
   
   let testResult = '';
   let isLoading = false;
@@ -55,9 +56,10 @@
         ]
       };
       
+      const token = await getPreviewToken(previewServer);
       const response = await fetch(`${previewServer}/generate-preview`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Preview-Token': token },
         body: JSON.stringify(simplePayload)
       });
       

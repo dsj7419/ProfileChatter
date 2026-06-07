@@ -6,6 +6,7 @@ import {
   isStateChangingRequestAllowed,
   validateConfigPayload,
   validateGithubSaveTarget,
+  authorizeStateChange,
 } from './serverSecurity.js'
 
 describe('getAllowedOrigins', () => {
@@ -115,5 +116,47 @@ describe('validateGithubSaveTarget (repo/path allow-list)', () => {
   })
   it('rejects missing required fields', () => {
     expect(validateGithubSaveTarget({ repoFullName: 'a/b' }).valid).toBe(false)
+  })
+})
+
+describe('authorizeStateChange (origin + token)', () => {
+  const allowedOrigins = ['http://127.0.0.1:5173']
+  const expectedToken = 'a'.repeat(64)
+  const ctx = { expectedToken, allowedOrigins }
+
+  it('allows an allowed origin with a valid token', () => {
+    const r = authorizeStateChange(
+      { origin: 'http://127.0.0.1:5173', 'x-preview-token': expectedToken },
+      ctx
+    )
+    expect(r.allowed).toBe(true)
+  })
+
+  it('allows a no-origin (loopback tooling) request with a valid token', () => {
+    expect(authorizeStateChange({ 'x-preview-token': expectedToken }, ctx).allowed).toBe(true)
+  })
+
+  it('rejects a foreign origin with 403 before checking the token', () => {
+    const r = authorizeStateChange(
+      { origin: 'http://evil.example', 'x-preview-token': expectedToken },
+      ctx
+    )
+    expect(r.allowed).toBe(false)
+    expect(r.status).toBe(403)
+  })
+
+  it('rejects a missing token with 401', () => {
+    const r = authorizeStateChange({ origin: 'http://127.0.0.1:5173' }, ctx)
+    expect(r.allowed).toBe(false)
+    expect(r.status).toBe(401)
+  })
+
+  it('rejects an invalid token with 401', () => {
+    const r = authorizeStateChange(
+      { origin: 'http://127.0.0.1:5173', 'x-preview-token': 'b'.repeat(64) },
+      ctx
+    )
+    expect(r.allowed).toBe(false)
+    expect(r.status).toBe(401)
   })
 })
