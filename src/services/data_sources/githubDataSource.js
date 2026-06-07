@@ -1,115 +1,50 @@
 /**
  * githubDataSource.js
- * Responsible for fetching and caching GitHub user data
- * Single Responsibility: GitHub data acquisition
+ * Single Responsibility: GitHub public data acquisition (repos, followers)
+ *
+ * Returns a discriminated source result (see sourceResult.js): `ok` with live
+ * values, or `fallback` carrying config defaults AND the error — so the
+ * orchestrator can tell live data from a quiet fallback.
  */
-import { config } from '../../config/config.js';
+import { config } from '../../config/config.js'
+import { fetchJson } from '../utils/httpClient.js'
+import { ok, fallback } from '../utils/sourceResult.js'
 
-// Initialize module-level cache store
-let githubCache = { data: null, expiresAt: 0 };
+// Module-level cache of the last successful (ok) result.
+let githubCache = { result: null, expiresAt: 0 }
 
 /**
- * Fetch GitHub user data with robust error handling and caching
- * @returns {Promise<Object>} - GitHub data (repos, followers)
+ * @param {object} [deps] - optional injectables forwarded to fetchJson
+ *   (fetchImpl, sleep, timeoutMs, retries) — used by tests; production calls
+ *   getGitHubData() with no args and uses the defaults.
+ * @returns {Promise<import('../utils/sourceResult.js').SourceResult>}
  */
-async function getGitHubData() {
+async function getGitHubData(deps = {}) {
+  if (githubCache.result && Date.now() < githubCache.expiresAt) {
+    return githubCache.result
+  }
+
+  const username = config.profile.GITHUB_USERNAME
+  const defaults = {
+    githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
+    githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS,
+  }
+
   try {
-    // Check if valid cached data exists
-    if (githubCache.data && Date.now() < githubCache.expiresAt) {
-      console.info('Using cached GitHub data.');
-      return githubCache.data;
-    }
-
-    const username = config.profile.GITHUB_USERNAME;
-    
-    // For browser environments
-    if (typeof fetch === 'function') {
-      const response = await fetch(`https://api.github.com/users/${username}`, {
-        headers: { 'Accept': 'application/vnd.github.v3+json' }
-      });
-      
-      if (!response.ok) {
-        // Handle specific HTTP error status codes
-        switch (response.status) {
-          case 401:
-            throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
-          case 403:
-          case 429:
-            throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a PAT_GITHUB_BASIC to your environment variables to increase your rate limit.`);
-          case 404:
-            throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
-          default:
-            throw new Error(`GitHub API server error (${response.status}): ${response.statusText}`);
-        }
-      }
-      
-      const data = await response.json();
-      
-      const result = {
-        githubPublicRepos: data.public_repos.toString(),
-        githubFollowers: data.followers.toString()
-      };
-
-      // Cache the successful API response
-      githubCache.data = result;
-      githubCache.expiresAt = Date.now() + config.cache.GITHUB_CACHE_TTL_MS;
-      console.info('GitHub data fetched from API and cached.');
-      
-      return result;
-    } 
-    else {
-      // Node.js environment - try with node-fetch
-      try {
-        const { default: fetch } = await import('node-fetch');
-        const response = await fetch(`https://api.github.com/users/${username}`, {
-          headers: { 'Accept': 'application/vnd.github.v3+json' }
-        });
-        
-        if (!response.ok) {
-          // Handle specific HTTP error status codes
-          switch (response.status) {
-            case 401:
-              throw new Error(`GitHub API error (${response.status}): Unauthorized. If you're using a GitHub token, it may be invalid.`);
-            case 403:
-            case 429:
-              throw new Error(`GitHub API error (${response.status}): Rate limit exceeded. Consider adding a PAT_GITHUB_BASICto your environment variables to increase your rate limit.`);
-            case 404:
-              throw new Error(`GitHub API error (${response.status}): User '${username}' not found. Check the GITHUB_USERNAME in your config.`);
-            default:
-              throw new Error(`GitHub API server error (${response.status}): ${response.statusText}`);
-          }
-        }
-        
-        const data = await response.json();
-        
-        const result = {
-          githubPublicRepos: data.public_repos.toString(),
-          githubFollowers: data.followers.toString()
-        };
-
-        // Cache the successful API response
-        githubCache.data = result;
-        githubCache.expiresAt = Date.now() + config.cache.GITHUB_CACHE_TTL_MS;
-        console.info('GitHub data fetched from API and cached.');
-        
-        return result;
-      } catch (error) {
-        console.error('Error fetching GitHub data in Node environment:', error.message);
-        console.info('Using default GitHub data due to API error.');
-        return {
-          githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
-          githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
-        };
-      }
-    }
+    const data = await fetchJson(`https://api.github.com/users/${username}`, {
+      headers: { Accept: 'application/vnd.github.v3+json' },
+      ...deps,
+    })
+    const result = ok({
+      githubPublicRepos: data.public_repos.toString(),
+      githubFollowers: data.followers.toString(),
+    })
+    githubCache = { result, expiresAt: Date.now() + config.cache.GITHUB_CACHE_TTL_MS }
+    return result
   } catch (error) {
-    console.error('Error fetching GitHub data:', error.message);
-    console.info('Using default GitHub data due to API error.');
-    return {
-      githubPublicRepos: config.apiDefaults.GITHUB_PUBLIC_REPOS,
-      githubFollowers: config.apiDefaults.GITHUB_FOLLOWERS
-    };
+    console.warn(`GitHub data unavailable, using defaults: ${error.message}`)
+    return fallback(defaults, error)
   }
 }
 
-export { getGitHubData };
+export { getGitHubData }

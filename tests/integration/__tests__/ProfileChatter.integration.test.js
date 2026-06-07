@@ -381,8 +381,8 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '12',
-        githubFollowers: '48',
+        status: 'ok',
+        value: { githubPublicRepos: '12', githubFollowers: '48' },
       })
 
       getSpotifyData.mockResolvedValue({
@@ -404,10 +404,13 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '0',
-        githubCommitsLastYear: '0',
-        githubContributedRepos: '0',
-        githubPrimaryLanguage: 'None',
+        status: 'ok',
+        value: {
+          githubTotalStars: '0',
+          githubCommitsLastYear: '0',
+          githubContributedRepos: '0',
+          githubPrimaryLanguage: 'None',
+        },
       })
 
       const customContext = {
@@ -447,8 +450,8 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '25',
-        githubFollowers: '150',
+        status: 'ok',
+        value: { githubPublicRepos: '25', githubFollowers: '150' },
       })
 
       getSpotifyData.mockResolvedValue({
@@ -470,10 +473,13 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '100',
-        githubCommitsLastYear: '250',
-        githubContributedRepos: '15',
-        githubPrimaryLanguage: 'TypeScript',
+        status: 'ok',
+        value: {
+          githubTotalStars: '100',
+          githubCommitsLastYear: '250',
+          githubContributedRepos: '15',
+          githubPrimaryLanguage: 'TypeScript',
+        },
       })
 
       const customContext = {
@@ -541,8 +547,8 @@ describe('ProfileChatter Integration Tests', () => {
 
       // Mock other data sources to succeed with sample data
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '20',
-        githubFollowers: '100',
+        status: 'ok',
+        value: { githubPublicRepos: '20', githubFollowers: '100' },
       })
 
       getSpotifyData.mockResolvedValue({
@@ -564,10 +570,13 @@ describe('ProfileChatter Integration Tests', () => {
       })
 
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '50',
-        githubCommitsLastYear: '150',
-        githubContributedRepos: '10',
-        githubPrimaryLanguage: 'JavaScript',
+        status: 'ok',
+        value: {
+          githubTotalStars: '50',
+          githubCommitsLastYear: '150',
+          githubContributedRepos: '10',
+          githubPrimaryLanguage: 'JavaScript',
+        },
       })
 
       const customContext = {
@@ -604,12 +613,12 @@ describe('ProfileChatter Integration Tests', () => {
 
       // Mock data sources (they shouldn't be called due to early validation failure)
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getSpotifyData.mockResolvedValue({})
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customContext = {
         profile: { NAME: 'Test User' },

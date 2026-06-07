@@ -138,8 +138,8 @@ describe('DataService', () => {
       })
 
       getGitHubData.mockResolvedValue({
-        githubPublicRepos: '15',
-        githubFollowers: '25',
+        status: 'ok',
+        value: { githubPublicRepos: '15', githubFollowers: '25' },
       })
 
       getWakaTimeData.mockResolvedValue({
@@ -161,10 +161,13 @@ describe('DataService', () => {
       })
 
       getGitHubOAuthData.mockResolvedValue({
-        githubTotalStars: '50',
-        githubCommitsLastYear: '300',
-        githubContributedRepos: '8',
-        githubPrimaryLanguage: 'TypeScript',
+        status: 'ok',
+        value: {
+          githubTotalStars: '50',
+          githubCommitsLastYear: '300',
+          githubContributedRepos: '8',
+          githubPrimaryLanguage: 'TypeScript',
+        },
       })
 
       const result = await DataService.getDynamicData()
@@ -194,6 +197,33 @@ describe('DataService', () => {
       expect(DateTimeFormatServiceInstance.formatWorkTenure).toHaveBeenCalled()
     })
 
+    it('records per-source status so a fallback is distinguishable from live data', async () => {
+      getWeatherData.mockResolvedValue({})
+      getWakaTimeData.mockResolvedValue({})
+      getTwitterData.mockResolvedValue({})
+      getCodeStatsData.mockResolvedValue({})
+      getSpotifyData.mockResolvedValue({})
+      // github fell back to defaults; githubOAuth is live
+      getGitHubData.mockResolvedValue({
+        status: 'fallback',
+        value: { githubPublicRepos: '10', githubFollowers: '5' },
+        error: { message: 'rate limited', status: 403 },
+        fetchedAt: 123,
+      })
+      getGitHubOAuthData.mockResolvedValue({
+        status: 'ok',
+        value: { githubTotalStars: '7' },
+        fetchedAt: 456,
+      })
+
+      await DataService.getDynamicData()
+
+      const bySource = Object.fromEntries(DataService.lastSourceStatuses.map((s) => [s.source, s]))
+      expect(bySource.github.status).toBe('fallback')
+      expect(bySource.github.error.status).toBe(403)
+      expect(bySource.githubOAuth.status).toBe('ok')
+    })
+
     it('should handle API failures gracefully', async () => {
       // Mock all APIs to fail to test error handling
       getWeatherData.mockRejectedValue(new Error('Weather API failed'))
@@ -218,12 +248,12 @@ describe('DataService', () => {
     it('should handle custom profile data overrides', async () => {
       // Mock all APIs to return empty data
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
       getSpotifyData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customData = {
         profile: {
@@ -258,12 +288,12 @@ describe('DataService', () => {
     it('should handle WORK_START_DATE as Date object', async () => {
       // Mock all APIs
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
       getSpotifyData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customWorkStartDate = new Date('2022-03-10T00:00:00.000Z')
       const customData = {
@@ -283,12 +313,12 @@ describe('DataService', () => {
     it('should handle customData.workStartDate directly', async () => {
       // Mock all APIs
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
       getSpotifyData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customWorkStartDate = new Date('2021-08-01T00:00:00.000Z')
       const customData = {
@@ -306,12 +336,12 @@ describe('DataService', () => {
     it('should fallback to UTC on timezone formatting error', async () => {
       // Mock all APIs
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
       getSpotifyData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       // Mock DateTimeFormatService to throw error first, then succeed
       DateTimeFormatServiceInstance.formatCurrentDateTime
@@ -362,12 +392,12 @@ describe('DataService', () => {
     it('should preserve additional customData properties', async () => {
       // Mock all APIs
       getWeatherData.mockResolvedValue({})
-      getGitHubData.mockResolvedValue({})
+      getGitHubData.mockResolvedValue({ status: 'ok', value: {} })
       getWakaTimeData.mockResolvedValue({})
       getTwitterData.mockResolvedValue({})
       getCodeStatsData.mockResolvedValue({})
       getSpotifyData.mockResolvedValue({})
-      getGitHubOAuthData.mockResolvedValue({})
+      getGitHubOAuthData.mockResolvedValue({ status: 'ok', value: {} })
 
       const customData = {
         customProperty: 'custom value',

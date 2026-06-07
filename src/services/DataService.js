@@ -15,6 +15,10 @@ import DateTimeFormatService from './DateTimeFormatService.js'
 
 /* ---------- service ------------------------------------------------------ */
 class DataService {
+  // Per-run health of the discriminated sources (github, githubOAuth); consumed
+  // by PR-5b's status manifest / staleness guard. Empty until the first run.
+  lastSourceStatuses = []
+
   async getDynamicData(customData = {}) {
     // initialise base object so we have something even on catastrophic failure
     let baseData = {
@@ -93,7 +97,32 @@ class DataService {
             getSpotifyData(),
             getGitHubOAuthData(),
           ])
-        Object.assign(baseData, weather, github, wakatime, codestats, spotify, githubOAuth)
+        // github + githubOAuth return discriminated results { status, value, error, fetchedAt }.
+        // Unwrap their values for rendering and record per-source status so PR-5b can build a
+        // staleness manifest — a fallback is no longer indistinguishable from live data.
+        Object.assign(
+          baseData,
+          weather,
+          github.value || {},
+          wakatime,
+          codestats,
+          spotify,
+          githubOAuth.value || {}
+        )
+        this.lastSourceStatuses = [
+          {
+            source: 'github',
+            status: github.status,
+            error: github.error,
+            fetchedAt: github.fetchedAt,
+          },
+          {
+            source: 'githubOAuth',
+            status: githubOAuth.status,
+            error: githubOAuth.error,
+            fetchedAt: githubOAuth.fetchedAt,
+          },
+        ]
 
         // Handle Twitter followers with manual input priority
         if (customData.profile?.TWITTER_FOLLOWERS) {
