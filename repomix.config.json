@@ -1,0 +1,54 @@
+{
+  "include": [
+    "src/**",
+    "configurator-ui/src/**",
+    "configurator-ui/server/**",
+    "configurator-ui/index.html",
+    "configurator-ui/package.json",
+    "configurator-ui/vite.config.js",
+    "configurator-ui/svelte.config.js",
+    "configurator-ui/tailwind.config.js",
+    "configurator-ui/postcss.config.js",
+    "tests/**",
+    ".github/workflows/**",
+    "data/**",
+    "package.json",
+    "vitest.config.js",
+    ".eslintrc.json",
+    ".prettierrc.json",
+    ".gitattributes",
+    ".env.template",
+    "test.html",
+    "README.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "MANUAL_QA_TEST_PLAN.md",
+    "LICENSE"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "profileChatterConfig.json",
+      "package-lock.json",
+      "configurator-ui/package-lock.json",
+      "tests/coverage/**",
+      "FORENSICS_REPORT.md",
+      ".forensics/**",
+      "repomix*.txt",
+      "repomix*.md",
+      "**/*.svg",
+      "**/*.png"
+    ]
+  },
+  "output": {
+    "filePath": "profilechatter-full-export.md",
+    "style": "markdown",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "compress": false,
+    "showLineNumbers": true
+  }
+}
