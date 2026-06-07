@@ -27,10 +27,20 @@ import {
 // Network-exposure policy (bind host, debug gating) — pure + unit-tested
 import { resolveBindHost, isExternalBind, isDebugEndpointEnabled } from './serverConfig.js'
 
+// Request-security policy (CORS, CSRF guard, body + GitHub-target validation)
+import {
+  getAllowedOrigins,
+  resolveCorsOrigin,
+  isStateChangingRequestAllowed,
+  validateConfigPayload,
+  validateGithubSaveTarget,
+} from './serverSecurity.js'
+
 // Constants
 const PORT = 3001
 // Default to loopback; LAN exposure is opt-in only (see serverConfig.js).
 const HOST = resolveBindHost(process.env)
+const ALLOWED_ORIGINS = getAllowedOrigins(process.env)
 const FRONTEND_URL = 'http://127.0.0.1:5173'
 const FIVE_MINUTES_SEC = 5 * 60
 const FIVE_MINUTES_MS = FIVE_MINUTES_SEC * 1000
@@ -589,6 +599,16 @@ const routes = {
       logger.debug('Received configuration data with keys:', Object.keys(configJson))
       logger.debug('Config json snippet:', JSON.stringify(configJson).slice(0, 120) + '…')
 
+      // Validate the payload before writing anything to disk
+      const localCheck = validateConfigPayload(configJson)
+      if (!localCheck.valid) {
+        logger.warn('Rejected invalid local-config payload:', localCheck.error)
+        res.statusCode = 400
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ success: false, error: localCheck.error }))
+        return
+      }
+
       // Use the consistent path helper
       const configFilePath = getConfigPath()
 
@@ -679,6 +699,16 @@ const routes = {
         res.statusCode = 400
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify({ error: 'Missing required fields' }))
+        return
+      }
+
+      // Constrain the write target (repo/path/branch allow-list) before using the token
+      const targetCheck = validateGithubSaveTarget({ repoFullName, filePath, branch })
+      if (!targetCheck.valid) {
+        logger.warn('Rejected disallowed GitHub save target:', targetCheck.error)
+        res.statusCode = 400
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ error: targetCheck.error }))
         return
       }
 
@@ -784,8 +814,12 @@ const server = http.createServer(async (req, res) => {
     const path = parsedUrl.pathname
     const query = parsedUrl.query
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*')
+    // Set CORS headers — echo only the configurator origin, never '*'
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      resolveCorsOrigin(req.headers.origin, ALLOWED_ORIGINS)
+    )
+    res.setHeader('Vary', 'Origin')
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
@@ -795,6 +829,20 @@ const server = http.createServer(async (req, res) => {
       res.statusCode = 204
       res.end()
       return
+    }
+
+    // CSRF guard: reject cross-origin attempts at state-changing / token-backed endpoints
+    const isStateChanging =
+      req.method === 'POST' || (req.method === 'GET' && path === '/api/github/user-repos')
+    if (isStateChanging) {
+      const originCheck = isStateChangingRequestAllowed(req.headers, ALLOWED_ORIGINS)
+      if (!originCheck.allowed) {
+        logger.warn('Blocked cross-origin request:', originCheck.reason, path)
+        res.statusCode = 403
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ error: 'Forbidden: cross-origin request rejected' }))
+        return
+      }
     }
 
     // Route request to appropriate handler
