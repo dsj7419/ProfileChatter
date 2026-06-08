@@ -1,0 +1,39 @@
+name: Contributions Probe (temporary)
+
+# TEMPORARY, throwaway probe for PR-5c. Verifies whether the CI secret
+# PAT_GITHUB_OAUTH can read contributionsCollection via GraphQL. Prints ONLY
+# sanitized counts + HTTP status + sanitized GraphQL errors — never the token,
+# writes no repo files, makes no commits. workflow_dispatch ONLY (no push / PR /
+# schedule / cron). DELETE this file before PR-5c lands.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe contributionsCollection with PAT_GITHUB_OAUTH
+        env:
+          PROBE_TOKEN: ${{ secrets.PAT_GITHUB_OAUTH }}
+        run: |
+          PAYLOAD='{"query":"query { viewer { login } user(login: \"dsj7419\") { contributionsCollection { totalCommitContributions contributionCalendar { totalContributions } restrictedContributionsCount } } }"}'
+          RESP=$(curl -sS -w $'\n%{http_code}' \
+            -H "Authorization: Bearer $PROBE_TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST https://api.github.com/graphql \
+            -d "$PAYLOAD")
+          CODE=$(printf '%s' "$RESP" | tail -n1)
+          BODY=$(printf '%s' "$RESP" | sed '$d')
+          echo "HTTP_STATUS=$CODE"
+          echo "--- sanitized result ---"
+          printf '%s' "$BODY" | jq '{
+            viewer_login: .data.viewer.login,
+            totalCommitContributions: .data.user.contributionsCollection.totalCommitContributions,
+            totalContributions: .data.user.contributionsCollection.contributionCalendar.totalContributions,
+            restrictedContributionsCount: .data.user.contributionsCollection.restrictedContributionsCount,
+            errors: ((.errors // []) | map({ type: .type, message: .message }))
+          }' || { echo "jq parse failed; raw (sanitized) body:"; printf '%s\n' "$BODY"; }
