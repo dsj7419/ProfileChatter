@@ -1,0 +1,13 @@
+# Generated / data files — Prettier must not reformat these.
+# profileChatterConfig.json is exported by the Configurator UI (it owns the
+# format); chatData.json is default content. Reformatting them creates huge,
+# meaningless diffs and fights the UI exporter.
+profileChatterConfig.json
+data/chatData.json
+
+# Build output and coverage (also covered by .eslintrc ignorePatterns).
+dist/
+**/dist/
+coverage/
+tests/coverage/
+package-lock.json

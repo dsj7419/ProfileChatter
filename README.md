@@ -98,9 +98,11 @@ git push
 
 ## 🛠️ API & Service Integration Setup
 
-### 🌤️ AccuWeather API Setup (Optional)
+### 🌤️ AccuWeather API Setup (Optional — off by default)
 
-Weather integration is optional and can be disabled in the UI/config. To enable it:
+> **Weather is disabled by default** (`config.weather.enabled: false`). AccuWeather no longer offers a long‑term free developer tier — its "Free" plan is now a **14‑day trial**, with paid plans after that — so it isn't a good out‑of‑the‑box default for an open‑source widget. ProfileChatter ships with weather off; when disabled it's treated as an intentional skip (it never errors or shows placeholder weather). Everything else works without it.
+
+To **enable** weather, set `weather.enabled: true` (in the Configurator UI or `config.js`) **and** provide a valid AccuWeather key:
 
 1. **Get your AccuWeather API Key**
    - Sign up at [AccuWeather Developer Portal](https://developer.accuweather.com/)

@@ -4,27 +4,29 @@
  * Single Responsibility: Store and provide all application configurations
  */
 
-import { makeDate } from '../utils/dateHelper.js';
+import { makeDate } from '../utils/dateHelper.js'
 
 export const config = {
-  activeTheme: "ios",
+  activeTheme: 'ios',
 
   avatars: {
     enabled: true,
-    me: { imageUrl: "", fallbackText: "DJ" },
-    visitor: { imageUrl: "", fallbackText: "?" },
+    me: { imageUrl: '', fallbackText: 'DJ' },
+    visitor: { imageUrl: '', fallbackText: '?' },
     sizePx: 32,
-    shape: "circle",
+    shape: 'circle',
     xOffsetPx: 8,
-    yOffsetPx: 0
+    yOffsetPx: 0,
   },
 
   weather: {
-    enabled: true
+    // Off by default: AccuWeather now needs a trial/paid key, so weather is an
+    // opt-in integration (set true + provide WEATHER_API_KEY/LOCATION_KEY).
+    enabled: false,
   },
 
   twitter: {
-    enabled_api_fetch: false
+    enabled_api_fetch: false,
   },
 
   themes: {
@@ -36,8 +38,9 @@ export const config = {
       BACKGROUND_LIGHT: '#FFFFFF',
       BACKGROUND_DARK: '#000000',
       BUBBLE_RADIUS_PX: 18,
-      FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-      
+      FONT_FAMILY:
+        "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+
       REACTION_FONT_SIZE_PX: 20,
       REACTION_BG_COLOR: '#F1F1F1',
       REACTION_BG_OPACITY: 0.9,
@@ -47,7 +50,7 @@ export const config = {
       REACTION_BORDER_RADIUS_PX: 14,
       REACTION_OFFSET_X_PX: 0,
       REACTION_OFFSET_Y_PX: -12,
-      
+
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#007AFF',
         BAR_TRACK_COLOR: '#D3D3D8',
@@ -55,11 +58,14 @@ export const config = {
         VALUE_TEXT_INSIDE_COLOR: '#FFFFFF',
         BAR_HEIGHT_PX: 18,
         BAR_SPACING_PX: 10,
-        LABEL_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        LABEL_FONT_FAMILY:
+          "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         LABEL_FONT_SIZE_PX: 13,
-        VALUE_TEXT_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        VALUE_TEXT_FONT_FAMILY:
+          "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         VALUE_TEXT_FONT_SIZE_PX: 12,
-        TITLE_FONT_FAMILY: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        TITLE_FONT_FAMILY:
+          "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         TITLE_FONT_SIZE_PX: 15,
         TITLE_LINE_HEIGHT_MULTIPLIER: 1.3,
         TITLE_BOTTOM_MARGIN_PX: 10,
@@ -69,7 +75,8 @@ export const config = {
         GRID_LINE_COLOR: '#F5F5F5',
         DONUT_STROKE_WIDTH_PX: 30,
         DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
-        DONUT_CENTER_TEXT_FONT_FAMILY: "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        DONUT_CENTER_TEXT_FONT_FAMILY:
+          "'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
         ME_DONUT_CENTER_TEXT_COLOR: '#FFFFFF',
         VISITOR_DONUT_CENTER_TEXT_COLOR: '#000000',
         ME_DONUT_LEGEND_TEXT_COLOR: '#FFFFFF',
@@ -79,17 +86,17 @@ export const config = {
         DONUT_LEGEND_MARKER_SIZE_PX: 10,
         DONUT_ANIMATION_DURATION_SEC: 1.0,
         DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.2,
-      
+
         ME_TITLE_COLOR: '#FFFFFF',
         ME_LABEL_COLOR: '#E2F0FF',
         ME_VALUE_TEXT_COLOR: '#FFFFFF',
-      
+
         VISITOR_TITLE_COLOR: '#000000',
         VISITOR_LABEL_COLOR: '#444444',
         VISITOR_VALUE_TEXT_COLOR: '#000000',
-      }
+      },
     },
-    
+
     android: {
       ME_BUBBLE_COLOR: '#D1E6FF',
       VISITOR_BUBBLE_COLOR: '#F0F0F0',
@@ -99,7 +106,7 @@ export const config = {
       BACKGROUND_DARK: '#121212',
       BUBBLE_RADIUS_PX: 8,
       FONT_FAMILY: "'Roboto', sans-serif",
-      
+
       REACTION_FONT_SIZE_PX: 14,
       REACTION_BG_COLOR: '#E8E8E8',
       REACTION_BG_OPACITY: 1.0,
@@ -109,7 +116,7 @@ export const config = {
       REACTION_BORDER_RADIUS_PX: 12,
       REACTION_OFFSET_X_PX: 0,
       REACTION_OFFSET_Y_PX: -10,
-      
+
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#4285F4',
         BAR_TRACK_COLOR: '#CCCCCC',
@@ -149,7 +156,7 @@ export const config = {
         VISITOR_TITLE_COLOR: '#212121',
         VISITOR_LABEL_COLOR: '#616161',
         VISITOR_VALUE_TEXT_COLOR: '#212121',
-      }
+      },
     },
 
     discord: {
@@ -161,7 +168,7 @@ export const config = {
       BACKGROUND_DARK: '#36393F',
       BUBBLE_RADIUS_PX: 8,
       FONT_FAMILY: "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-      
+
       REACTION_FONT_SIZE_PX: 16,
       REACTION_BG_COLOR: '#40444B',
       REACTION_BG_OPACITY: 0.9,
@@ -171,7 +178,7 @@ export const config = {
       REACTION_BORDER_RADIUS_PX: 6,
       REACTION_OFFSET_X_PX: 0,
       REACTION_OFFSET_Y_PX: -12,
-      
+
       CHART_STYLES: {
         BAR_DEFAULT_COLOR: '#5865F2',
         BAR_TRACK_COLOR: '#4F545C',
@@ -181,7 +188,8 @@ export const config = {
         BAR_SPACING_PX: 10,
         LABEL_FONT_FAMILY: "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
         LABEL_FONT_SIZE_PX: 13,
-        VALUE_TEXT_FONT_FAMILY: "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+        VALUE_TEXT_FONT_FAMILY:
+          "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
         VALUE_TEXT_FONT_SIZE_PX: 12,
         TITLE_FONT_FAMILY: "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
         TITLE_FONT_SIZE_PX: 15,
@@ -193,7 +201,8 @@ export const config = {
         GRID_LINE_COLOR: '#2F3136',
         DONUT_STROKE_WIDTH_PX: 28,
         DONUT_CENTER_TEXT_FONT_SIZE_PX: 16,
-        DONUT_CENTER_TEXT_FONT_FAMILY: "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+        DONUT_CENTER_TEXT_FONT_FAMILY:
+          "'gg sans', 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif",
         ME_DONUT_CENTER_TEXT_COLOR: '#FFFFFF',
         VISITOR_DONUT_CENTER_TEXT_COLOR: '#DCDDDE',
         ME_DONUT_LEGEND_TEXT_COLOR: '#FFFFFF',
@@ -203,57 +212,57 @@ export const config = {
         DONUT_LEGEND_MARKER_SIZE_PX: 10,
         DONUT_ANIMATION_DURATION_SEC: 1.0,
         DONUT_SEGMENT_ANIMATION_DELAY_SEC: 0.15,
-      
+
         ME_TITLE_COLOR: '#FFFFFF',
         ME_LABEL_COLOR: '#B9BBBE',
         ME_VALUE_TEXT_COLOR: '#FFFFFF',
-      
+
         VISITOR_TITLE_COLOR: '#DCDDDE',
         VISITOR_LABEL_COLOR: '#B9BBBE',
         VISITOR_VALUE_TEXT_COLOR: '#DCDDDE',
-      }
-    }
+      },
+    },
   },
-  
+
   profile: {
-    NAME: "Dan Johnson",
-    PROFESSION: "Software Developer",
-    LOCATION: "San Diego",
-    COMPANY: "Encore",
-    CURRENT_PROJECT: "ProfileChatter SVG Generator",
+    NAME: 'Dan Johnson',
+    PROFESSION: 'Software Developer',
+    LOCATION: 'San Diego',
+    COMPANY: 'Encore',
+    CURRENT_PROJECT: 'ProfileChatter SVG Generator',
     WORK_START_DATE: makeDate(2007, 4, 16),
-    GITHUB_USERNAME: "dsj7419",
-    WAKATIME_USERNAME: "dsj7419",
-    TWITTER_USERNAME: "",
-    TWITTER_FOLLOWERS: "0",
-    CODESTATS_USERNAME: "dsj7419",
+    GITHUB_USERNAME: 'dsj7419',
+    WAKATIME_USERNAME: 'dsj7419',
+    TWITTER_USERNAME: '',
+    TWITTER_FOLLOWERS: '0',
+    CODESTATS_USERNAME: 'dsj7419',
     TIMEZONE: 'UTC', // Default timezone
   },
-  
+
   cache: {
     WEATHER_CACHE_TTL_MS: 1800000,
     GITHUB_CACHE_TTL_MS: 3600000,
     GITHUB_OAUTH_CACHE_TTL_MS: 3600000,
     TWITTER_CACHE_TTL_MS: 3600000,
     CODESTATS_CACHE_TTL_MS: 7200000,
-    SPOTIFY_CACHE_TTL_MS: 900000
+    SPOTIFY_CACHE_TTL_MS: 900000,
   },
-  
+
   apiDefaults: {
-    TEMPERATURE: "72°F (22°C)",
-    WEATHER_DESCRIPTION: "partly cloudy",
-    WEATHER_EMOJI: "⛅",
-    GITHUB_PUBLIC_REPOS: "12",
-    GITHUB_FOLLOWERS: "48",
-    GITHUB_TOTAL_STARS: "0",
-    GITHUB_COMMITS_LAST_YEAR: "0",
-    GITHUB_CONTRIBUTED_REPOS: "0", 
-    GITHUB_PRIMARY_LANGUAGE: "None",
-    TWITTER_FOLLOWERS: "120",
-    CODESTATS_XP: "0",
-    SPOTIFY_NOW_PLAYING: "Not currently listening to music."
+    TEMPERATURE: '72°F (22°C)',
+    WEATHER_DESCRIPTION: 'partly cloudy',
+    WEATHER_EMOJI: '⛅',
+    GITHUB_PUBLIC_REPOS: '12',
+    GITHUB_FOLLOWERS: '48',
+    GITHUB_TOTAL_STARS: '0',
+    GITHUB_COMMITS_LAST_YEAR: '0',
+    GITHUB_CONTRIBUTED_REPOS: '0',
+    GITHUB_PRIMARY_LANGUAGE: 'None',
+    TWITTER_FOLLOWERS: '120',
+    CODESTATS_XP: '0',
+    SPOTIFY_NOW_PLAYING: 'Not currently listening to music.',
   },
-  
+
   layout: {
     FONT_SIZE_PX: 14,
     LINE_HEIGHT_PX: 20,
@@ -270,23 +279,23 @@ export const config = {
     TYPING_CHAR_MS: 40,
     TYPING_MIN_MS: 1600,
     TYPING_MAX_MS: 3000,
-    
+
     STATUS_INDICATOR: {
-      DELIVERED_TEXT: "Delivered",
-      READ_TEXT: "Read",
+      DELIVERED_TEXT: 'Delivered',
+      READ_TEXT: 'Read',
       FONT_SIZE_PX: 10,
-      COLOR_ME: "#FFFFFFB3",
+      COLOR_ME: '#FFFFFFB3',
       OFFSET_Y_PX: 10,
       ANIMATION_DELAY_SEC: 0.2,
       FADE_IN_DURATION_SEC: 0.3,
       READ_DELAY_SEC: 1.5,
-      READ_TRANSITION_SEC: 0.2
+      READ_TRANSITION_SEC: 0.2,
     },
-    
+
     VISIBLE_MESSAGES: 6,
     CHAT_WIDTH_PX: 320,
     CHAT_HEIGHT_PX: 450,
-    
+
     TIMING: {
       MIN_READING_TIME_MS: 1000,
       MS_PER_WORD: 250,
@@ -295,9 +304,9 @@ export const config = {
       SENDER_CHANGE_DELAY_MS: 1800,
       MESSAGE_VERTICAL_SPACING: 32,
       BOTTOM_MARGIN: 40,
-      ANIMATION_END_BUFFER_MS: 2000
+      ANIMATION_END_BUFFER_MS: 2000,
     },
-    
+
     ANIMATION: {
       TYPING_BUBBLE_WIDTH: 70,
       TYPING_BUBBLE_HEIGHT: 36,
@@ -309,7 +318,7 @@ export const config = {
       DOT_MIN_SCALE: 0.8,
       DOT_MAX_SCALE: 1.0,
       BUBBLE_ANIMATION_DURATION: 0.36,
-      BUBBLE_ANIMATION_CURVE: "cubic-bezier(.36,1.64,.36,1)",
+      BUBBLE_ANIMATION_CURVE: 'cubic-bezier(.36,1.64,.36,1)',
       BUBBLE_START_SCALE: 0.8,
       REACTION_ANIMATION_DURATION_SEC: 0.3,
       REACTION_ANIMATION_DELAY_FACTOR_SEC: 1.1,
@@ -323,18 +332,18 @@ export const config = {
       MIN_SCROLL_DURATION_SEC: 1.2,
       SCROLL_PIXELS_PER_SEC: 18,
       SCROLL_SPEED_MULTIPLIER: 1.0,
-    }
+    },
   },
-  
+
   wakatime: {
     enabled: true,
     defaults: {
-      wakatime_summary: "No coding activity data available",
-      wakatime_top_language: "N/A",
-      wakatime_top_language_percent: "0",
-      wakatime_chart_data: []
+      wakatime_summary: 'No coding activity data available',
+      wakatime_top_language: 'N/A',
+      wakatime_top_language_percent: '0',
+      wakatime_chart_data: [],
     },
-    cacheTtlMs: 7200000
+    cacheTtlMs: 7200000,
   },
 
   fontOptions: {
@@ -346,7 +355,7 @@ export const config = {
       "'Helvetica Neue', Helvetica, Arial, sans-serif",
       "'Arial', sans-serif",
       "'Georgia', serif",
-      "'Courier New', monospace"
-    ]
-  }
-};
+      "'Courier New', monospace",
+    ],
+  },
+}
