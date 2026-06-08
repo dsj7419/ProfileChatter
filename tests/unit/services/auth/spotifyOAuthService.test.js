@@ -330,6 +330,12 @@ describe('SpotifyOAuthService', () => {
       expect(spotifyOAuthService.isConfigured()).toBe(true)
     })
 
+    it('is true when a local token file has an access_token but no refresh_token', () => {
+      fs.existsSync.mockReturnValue(true)
+      fs.readFileSync.mockReturnValue(JSON.stringify({ access_token: 'a' }))
+      expect(spotifyOAuthService.isConfigured()).toBe(true)
+    })
+
     it('is true when all CI env credentials are present (no local token)', () => {
       fs.existsSync.mockReturnValue(false)
       process.env.SPOTIFY_REFRESH_TOKEN = 'rt'

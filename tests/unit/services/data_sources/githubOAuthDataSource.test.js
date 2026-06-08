@@ -4,7 +4,7 @@ import { config } from '../../../../src/config/config.js'
 import githubOAuthService from '../../../../src/services/auth/githubOAuthService.js'
 
 vi.mock('../../../../src/services/auth/githubOAuthService.js', () => ({
-  default: { getAccessToken: vi.fn() },
+  default: { getAccessToken: vi.fn(), isConfigured: vi.fn() },
 }))
 
 let getGitHubOAuthData
@@ -101,6 +101,7 @@ describe('githubOAuthDataSource — discriminated results', () => {
     process.env = { ...originalEnv }
     delete process.env.GITHUB_DATA_MODE
     delete process.env.PAT_GITHUB_OAUTH
+    githubOAuthService.isConfigured.mockReturnValue(true)
     githubOAuthService.getAccessToken.mockResolvedValueOnce('oauth-token')
     const fetchImpl = wire({ login: 'u' }, [], graphqlCommits(5))
 
@@ -111,11 +112,40 @@ describe('githubOAuthDataSource — discriminated results', () => {
     expect(fetchImpl.mock.calls[0][1].headers.Authorization).toBe('token oauth-token')
   })
 
-  it('returns a FALLBACK when no token is available', async () => {
+  it('returns ok({}) (skip) when CI mode has no PAT_GITHUB_OAUTH — an unconfigured forker, not a failure', async () => {
+    process.env = { ...originalEnv, GITHUB_DATA_MODE: 'ci' }
+    delete process.env.PAT_GITHUB_OAUTH
+    const fetchImpl = vi.fn()
+
+    const r = await getGitHubOAuthData({ fetchImpl, sleep: noSleep })
+
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(githubOAuthService.getAccessToken).not.toHaveBeenCalled()
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({})
+  })
+
+  it('returns ok({}) (skip) when GitHub OAuth is unconfigured (non-CI, no local setup)', async () => {
     process.env = { ...originalEnv }
     delete process.env.GITHUB_DATA_MODE
     delete process.env.PAT_GITHUB_OAUTH
-    githubOAuthService.getAccessToken.mockRejectedValueOnce(new Error('No token'))
+    githubOAuthService.isConfigured.mockReturnValue(false)
+    const fetchImpl = vi.fn()
+
+    const r = await getGitHubOAuthData({ fetchImpl, sleep: noSleep })
+
+    expect(githubOAuthService.getAccessToken).not.toHaveBeenCalled()
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({})
+  })
+
+  it('returns a FALLBACK when CONFIGURED (non-CI) but the token cannot be retrieved', async () => {
+    process.env = { ...originalEnv }
+    delete process.env.GITHUB_DATA_MODE
+    delete process.env.PAT_GITHUB_OAUTH
+    githubOAuthService.isConfigured.mockReturnValue(true)
+    githubOAuthService.getAccessToken.mockRejectedValueOnce(new Error('token retrieval failed'))
     const fetchImpl = vi.fn()
 
     const r = await getGitHubOAuthData({ fetchImpl, sleep: noSleep })

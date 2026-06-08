@@ -10,7 +10,7 @@ vi.mock('../../../../src/config/config.js', () => ({
 }))
 
 vi.mock('../../../../src/services/auth/spotifyOAuthService.js', () => ({
-  default: { getAccessToken: vi.fn() },
+  default: { getAccessToken: vi.fn(), isConfigured: vi.fn() },
 }))
 
 let getSpotifyData
@@ -21,6 +21,7 @@ beforeEach(async () => {
   vi.resetModules()
   ;({ getSpotifyData } = await import('../../../../src/services/data_sources/spotifyDataSource.js'))
   spotifyOAuthService.getAccessToken.mockResolvedValue('tok')
+  spotifyOAuthService.isConfigured.mockReturnValue(true) // configured by default
 })
 afterEach(() => {
   vi.useRealTimers()
@@ -59,8 +60,19 @@ describe('spotifyDataSource — discriminated results', () => {
     expect(r.value).toEqual({ spotifyTrack: 'Not listening' })
   })
 
-  it('returns a FALLBACK on an auth failure', async () => {
-    spotifyOAuthService.getAccessToken.mockRejectedValueOnce(new Error('no token'))
+  it('returns ok({}) (skip) when Spotify is not configured — an intentional opt-out, not a failure', async () => {
+    spotifyOAuthService.isConfigured.mockReturnValue(false)
+    const fetchImpl = vi.fn()
+    const r = await getSpotifyData({ fetchImpl })
+    expect(spotifyOAuthService.getAccessToken).not.toHaveBeenCalled()
+    expect(fetchImpl).not.toHaveBeenCalled()
+    expect(r.status).toBe('ok')
+    expect(r.value).toEqual({})
+  })
+
+  it('returns a FALLBACK when CONFIGURED but token refresh/auth fails (distinguishable from a skip)', async () => {
+    spotifyOAuthService.isConfigured.mockReturnValue(true)
+    spotifyOAuthService.getAccessToken.mockRejectedValueOnce(new Error('Spotify API error: 401'))
     const fetchImpl = vi.fn()
     const r = await getSpotifyData({ fetchImpl })
     expect(fetchImpl).not.toHaveBeenCalled()

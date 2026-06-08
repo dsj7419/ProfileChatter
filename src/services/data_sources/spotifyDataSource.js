@@ -23,6 +23,10 @@ async function getSpotifyData(deps = {}) {
     return spotifyCache.result
   }
 
+  // Not configured (no local tokens, no CI credentials) → intentional skip, not a
+  // failure. Only a CONFIGURED Spotify that then fails returns a fallback.
+  if (!spotifyOAuthService.isConfigured()) return ok({})
+
   let token
   try {
     token = await spotifyOAuthService.getAccessToken()
