@@ -20,7 +20,9 @@ export const config = {
   },
 
   weather: {
-    enabled: true,
+    // Off by default: AccuWeather now needs a trial/paid key, so weather is an
+    // opt-in integration (set true + provide WEATHER_API_KEY/LOCATION_KEY).
+    enabled: false,
   },
 
   twitter: {

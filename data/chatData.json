@@ -76,7 +76,7 @@
   {
     "id": "msg-github-oauth-2",
     "sender": "me",
-    "text": "My projects have earned {githubTotalStars} stars. I code mostly in {githubPrimaryLanguage}, have contributed to {githubContributedRepos} repos and made ~{githubCommitsLastYear} commits last year."
+    "text": "My projects have earned {githubTotalStars} stars. I code mostly in {githubPrimaryLanguage}, have contributed to {githubContributedRepos} repos and made {githubCommitsLastYear} commits last year."
   },
   {
     "id": "msg-6",
