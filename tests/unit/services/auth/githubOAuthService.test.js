@@ -165,4 +165,17 @@ describe('GitHubOAuthService', () => {
       )
     })
   })
+
+  describe('isConfigured', () => {
+    it('is true when a local token file has an access_token', () => {
+      fs.existsSync.mockReturnValue(true)
+      fs.readFileSync.mockReturnValue(JSON.stringify({ access_token: 'stored' }))
+      expect(githubOAuthService.isConfigured()).toBe(true)
+    })
+
+    it('is false when there is no local token (unconfigured)', () => {
+      fs.existsSync.mockReturnValue(false)
+      expect(githubOAuthService.isConfigured()).toBe(false)
+    })
+  })
 })

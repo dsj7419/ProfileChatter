@@ -93,6 +93,15 @@ class GitHubOAuthService extends BaseOAuthService {
 
     throw new Error('No valid GitHub token available. Please authenticate first.')
   }
+
+  /**
+   * Whether GitHub OAuth is configured (a local token exists). Lets callers
+   * treat "never set up" as an intentional skip rather than a failure. No network.
+   * @returns {boolean}
+   */
+  isConfigured() {
+    return !!this.loadTokens().access_token
+  }
 }
 
 // Create a singleton instance

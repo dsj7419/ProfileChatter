@@ -123,6 +123,22 @@ class SpotifyOAuthService extends BaseOAuthService {
   }
 
   /**
+   * Whether Spotify is configured: a local token (access/refresh) exists, or all
+   * three CI credentials are present. Lets callers treat "never set up" as an
+   * intentional skip rather than a failure. No network.
+   * @returns {boolean}
+   */
+  isConfigured() {
+    const tokens = this.loadTokens()
+    if (tokens.refresh_token || tokens.access_token) return true
+    return !!(
+      process.env.SPOTIFY_CLIENT_ID &&
+      process.env.SPOTIFY_CLIENT_SECRET &&
+      process.env.SPOTIFY_REFRESH_TOKEN
+    )
+  }
+
+  /**
    * Refresh the access token using the refresh token
    * @param {boolean} useEnvVarRefreshToken - Whether to use environment variables instead of local token file
    * @returns {Promise<string>} The new access token

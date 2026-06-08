@@ -322,4 +322,26 @@ describe('SpotifyOAuthService', () => {
       )
     })
   })
+
+  describe('isConfigured', () => {
+    it('is true when a local token file has a refresh_token', () => {
+      fs.existsSync.mockReturnValue(true)
+      fs.readFileSync.mockReturnValue(JSON.stringify({ refresh_token: 'r' }))
+      expect(spotifyOAuthService.isConfigured()).toBe(true)
+    })
+
+    it('is true when all CI env credentials are present (no local token)', () => {
+      fs.existsSync.mockReturnValue(false)
+      process.env.SPOTIFY_REFRESH_TOKEN = 'rt'
+      expect(spotifyOAuthService.isConfigured()).toBe(true)
+    })
+
+    it('is false when there is no local token and creds are incomplete (unconfigured)', () => {
+      fs.existsSync.mockReturnValue(false)
+      delete process.env.SPOTIFY_REFRESH_TOKEN
+      delete process.env.SPOTIFY_CLIENT_ID
+      delete process.env.SPOTIFY_CLIENT_SECRET
+      expect(spotifyOAuthService.isConfigured()).toBe(false)
+    })
+  })
 })
