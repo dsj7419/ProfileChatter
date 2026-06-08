@@ -5,10 +5,6 @@
 profileChatterConfig.json
 data/chatData.json
 
-# Hand-authored Markdown docs — Prettier's table re-alignment/list churn fights
-# the prose and was never enforced in CI. Edit these by hand.
-*.md
-
 # Build output and coverage (also covered by .eslintrc ignorePatterns).
 dist/
 **/dist/
