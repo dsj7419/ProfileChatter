@@ -76,52 +76,68 @@ async function getGitHubOAuthData(deps = {}) {
 
     const contributedReposCount = ownedRepos.length
 
-    // Best-effort commit estimate from recent public events (replaced in PR-5c).
-    // A failure here degrades only this one value — it does not fail the source.
-    let commitsLastYear = config.apiDefaults.GITHUB_COMMITS_LAST_YEAR
-    if (ownedRepos.length > 0) {
-      try {
-        const events = await fetchJson(
-          `https://api.github.com/users/${userData.login}/events?per_page=100`,
-          { headers, ...deps }
-        )
-        const pushEvents = events.filter((event) => event.type === 'PushEvent')
-        if (pushEvents.length > 0) {
-          let totalCommits = 0
-          pushEvents.forEach((event) => {
-            if (event.payload && typeof event.payload.size === 'number') {
-              totalCommits += event.payload.size
-            }
-          })
-          let estimatedAnnual = Math.round(totalCommits * (365 / 30))
-          const maxReasonableAnnualCommits = 3000
-          if (estimatedAnnual > maxReasonableAnnualCommits) {
-            estimatedAnnual = maxReasonableAnnualCommits
-          }
-          commitsLastYear =
-            estimatedAnnual <= 0
-              ? config.apiDefaults.GITHUB_COMMITS_LAST_YEAR
-              : estimatedAnnual.toString() + '+'
-        }
-      } catch (statsError) {
-        console.warn(
-          `GitHub events stats unavailable, using default commit estimate: ${statsError.message}`
-        )
-      }
-    }
-
-    const result = ok({
+    // Live REST stats. Commits is filled by the real GraphQL count below; if that
+    // one call fails we still serve these live values (surgical fallback).
+    const liveStats = {
       githubTotalStars: totalStars.toString(),
-      githubCommitsLastYear: commitsLastYear,
+      githubCommitsLastYear: config.apiDefaults.GITHUB_COMMITS_LAST_YEAR,
       githubContributedRepos: contributedReposCount.toString(),
       githubPrimaryLanguage: primaryLanguage,
-    })
-    githubOAuthCache = { result, expiresAt: Date.now() + config.cache.GITHUB_OAUTH_CACHE_TTL_MS }
-    return result
+    }
+
+    // Real "commits last year" via GraphQL contributionsCollection — replaces the
+    // fabricated events heuristic (×365/30, capped, "+"). A GraphQL failure is
+    // surfaced as a fallback so the status manifest / alerting layer sees it, but
+    // the live REST stats above are preserved and only commits falls back.
+    try {
+      const githubCommitsLastYear = await fetchCommitContributions(
+        userData.login,
+        accessToken,
+        deps
+      )
+      const result = ok({ ...liveStats, githubCommitsLastYear })
+      githubOAuthCache = { result, expiresAt: Date.now() + config.cache.GITHUB_OAUTH_CACHE_TTL_MS }
+      return result
+    } catch (commitsError) {
+      console.warn(
+        `GitHub commit contributions unavailable, surfacing fallback: ${commitsError.message}`
+      )
+      return fallback(liveStats, commitsError)
+    }
   } catch (error) {
     console.warn(`GitHub OAuth data unavailable, using defaults: ${error.message}`)
     return fallback(oauthDefaults(), error)
   }
+}
+
+/**
+ * Fetch the authenticated user's real commit-contribution count for the last
+ * year via the GitHub GraphQL API. Returns the count as a string. Throws on HTTP
+ * failure (via fetchJson), on a GraphQL `errors` payload, or on a missing count —
+ * the caller turns any throw into a surgical fallback.
+ * @param {string} login
+ * @param {string} accessToken
+ * @param {object} deps - injectables forwarded to fetchJson (fetchImpl/sleep/retries)
+ * @returns {Promise<string>}
+ */
+async function fetchCommitContributions(login, accessToken, deps) {
+  const body = JSON.stringify({
+    query:
+      'query($login: String!) { user(login: $login) { contributionsCollection { totalCommitContributions } } }',
+    variables: { login },
+  })
+  const data = await fetchJson('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body,
+    ...deps,
+  })
+  const count = data?.data?.user?.contributionsCollection?.totalCommitContributions
+  if (typeof count !== 'number') {
+    const reason = data?.errors?.[0]?.message || 'no commit contribution count returned'
+    throw new Error(`GitHub GraphQL: ${reason}`)
+  }
+  return count.toString()
 }
 
 export { getGitHubOAuthData }
