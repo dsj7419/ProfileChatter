@@ -39,6 +39,8 @@ function normalizeMessage(err) {
  *
  * @param {string} url
  * @param {object} [opts]
+ * @param {string} [opts.method='GET']   GET by default; pass 'POST' (with body) for GraphQL
+ * @param {string} [opts.body]           request body, e.g. a JSON string for a GraphQL query
  * @param {Record<string,string>} [opts.headers]
  * @param {number} [opts.timeoutMs=10000]
  * @param {number} [opts.retries=2]      number of retries AFTER the first attempt
@@ -49,6 +51,8 @@ function normalizeMessage(err) {
  */
 export async function fetchJson(url, opts = {}) {
   const {
+    method = 'GET',
+    body,
     headers = {},
     timeoutMs = 10000,
     retries = 2,
@@ -64,7 +68,12 @@ export async function fetchJson(url, opts = {}) {
   let attempt = 0
   for (;;) {
     try {
-      const res = await fetchImpl(url, { headers, signal: AbortSignal.timeout(timeoutMs) })
+      const res = await fetchImpl(url, {
+        method,
+        headers,
+        body,
+        signal: AbortSignal.timeout(timeoutMs),
+      })
 
       if (res.ok) {
         return await res.json()

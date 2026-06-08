@@ -22,6 +22,29 @@ describe('fetchJson', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1)
   })
 
+  it('sends a POST with a body when method/body are given (for GraphQL)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(okResponse({ data: { ok: true } }))
+    const payload = JSON.stringify({ query: '{ viewer { login } }' })
+    const data = await fetchJson('https://x/graphql', {
+      fetchImpl,
+      sleep: noSleep,
+      method: 'POST',
+      body: payload,
+    })
+    expect(data).toEqual({ data: { ok: true } })
+    const [, init] = fetchImpl.mock.calls[0]
+    expect(init.method).toBe('POST')
+    expect(init.body).toBe(payload)
+  })
+
+  it('defaults to GET with no body, leaving existing callers unchanged', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(okResponse({ a: 1 }))
+    await fetchJson('https://x', { fetchImpl, sleep: noSleep })
+    const [, init] = fetchImpl.mock.calls[0]
+    expect(init.method).toBe('GET')
+    expect(init.body).toBeUndefined()
+  })
+
   it('retries retryable failures with growing backoff, then succeeds', async () => {
     const fetchImpl = vi
       .fn()
