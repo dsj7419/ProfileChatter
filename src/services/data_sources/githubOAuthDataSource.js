@@ -32,14 +32,18 @@ async function getGitHubOAuthData(deps = {}) {
     return githubOAuthCache.result
   }
 
+  const isCI = process.env.GITHUB_DATA_MODE === 'ci'
+
+  // Unconfigured → intentional skip (a forker who never set up GitHub OAuth), NOT
+  // a failure. In CI that means no PAT_GITHUB_OAUTH; locally, no OAuth token set up.
+  // A CONFIGURED source that then fails still returns a fallback (visible/alerting).
+  const configured = isCI ? !!process.env.PAT_GITHUB_OAUTH : githubOAuthService.isConfigured()
+  if (!configured) return ok({})
+
   // Acquire access token: CI direct token, otherwise the OAuth service.
   let accessToken
   try {
-    if (process.env.GITHUB_DATA_MODE === 'ci' && process.env.PAT_GITHUB_OAUTH) {
-      accessToken = process.env.PAT_GITHUB_OAUTH
-    } else {
-      accessToken = await githubOAuthService.getAccessToken()
-    }
+    accessToken = isCI ? process.env.PAT_GITHUB_OAUTH : await githubOAuthService.getAccessToken()
   } catch (tokenError) {
     console.warn(`GitHub OAuth token unavailable, using defaults: ${tokenError.message}`)
     return fallback(oauthDefaults(), tokenError)
