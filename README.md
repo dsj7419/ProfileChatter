@@ -87,6 +87,22 @@ Prefer to preview the default output without the UI? `npm run build` renders `di
 
 ---
 
+## 🛡️ Safe & reliable by design
+
+A profile widget is only worth embedding if you can trust it. ProfileChatter is built so it stays honest on its own:
+
+- **No hidden failures.** Each data source is fetched independently, and the build records whether it succeeded — so a green build can't silently show stale or made‑up data.
+- **Visible health every run.** The status manifest reports each source as **live / skip / fallback / error** in the Actions step summary (and `dist/status-manifest.json`).
+- **Self‑monitoring.** When a configured source keeps failing, ProfileChatter opens **one** GitHub issue and closes it on recovery — no spam.
+- **Honest numbers.** The "commits last year" value is the real GitHub contribution count, not a fabricated estimate.
+- **Intentional opt‑outs never false‑alarm.** Integrations you haven't set up are skipped, not treated as failures.
+- **Secure local tooling.** The Configurator's preview server binds to loopback and requires a session token plus strict CORS/CSRF checks.
+- **Tested & gated.** ~500 behavior‑asserting tests run on every PR behind a required CI check with coverage floors.
+
+For the deeper contributor/maintainer picture, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
 ## 🔌 Optional Integrations (add more live data)
 
 > **Everything here is optional.** ProfileChatter works with **no API keys** — these only add _more_ live data. Unconfigured integrations are skipped cleanly: they never error or show placeholder data. Configure any of them in the Configurator UI or as repository secrets.
