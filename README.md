@@ -278,6 +278,54 @@ Replace `<you>` with your GitHub username. The `?ts=` value is bumped automatica
 
 ---
 
+## 🛟 Troubleshooting
+
+### Where do I find the status summary? (start here)
+
+Almost every issue below is diagnosed the same way: open **GitHub → Actions → the latest "ProfileChatter Build" run → Summary**. Each run posts a per‑source health table there. (The same data is in `dist/status-manifest.json`, uploaded in that run's `updated-files` artifact.)
+
+Each source reports one of four states:
+
+- **live** — fetched successfully.
+- **skip** — intentionally disabled or unconfigured. **Not a problem** — you just haven't set that integration up.
+- **fallback** — a **configured** source failed and rendered defaults / partial data. **This is what needs attention.** `401 / 403 / 429` are flagged high‑signal (auth or rate‑limit).
+- **error** — a hard source failure with no usable value.
+
+> **Rule of thumb: `skip` is fine; `fallback` and `error` need attention.** When a configured source keeps failing, ProfileChatter opens a single GitHub issue (and closes it on recovery) — see the last entry.
+
+### My profile SVG isn't updating
+
+GitHub's image CDN caches profile images. The workflow appends a changing `?ts=` value to the badge on every run, so it should refresh within a build cycle — hard‑refresh the page, or wait for the next 6‑hour build. Confirm the latest **ProfileChatter Build** actually ran and committed (_Actions → latest run_).
+
+### Nothing builds on my fork
+
+Forks ship with Actions **disabled**. Enable them: _Settings → Actions → General → "Allow all actions and reusable workflows"_. Then trigger the first build: _Actions → "ProfileChatter Build" → Run workflow_.
+
+### Stats show defaults (e.g. 12 repos / 48 followers)
+
+Those are placeholder defaults — a GitHub source fell back. Check the status summary:
+
+- **Public stats** (`{githubPublicRepos}` / `{githubFollowers}`) use the unauthenticated GitHub API, which is rate‑limited on shared CI IPs. Setting `PAT_GITHUB_BASIC` avoids this.
+- **Enhanced stats** (stars / commits / language) need `PAT_GITHUB_OAUTH`. Missing → the source **skips**; present but **expired/invalid** → it **falls back** (flagged high‑signal). Rotate the PAT.
+
+### Weather isn't showing
+
+Weather is **off by default** (AccuWeather is trial/paid) — that's a `skip`, not a failure. To enable it, see [Optional Integrations](#-optional-integrations-add-more-live-data).
+
+### Spotify / WakaTime / Code::Stats are blank
+
+If you haven't configured them, they're an intentional **skip** — nothing is wrong. To turn them on, see [Optional Integrations](#-optional-integrations-add-more-live-data). If one is configured but shows **fallback**, read its error in the status summary (usually an expired token or a rate limit).
+
+### Auto-commit stopped
+
+The build commits the rendered SVG back to your repo. On a fork this uses the default `GITHUB_TOKEN` automatically — no setup needed. If you added a custom commit PAT and it **expired**, the commit job fails; rotate it or remove it (the default token takes over).
+
+### What's the auto-opened "source(s) failing" issue?
+
+When a **configured** source keeps failing, ProfileChatter opens **one** GitHub issue summarizing which sources fell back (`401 / 403 / 429` flagged high‑signal), updates it while the problem persists, and **closes it on recovery**. It never spams, and intentional skips never open an issue.
+
+---
+
 ## 📺 See It in Action
 
 - **Dan Johnson** — <https://github.com/dsj7419>
