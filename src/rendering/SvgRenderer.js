@@ -3,18 +3,18 @@
  * Responsible for rendering the timeline into SVG
  * Single Responsibility: Create SVG markup from timeline data
  */
-import { config } from '../config/config.js';
-import TextProcessor from '../utils/TextProcessor.js';
-import AvatarRenderer from './components/AvatarRenderer.js';
-import ReactionRenderer from './components/ReactionRenderer.js';
-import ChartRenderer from './components/ChartRenderer.js';
-import ScrollAnimationEngine from './ScrollAnimationEngine.js';
+import { config } from '../config/config.js'
+import TextProcessor from '../utils/TextProcessor.js'
+import AvatarRenderer from './components/AvatarRenderer.js'
+import ReactionRenderer from './components/ReactionRenderer.js'
+import ChartRenderer from './components/ChartRenderer.js'
+import ScrollAnimationEngine from './ScrollAnimationEngine.js'
 
 // Import font data
-let INTER_FONT_BASE64 = '';
+let INTER_FONT_BASE64 = ''
 try {
-  const fontDataModule = await import('./fontData.js');
-  INTER_FONT_BASE64 = fontDataModule.INTER_FONT_BASE64;
+  const fontDataModule = await import('./fontData.js')
+  INTER_FONT_BASE64 = fontDataModule.INTER_FONT_BASE64
 } catch (error) {
   /* fall back to system fonts */
 }
@@ -25,9 +25,9 @@ class SvgRenderer {
    * @returns {Object} - Active theme styles
    */
   getActiveThemeStyles() {
-    const activeThemeName = config.activeTheme || 'ios'; // Fallback to ios
-    const themeStyles = config.themes[activeThemeName] || config.themes.ios; // Fallback
-    return themeStyles;
+    const activeThemeName = config.activeTheme || 'ios' // Fallback to ios
+    const themeStyles = config.themes[activeThemeName] || config.themes.ios // Fallback
+    return themeStyles
   }
 
   /**
@@ -36,49 +36,46 @@ class SvgRenderer {
    * @returns {string} - Complete SVG markup
    */
   renderSVG(timelineData) {
-    const { items } = timelineData;
-    
+    const { items } = timelineData
+
     return [
       this._header(timelineData),
       ...items.map((it) =>
-        it.type === "typing"
-          ? this._renderTypingIndicator(it)
-          : this._renderChatBubble(it)
+        it.type === 'typing' ? this._renderTypingIndicator(it) : this._renderChatBubble(it)
       ),
-      "</g></svg>",
-    ].join('\n');
+      '</g></svg>',
+    ].join('\n')
   }
-  
+
   /**
    * Generate SVG header with styles
    * @param {Object} timelineData - Complete timeline data including timing profile
    * @returns {string} SVG header with styles
    */
   _header(timelineData) {
-    const theme = this.getActiveThemeStyles();
-    const timingProfile = timelineData.timings;
-    const scrollKeyframeData = timelineData.scrollKeyframeData || [];
+    const theme = this.getActiveThemeStyles()
+    const timingProfile = timelineData.timings
+    const scrollKeyframeData = timelineData.scrollKeyframeData || []
 
     /* ---------- font‑face --------------------------------------------- */
     const fontFace = INTER_FONT_BASE64
       ? `@font-face{font-family:'Inter';font-style:normal;font-weight:400;src:url("${INTER_FONT_BASE64}") format('woff2');}`
-      : '';
+      : ''
 
     /* ---------- animation timing -------------------------------------- */
-    const totalTypingTime   = timelineData.totalTypingTime;
-    const scrollDelay       = (totalTypingTime / 1000) * 0.6 + 1.0;
-    const scrollDuration    = timingProfile.scrollDurationSec.toFixed(2);
+    const totalTypingTime = timelineData.totalTypingTime
+    const scrollDelay = (totalTypingTime / 1000) * 0.6 + 1.0
+    const scrollDuration = timingProfile.scrollDurationSec.toFixed(2)
     const totalMessagingSec =
       timelineData.totalMessagingTimeSec ??
-      (timingProfile.getTotalDuration() - timingProfile.scrollDurationSec * 1000) /
-        1000;
+      (timingProfile.getTotalDuration() - timingProfile.scrollDurationSec * 1000) / 1000
 
     const scrollKeyframesCSS = ScrollAnimationEngine.generateScrollKeyframesCSS(
       scrollKeyframeData,
       totalMessagingSec,
       'scrollUp',
       timingProfile.scrollDistance
-    );
+    )
 
     /* ---------- CSS variables ---------------------------------------- */
     const cssVars = `
@@ -136,7 +133,7 @@ class SvgRenderer {
         --value-text-inside-color:${theme.CHART_STYLES.VALUE_TEXT_INSIDE_COLOR};
         --chart-bar-animation-duration-sec:${config.layout.ANIMATION.CHART_BAR_ANIMATION_DURATION_SEC || 0.8}s;
         --chart-animation-delay-sec:${config.layout.ANIMATION.CHART_ANIMATION_DELAY_SEC || 0.3}s;
-      }`;
+      }`
 
     /* ---------- CSS ---------------------------------------------------- */
     const css = `
@@ -153,15 +150,19 @@ class SvgRenderer {
   @keyframes fadeInOutStatus{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
 
   .track{animation:scrollUp ${scrollDuration}s cubic-bezier(0.25,0.1,0.25,0.85) forwards;animation-delay:${scrollDelay.toFixed(
-      2
-    )}s;transform:translate3d(0,0,0);will-change:transform}
+    2
+  )}s;transform:translate3d(0,0,0);will-change:transform}
   .msg{animation:bubbleIn ${config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION}s ${
-      config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE
-    } forwards;opacity:0}
+    config.layout.ANIMATION.BUBBLE_ANIMATION_CURVE
+  } forwards;opacity:0}
   .typing{opacity:0}
   .reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
   .avatar{animation:avatarIn .3s ease-out forwards;opacity:0}
-  .status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME};opacity:0}
+  .status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT};opacity:0}
+  @media (prefers-color-scheme:dark){svg:not(.light-mode-preview) .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME}}}
+  @media (prefers-color-scheme:light){svg:not(.dark-mode-preview) .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT}}}
+  svg.dark-mode-preview .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME}}
+  svg.light-mode-preview .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT}}
 
   .typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite}
   .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}
@@ -178,7 +179,7 @@ class SvgRenderer {
 
   .msg.me>rect:first-child,.typing.me>rect:first-child{fill:var(--me-bubble-color,${theme.ME_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
   .msg.them>rect:first-child,.typing.them>rect:first-child{fill:var(--visitor-bubble-color,${theme.VISITOR_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
-  .msg.me text:not(.chart-content text){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
+  .msg.me text:not(.chart-content text):not(.status-indicator){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
   .msg.them text:not(.chart-content text){fill:var(--visitor-text-color,${theme.VISITOR_TEXT_COLOR})}
   svg{font-family:var(--font-family,${theme.FONT_FAMILY})}
 
@@ -188,7 +189,7 @@ class SvgRenderer {
 
   .reaction rect{fill:var(--reaction-bg-color,${theme.REACTION_BG_COLOR});fill-opacity:var(--reaction-bg-opacity,${theme.REACTION_BG_OPACITY});rx:var(--reaction-border-radius-px,${theme.REACTION_BORDER_RADIUS_PX}px);ry:var(--reaction-border-radius-px,${theme.REACTION_BORDER_RADIUS_PX}px)}
   .reaction text{fill:var(--reaction-text-color,${theme.REACTION_TEXT_COLOR});font-size:var(--reaction-font-size-px,${theme.REACTION_FONT_SIZE_PX}px)}
-  `;
+  `
 
     /* ---------- SVG shell -------------------------------------------- */
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" font-family="${theme.FONT_FAMILY}" font-size="${config.layout.FONT_SIZE_PX}" shape-rendering="geometricPrecision">
@@ -204,38 +205,36 @@ class SvgRenderer {
   </defs>
   <style>${css}</style>
   <rect width="${config.layout.CHAT_WIDTH_PX}" height="${config.layout.CHAT_HEIGHT_PX}" fill="transparent"/>
-  <g class="track">`;
-}
+  <g class="track">`
+  }
 
   /**
- * Render a typing indicator with proper iOS styling
- * @param {TypingIndicator} item - Typing indicator item
- * @returns {string} - SVG markup for typing indicator
- */
-_renderTypingIndicator(item) {
-  const theme   = this.getActiveThemeStyles();
-  const isMe    = item.sender === "me";
-  const avatarOn = config.avatars.enabled;
+   * Render a typing indicator with proper iOS styling
+   * @param {TypingIndicator} item - Typing indicator item
+   * @returns {string} - SVG markup for typing indicator
+   */
+  _renderTypingIndicator(item) {
+    const theme = this.getActiveThemeStyles()
+    const isMe = item.sender === 'me'
+    const avatarOn = config.avatars.enabled
 
-  const bw = config.layout.ANIMATION.TYPING_BUBBLE_WIDTH;
-  const bh = config.layout.ANIMATION.TYPING_BUBBLE_HEIGHT;
+    const bw = config.layout.ANIMATION.TYPING_BUBBLE_WIDTH
+    const bh = config.layout.ANIMATION.TYPING_BUBBLE_HEIGHT
 
-  // Avatar‑offset calculation
-  const avSize = avatarOn ? config.avatars.sizePx   : 0;
-  const avOff  = avatarOn ? config.avatars.xOffsetPx : 0;
+    // Avatar‑offset calculation
+    const avSize = avatarOn ? config.avatars.sizePx : 0
+    const avOff = avatarOn ? config.avatars.xOffsetPx : 0
 
-  const x = isMe
-    ? config.layout.CHAT_WIDTH_PX - bw - avSize - avOff * 2
-    : avSize + avOff * 2;
+    const x = isMe ? config.layout.CHAT_WIDTH_PX - bw - avSize - avOff * 2 : avSize + avOff * 2
 
-  const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR      : theme.VISITOR_BUBBLE_COLOR;
-  const textColor  = isMe ? theme.ME_TEXT_COLOR         : theme.VISITOR_TEXT_COLOR;
+    const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR
+    const textColor = isMe ? theme.ME_TEXT_COLOR : theme.VISITOR_TEXT_COLOR
 
-  const start = (item.startTime / 1000).toFixed(2);
-  const dur   = (item.duration  / 1000).toFixed(2);
+    const start = (item.startTime / 1000).toFixed(2)
+    const dur = (item.duration / 1000).toFixed(2)
 
-  return `
-    <g class="typing ${isMe ? "me" : "them"}" transform="translate(${x},${item.y})">
+    return `
+    <g class="typing ${isMe ? 'me' : 'them'}" transform="translate(${x},${item.y})">
       <animate attributeName="opacity"
                values="0;0;1;1;0"
                keyTimes="0;0.05;0.1;0.9;1"
@@ -247,8 +246,8 @@ _renderTypingIndicator(item) {
             ry="${theme.BUBBLE_RADIUS_PX}"
             fill="${bubbleFill}"/>
       ${this._typingDots(bw, bh, textColor)}
-    </g>`;
-}
+    </g>`
+  }
 
   /**
    * Render typing animation dots
@@ -258,13 +257,13 @@ _renderTypingIndicator(item) {
    * @returns {string} - SVG markup for typing dots
    */
   _typingDots(bw, bh, color) {
-    const r = config.layout.TYPING_DOT_RADIUS_PX;
-    const cx = bw / 2;
-    const cy = bh / 2;
-    const dx = bw / 4;
+    const r = config.layout.TYPING_DOT_RADIUS_PX
+    const cx = bw / 2
+    const cy = bh / 2
+    const dx = bw / 4
     return `<circle cx="${cx - dx}" cy="${cy}" r="${r}" fill="${color}" class="typing-dot1"/>
             <circle cx="${cx}"      cy="${cy}" r="${r}" fill="${color}" class="typing-dot2"/>
-            <circle cx="${cx + dx}" cy="${cy}" r="${r}" fill="${color}" class="typing-dot3"/>`;
+            <circle cx="${cx + dx}" cy="${cy}" r="${r}" fill="${color}" class="typing-dot3"/>`
   }
 
   /**
@@ -272,77 +271,70 @@ _renderTypingIndicator(item) {
    * @param {ChatMessage} item - Message item
    * @returns {string} - SVG markup for chat bubble
    */
-  _renderChatBubble (item) {
-    const theme         = this.getActiveThemeStyles()
-    const isMe          = item.sender === 'me'
-    const avatarOn      = config.avatars.enabled
-  
-    const padX          = config.layout.BUBBLE_PAD_X_PX
-    const padY          = config.layout.BUBBLE_PAD_Y_PX
-  
+  _renderChatBubble(item) {
+    const theme = this.getActiveThemeStyles()
+    const isMe = item.sender === 'me'
+    const avatarOn = config.avatars.enabled
+
+    const padX = config.layout.BUBBLE_PAD_X_PX
+    const padY = config.layout.BUBBLE_PAD_Y_PX
+
     /* ── 1.   WIDTH ───────────────────────────────────────────────────── */
     let width
-  
+
     if (item.contentType === 'text' && item.layout.lines) {
       // Compute longest line then add side padding
-      const maxLinePx = Math.max(
-        ...item.layout.lines.map(l => TextProcessor.measureTextWidth(l))
-      )
+      const maxLinePx = Math.max(...item.layout.lines.map((l) => TextProcessor.measureTextWidth(l)))
       width = maxLinePx + padX * 2
     } else {
       // Chart or other rich content: layout.width is inner content
       width = item.layout.width + padX * 2
     }
-  
-    width = Math.min(
-      Math.max(width, config.layout.MIN_BUBBLE_W_PX),
-      config.layout.MAX_BUBBLE_W_PX
-    )
-  
+
+    width = Math.min(Math.max(width, config.layout.MIN_BUBBLE_W_PX), config.layout.MAX_BUBBLE_W_PX)
+
     /* ── 2.   HEIGHT ──────────────────────────────────────────────────── */
     const innerH = item.layout.height
     const height =
       item.contentType === 'text'
-        ? innerH                               // text already includes vertical pad
-        : innerH + padY * 2                    // add pad for charts / rich blocks
-  
+        ? innerH // text already includes vertical pad
+        : innerH + padY * 2 // add pad for charts / rich blocks
+
     /* ── 3.   POSITION (x) — account for avatar and alignment ─────────── */
     const avSize = avatarOn ? config.avatars.sizePx : 0
-    const avOff  = avatarOn ? config.avatars.xOffsetPx : 0
-  
+    const avOff = avatarOn ? config.avatars.xOffsetPx : 0
+
     const bubbleX = isMe
       ? config.layout.CHAT_WIDTH_PX - width - avSize - avOff * 2
       : avSize + avOff * 2
-  
+
     /* ── 4.   Shared animation delay style ───────────────────────────── */
     const delayCss = item.getDelayCSS()
-  
+
     /* ── 5.   Avatar (optional) ───────────────────────────────────────── */
     const avatar = avatarOn
       ? AvatarRenderer.render(
           item.sender,
           theme,
-          isMe
-            ? config.layout.CHAT_WIDTH_PX - avSize - avOff
-            : avOff,
+          isMe ? config.layout.CHAT_WIDTH_PX - avSize - avOff : avOff,
           item.y + config.avatars.yOffsetPx,
           delayCss
         )
       : ''
-  
+
     /* ── 6.   Bubble fill + shell ─────────────────────────────────────── */
     const bubbleFill = isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR
     const rect = `<rect width="${width}" height="${height}"
                      rx="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)" 
                      ry="var(--bubble-radius-px, ${theme.BUBBLE_RADIUS_PX}px)"
                      fill="${bubbleFill}"/>`
-  
+
     /* ── 7.   Content markup ──────────────────────────────────────────── */
     const content =
       item.contentType === 'chart'
         ? ChartRenderer.render(item, theme, bubbleFill) // <-- Pass bubbleFill to ChartRenderer
         : this._renderBubbleText(item, theme, isMe)
-  
+
     /* ── 8.   Tail geometry (mirrored for me / visitor) ───────────────── */
     const tail = isMe
       ? `<path d="M${width},10 C${width + 4},14 ${width + 7},18 ${width + 6},22
@@ -350,11 +342,11 @@ _renderTypingIndicator(item) {
                fill="var(--me-bubble-color, ${bubbleFill})"/>`
       : `<path d="M0,10 C-4,14 -7,18 -6,22 C-5,18 -2,14 0,16 Z"
                fill="var(--visitor-bubble-color, ${bubbleFill})"/>`
-  
+
     /* ── 9.   Status & reactions (same as before) ─────────────────────── */
-    const status   = isMe ? this._statusIndicators(item, width, height) : ''
+    const status = isMe ? this._statusIndicators(item, width, height) : ''
     const reaction = ReactionRenderer.render(item, theme, width, isMe)
-  
+
     /* ── 10.  Group wrapper with transform & delay style ──────────────── */
     return `
       ${avatar}
@@ -373,16 +365,13 @@ _renderTypingIndicator(item) {
    * @returns {string} - SVG markup for text content
    */
   _renderBubbleText(item, theme, isMe) {
-    const color = isMe ? theme.ME_TEXT_COLOR : theme.VISITOR_TEXT_COLOR;
+    const color = isMe ? theme.ME_TEXT_COLOR : theme.VISITOR_TEXT_COLOR
     return (item.layout.lines || [])
       .map((line, i) => {
-        const y =
-          config.layout.BUBBLE_PAD_Y_PX +
-          (i + 1) * config.layout.LINE_HEIGHT_PX -
-          6;
-        return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="var(--${isMe ? 'me' : 'visitor'}-text-color, ${color})" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`;
+        const y = config.layout.BUBBLE_PAD_Y_PX + (i + 1) * config.layout.LINE_HEIGHT_PX - 6
+        return `<text x="${config.layout.BUBBLE_PAD_X_PX}" y="${y}" fill="var(--${isMe ? 'me' : 'visitor'}-text-color, ${color})" dominant-baseline="middle">${TextProcessor.escapeXML(line)}</text>`
       })
-      .join("");
+      .join('')
   }
 
   /**
@@ -393,17 +382,17 @@ _renderTypingIndicator(item) {
    * @returns {string} - SVG markup for status indicators
    */
   _statusIndicators(item, width, height) {
-    const y = height + config.layout.STATUS_INDICATOR.OFFSET_Y_PX;
-    const x = width - config.layout.BUBBLE_PAD_X_PX;
+    const y = height + config.layout.STATUS_INDICATOR.OFFSET_Y_PX
+    const x = width - config.layout.BUBBLE_PAD_X_PX
 
-    const base = item.startTime / 1000 + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION;
-    const deliveredDelay = base + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC;
-    const readDelay = deliveredDelay + config.layout.STATUS_INDICATOR.READ_DELAY_SEC;
+    const base = item.startTime / 1000 + config.layout.ANIMATION.BUBBLE_ANIMATION_DURATION
+    const deliveredDelay = base + config.layout.STATUS_INDICATOR.ANIMATION_DELAY_SEC
+    const readDelay = deliveredDelay + config.layout.STATUS_INDICATOR.READ_DELAY_SEC
 
     return `
       <text x="${x}" y="${y}" text-anchor="end" class="status-indicator" style="animation:fadeInOutStatus ${config.layout.STATUS_INDICATOR.READ_DELAY_SEC}s ease forwards;animation-delay:${deliveredDelay.toFixed(2)}s">${TextProcessor.escapeXML(config.layout.STATUS_INDICATOR.DELIVERED_TEXT)}</text>
-      <text x="${x}" y="${y}" text-anchor="end" class="status-indicator" style="animation:fadeInStatus ${config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC}s ease forwards;animation-delay:${readDelay.toFixed(2)}s">${TextProcessor.escapeXML(config.layout.STATUS_INDICATOR.READ_TEXT)}</text>`;
+      <text x="${x}" y="${y}" text-anchor="end" class="status-indicator" style="animation:fadeInStatus ${config.layout.STATUS_INDICATOR.READ_TRANSITION_SEC}s ease forwards;animation-delay:${readDelay.toFixed(2)}s">${TextProcessor.escapeXML(config.layout.STATUS_INDICATOR.READ_TEXT)}</text>`
   }
 }
 
-export default new SvgRenderer();
+export default new SvgRenderer()
