@@ -179,7 +179,7 @@ class SvgRenderer {
 
   .msg.me>rect:first-child,.typing.me>rect:first-child{fill:var(--me-bubble-color,${theme.ME_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
   .msg.them>rect:first-child,.typing.them>rect:first-child{fill:var(--visitor-bubble-color,${theme.VISITOR_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
-  .msg.me text:not(.chart-content text){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
+  .msg.me text:not(.chart-content text):not(.status-indicator){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
   .msg.them text:not(.chart-content text){fill:var(--visitor-text-color,${theme.VISITOR_TEXT_COLOR})}
   svg{font-family:var(--font-family,${theme.FONT_FAMILY})}
 

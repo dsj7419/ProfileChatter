@@ -262,6 +262,21 @@ describe('SvgRenderer', () => {
       expect(result).toContain('svg.light-mode-preview .status-indicator{fill:#65656B}')
     })
 
+    it('excludes the status-indicator from the me-text fill rule so the adaptive status color wins', () => {
+      // The status text renders inside <g class="msg me">, so the broad
+      // `.msg.me text` fill rule (higher specificity) would otherwise override the
+      // adaptive status color and force it to the me-bubble text color (invisible on
+      // a light background). The me-text rule must exclude .status-indicator.
+      const timelineData = {
+        timings: { scrollDurationSec: 2.0, scrollDistance: 0, getTotalDuration: () => 5000 },
+        totalTypingTime: 1000,
+      }
+      const result = SvgRenderer._header(timelineData)
+
+      expect(result).toContain('.msg.me text:not(.chart-content text):not(.status-indicator){')
+      expect(result).not.toMatch(/\.msg\.me text:not\(\.chart-content text\)\{/)
+    })
+
     it('should handle missing font data gracefully', () => {
       const timelineData = {
         timings: {
