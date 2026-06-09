@@ -284,7 +284,11 @@ export const config = {
       DELIVERED_TEXT: 'Delivered',
       READ_TEXT: 'Read',
       FONT_SIZE_PX: 10,
-      COLOR_ME: '#FFFFFFB3',
+      // Status ("Delivered"/"Read") renders on the chat BACKGROUND (not the bubble),
+      // so it must adapt to light/dark. COLOR_ME is the dark-mode color; COLOR_ME_LIGHT
+      // the light-mode color. Both clear WCAG AA on all three themes' backgrounds.
+      COLOR_ME: '#B5BAC1',
+      COLOR_ME_LIGHT: '#65656B',
       OFFSET_Y_PX: 10,
       ANIMATION_DELAY_SEC: 0.2,
       FADE_IN_DURATION_SEC: 0.3,

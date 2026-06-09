@@ -158,7 +158,11 @@ class SvgRenderer {
   .typing{opacity:0}
   .reaction{animation:reactionIn ${config.layout.ANIMATION.REACTION_ANIMATION_DURATION_SEC}s ease-out forwards;opacity:0;filter:url(#shadowEffect)}
   .avatar{animation:avatarIn .3s ease-out forwards;opacity:0}
-  .status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME};opacity:0}
+  .status-indicator{font-size:${config.layout.STATUS_INDICATOR.FONT_SIZE_PX}px;fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT};opacity:0}
+  @media (prefers-color-scheme:dark){svg:not(.light-mode-preview) .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME}}}
+  @media (prefers-color-scheme:light){svg:not(.dark-mode-preview) .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT}}}
+  svg.dark-mode-preview .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME}}
+  svg.light-mode-preview .status-indicator{fill:${config.layout.STATUS_INDICATOR.COLOR_ME_LIGHT}}
 
   .typing-dot1{animation:typingDot1 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite}
   .typing-dot2{animation:typingDot2 ${config.layout.ANIMATION.DOT_ANIMATION_DURATION}s infinite;animation-delay:${config.layout.ANIMATION.DOT_DELAY_2}s}

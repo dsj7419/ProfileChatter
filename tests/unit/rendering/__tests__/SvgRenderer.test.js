@@ -75,6 +75,7 @@ vi.mock('../../../../src/config/config.js', () => ({
         READ_TEXT: 'Read',
         FONT_SIZE_PX: 10,
         COLOR_ME: '#FFFFFFB3',
+        COLOR_ME_LIGHT: '#65656B',
         OFFSET_Y_PX: 10,
         ANIMATION_DELAY_SEC: 0.2,
         FADE_IN_DURATION_SEC: 0.3,
@@ -241,6 +242,24 @@ describe('SvgRenderer', () => {
 
       // Should end with track group opening
       expect(result).toContain('<g class="track">')
+    })
+
+    it('emits mode-adaptive status-indicator colors (light default + dark via media/forced classes)', () => {
+      const timelineData = {
+        timings: { scrollDurationSec: 2.0, scrollDistance: 0, getTotalDuration: () => 5000 },
+        totalTypingTime: 1000,
+      }
+      const result = SvgRenderer._header(timelineData)
+
+      // Default (light background) uses the light status color
+      expect(result).toContain('.status-indicator{font-size:10px;fill:#65656B')
+      // Dark mode switches to the dark status color, respecting a forced light preview
+      expect(result).toMatch(
+        /@media \(prefers-color-scheme:dark\)\{svg:not\(\.light-mode-preview\) \.status-indicator\{fill:#FFFFFFB3\}\}/
+      )
+      // Forced preview classes (Configurator Mode toggle) also switch the status color
+      expect(result).toContain('svg.dark-mode-preview .status-indicator{fill:#FFFFFFB3}')
+      expect(result).toContain('svg.light-mode-preview .status-indicator{fill:#65656B}')
     })
 
     it('should handle missing font data gracefully', () => {
