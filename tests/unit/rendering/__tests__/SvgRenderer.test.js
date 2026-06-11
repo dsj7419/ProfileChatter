@@ -14,8 +14,12 @@ vi.mock('../../../../src/config/config.js', () => ({
       ios: {
         ME_BUBBLE_COLOR: '#0B93F6',
         VISITOR_BUBBLE_COLOR: '#E5E5EA',
+        VISITOR_BUBBLE_COLOR_LIGHT: '#E5E5EA',
+        VISITOR_BUBBLE_COLOR_DARK: '#262628',
         ME_TEXT_COLOR: '#FFFFFF',
         VISITOR_TEXT_COLOR: '#000000',
+        VISITOR_TEXT_COLOR_LIGHT: '#000000',
+        VISITOR_TEXT_COLOR_DARK: '#FFFFFF',
         BACKGROUND_LIGHT: '#FFFFFF',
         BACKGROUND_DARK: '#000000',
         BUBBLE_RADIUS_PX: 18,
@@ -32,6 +36,11 @@ vi.mock('../../../../src/config/config.js', () => ({
         CHART_STYLES: {
           BAR_DEFAULT_COLOR: '#007AFF',
           BAR_TRACK_COLOR: '#D3D3D8',
+          BAR_TRACK_COLOR_LIGHT: '#D3D3D8',
+          BAR_TRACK_COLOR_DARK: '#3A3A3C',
+          VISITOR_LABEL_COLOR: '#444444',
+          VISITOR_LABEL_COLOR_LIGHT: '#444444',
+          VISITOR_LABEL_COLOR_DARK: '#9B9BA0',
           BAR_CORNER_RADIUS_PX: 8,
           BAR_HEIGHT_PX: 20,
           TITLE_FONT_SIZE_PX: 15,
@@ -275,6 +284,63 @@ describe('SvgRenderer', () => {
 
       expect(result).toContain('.msg.me text:not(.chart-content text):not(.status-indicator){')
       expect(result).not.toMatch(/\.msg\.me text:not\(\.chart-content text\)\{/)
+    })
+
+    it('emits mode-adaptive visitor bubble/text/chart-surface CSS variables (P2)', () => {
+      const timelineData = {
+        timings: { scrollDurationSec: 2.0, scrollDistance: 0, getTotalDuration: () => 5000 },
+        totalTypingTime: 1000,
+      }
+      const result = SvgRenderer._header(timelineData)
+
+      // Dark mode (media, respecting a forced light preview) → dark visitor palette
+      expect(result).toMatch(
+        /@media \(prefers-color-scheme:dark\)\{svg:not\(\.light-mode-preview\)\{--visitor-bubble-color:#262628;/
+      )
+      // Light mode (media, respecting a forced dark preview) → light visitor palette
+      expect(result).toMatch(
+        /@media \(prefers-color-scheme:light\)\{svg:not\(\.dark-mode-preview\)\{--visitor-bubble-color:#E5E5EA;/
+      )
+      // Forced preview classes (Configurator Mode toggle)
+      expect(result).toMatch(/svg\.dark-mode-preview\{--visitor-bubble-color:#262628;/)
+      expect(result).toMatch(/svg\.light-mode-preview\{--visitor-bubble-color:#E5E5EA;/)
+      // Dark palette covers visitor text + chart label/primary-text + bar track
+      expect(result).toContain('--visitor-text-color:#FFFFFF')
+      expect(result).toContain('--visitor-title-color:#FFFFFF')
+      expect(result).toContain('--visitor-donut-legend-text-color:#FFFFFF')
+      expect(result).toContain('--visitor-label-color:#9B9BA0')
+      expect(result).toContain('--visitor-bar-track-color:#3A3A3C')
+    })
+
+    it('scopes the adaptive bar track to visitor charts only — me-side track untouched (P2)', () => {
+      const timelineData = {
+        timings: { scrollDurationSec: 2.0, scrollDistance: 0, getTotalDuration: () => 5000 },
+        totalTypingTime: 1000,
+      }
+      const result = SvgRenderer._header(timelineData)
+
+      // Visitor-only track override using the visitor-scoped var
+      expect(result).toContain(
+        '.msg.them .chart-track-bar{fill:var(--visitor-bar-track-color,#D3D3D8)}'
+      )
+      // The shared/me-side track rule remains and is NOT made adaptive
+      expect(result).toMatch(
+        /(?:^|\n)\s*\.chart-track-bar\{fill:var\(--bar-track-color,#D3D3D8\)\}/
+      )
+    })
+
+    it('keeps visitor text governed solely by the adaptive var — no higher-specificity override (P1 cascade lesson) (P2)', () => {
+      const timelineData = {
+        timings: { scrollDurationSec: 2.0, scrollDistance: 0, getTotalDuration: () => 5000 },
+        totalTypingTime: 1000,
+      }
+      const result = SvgRenderer._header(timelineData)
+
+      expect(result).toContain(
+        '.msg.them text:not(.chart-content text){fill:var(--visitor-text-color'
+      )
+      // No competing higher-specificity .msg.them text rule that could win unexpectedly
+      expect(result).not.toMatch(/\.msg\.them text:not\(\.chart-content text\):not\([^)]+\)\{fill/)
     })
 
     it('should handle missing font data gracefully', () => {

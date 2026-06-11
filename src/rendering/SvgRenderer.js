@@ -99,6 +99,7 @@ class SvgRenderer {
         --reaction-offset-x-px:${theme.REACTION_OFFSET_X_PX || 0}px;
         --bar-default-color:${theme.CHART_STYLES.BAR_DEFAULT_COLOR};
         --bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR};
+        --visitor-bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR};
         --bar-corner-radius-px:${theme.CHART_STYLES.BAR_CORNER_RADIUS_PX}px;
         --bar-height-px:${theme.CHART_STYLES.BAR_HEIGHT_PX}px;
         --bar-spacing-px:${theme.CHART_STYLES.BAR_SPACING_PX}px;
@@ -177,6 +178,17 @@ class SvgRenderer {
   @media (prefers-color-scheme:dark){svg:not(.light-mode-preview){background:var(--background-dark,${theme.BACKGROUND_DARK})}}
   @media (prefers-color-scheme:light){svg:not(.dark-mode-preview){background:var(--background-light,${theme.BACKGROUND_LIGHT})}}
 
+  /* Visitor surface adapts to light/dark like the canvas background (P2). The
+     visitor bubble + its text + the chart surfaces that render INSIDE visitor
+     bubbles (chart text, muted label, bar track, donut center) flip together so
+     visitor charts never become unreadable when the bubble adapts. Me-side
+     surfaces are untouched — only --visitor-* vars (and a visitor-scoped track)
+     are redefined. Chart primary text follows the visitor text color. */
+  @media (prefers-color-scheme:dark){svg:not(.light-mode-preview){--visitor-bubble-color:${theme.VISITOR_BUBBLE_COLOR_DARK};--visitor-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-title-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-value-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-donut-center-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-donut-legend-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-label-color:${theme.CHART_STYLES.VISITOR_LABEL_COLOR_DARK};--visitor-bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR_DARK}}}
+  @media (prefers-color-scheme:light){svg:not(.dark-mode-preview){--visitor-bubble-color:${theme.VISITOR_BUBBLE_COLOR_LIGHT};--visitor-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-title-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-value-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-donut-center-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-donut-legend-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-label-color:${theme.CHART_STYLES.VISITOR_LABEL_COLOR_LIGHT};--visitor-bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR_LIGHT}}}
+  svg.dark-mode-preview{--visitor-bubble-color:${theme.VISITOR_BUBBLE_COLOR_DARK};--visitor-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-title-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-value-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-donut-center-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-donut-legend-text-color:${theme.VISITOR_TEXT_COLOR_DARK};--visitor-label-color:${theme.CHART_STYLES.VISITOR_LABEL_COLOR_DARK};--visitor-bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR_DARK}}
+  svg.light-mode-preview{--visitor-bubble-color:${theme.VISITOR_BUBBLE_COLOR_LIGHT};--visitor-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-title-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-value-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-donut-center-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-donut-legend-text-color:${theme.VISITOR_TEXT_COLOR_LIGHT};--visitor-label-color:${theme.CHART_STYLES.VISITOR_LABEL_COLOR_LIGHT};--visitor-bar-track-color:${theme.CHART_STYLES.BAR_TRACK_COLOR_LIGHT}}
+
   .msg.me>rect:first-child,.typing.me>rect:first-child{fill:var(--me-bubble-color,${theme.ME_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
   .msg.them>rect:first-child,.typing.them>rect:first-child{fill:var(--visitor-bubble-color,${theme.VISITOR_BUBBLE_COLOR});rx:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px);ry:var(--bubble-radius-px,${theme.BUBBLE_RADIUS_PX}px)}
   .msg.me text:not(.chart-content text):not(.status-indicator){fill:var(--me-text-color,${theme.ME_TEXT_COLOR})}
@@ -184,6 +196,7 @@ class SvgRenderer {
   svg{font-family:var(--font-family,${theme.FONT_FAMILY})}
 
   .chart-track-bar{fill:var(--bar-track-color,${theme.CHART_STYLES.BAR_TRACK_COLOR})}
+  .msg.them .chart-track-bar{fill:var(--visitor-bar-track-color,${theme.CHART_STYLES.BAR_TRACK_COLOR})}
   .donut-legend-item:hover~.donut-segment{opacity:.7}
   .donut-legend-item:hover{cursor:pointer}
 
