@@ -350,7 +350,7 @@ class ChartRenderer {
     // Draw background circle for clean base
     segments += `
       <circle cx="${centerX}" cy="${centerY}" r="${innerRadius}" 
-              fill="${isMe ? theme.ME_BUBBLE_COLOR : theme.VISITOR_BUBBLE_COLOR}" 
+              fill="${isMe ? theme.ME_BUBBLE_COLOR : `var(--visitor-bubble-color,${theme.VISITOR_BUBBLE_COLOR})`}" 
               stroke="none" />
     `;
     
