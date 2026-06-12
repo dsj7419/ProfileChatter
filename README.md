@@ -125,6 +125,11 @@ A profile widget is only worth embedding if you can trust it. ProfileChatter is 
 
 For the deeper contributor/maintainer picture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
+Every run publishes the status manifest to the GitHub Actions step summary — each source shown as live / skip / fallback / error:
+
+![Actions status summary — per-source health](docs/assets/actions-status-summary.png)
+
+
 ---
 
 ## 🔌 Optional Integrations (add more live data)
