@@ -58,6 +58,12 @@ npm install          # one install covers the Configurator UI too (npm workspace
 npm run config:dev   # opens the Svelte Configurator with a live preview
 ```
 
+The no-code editor — visually customise your profile, messages, themes, avatars, and charts with a live preview:
+
+| Editor | Themes | Charts |
+|:---:|:---:|:---:|
+| ![Configurator editor](docs/assets/configurator-editor.png) | ![Theme settings](docs/assets/configurator-themes.png) | ![Chart editor](docs/assets/configurator-charts.png) |
+
 Edit your profile, theme, avatars, chat messages, and charts, then click **Export Configuration** to save `profileChatterConfig.json`. Commit it to your fork:
 
 ```bash
@@ -67,6 +73,24 @@ git push
 ```
 
 Prefer to preview the default output without the UI? `npm run build` renders `dist/profile-chat.svg` locally.
+
+---
+
+## 🎨 Themes
+
+Three built-in styles — **iOS**, **Android**, and **Discord** — each adapts automatically to the viewer's light or dark mode, so your profile looks native everywhere.
+
+**Light**
+
+| iOS | Android | Discord |
+|:---:|:---:|:---:|
+| ![iOS light](docs/assets/gallery/theme-ios-light.png) | ![Android light](docs/assets/gallery/theme-android-light.png) | ![Discord light](docs/assets/gallery/theme-discord-light.png) |
+
+**Dark**
+
+| iOS | Android | Discord |
+|:---:|:---:|:---:|
+| ![iOS dark](docs/assets/gallery/theme-ios-dark.png) | ![Android dark](docs/assets/gallery/theme-android-dark.png) | ![Discord dark](docs/assets/gallery/theme-discord-dark.png) |
 
 ---
 
@@ -100,6 +124,11 @@ A profile widget is only worth embedding if you can trust it. ProfileChatter is 
 - **Tested & gated.** ~500 behavior‑asserting tests run on every PR behind a required CI check with coverage floors.
 
 For the deeper contributor/maintainer picture, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+Every run publishes the status manifest to the GitHub Actions step summary — each source shown as live / skip / fallback / error:
+
+![Actions status summary — per-source health](docs/assets/actions-status-summary.png)
+
 
 ---
 
