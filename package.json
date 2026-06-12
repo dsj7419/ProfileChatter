@@ -1,6 +1,6 @@
 {
   "name": "profilechatter",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "ProfileChatter – animated SVG chat bubbles for your GitHub README",
   "type": "module",
   "main": "src/main.js",
@@ -18,7 +18,7 @@
     "config:server:preview": "node configurator-ui/server/previewServer.js",
     "config:build": "npm run build --workspace configurator-ui",
     "test": "vitest",
-    "test:unit": "vitest run --dir tests/unit", 
+    "test:unit": "vitest run --dir tests/unit",
     "test:integration": "vitest run --dir tests/integration",
     "test:watch": "vitest watch",
     "coverage": "vitest run --coverage",

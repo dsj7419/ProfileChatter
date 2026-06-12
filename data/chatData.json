@@ -19,7 +19,7 @@
   {
     "id": "msg-spotify-response",
     "sender": "me",
-    "text": "I’m jamming to {spotifyTrack} right now—it really fuels my focus!"
+    "text": "I code to {spotifyTrack} — it really fuels my focus!"
   },
   {
     "id": "msg-3",

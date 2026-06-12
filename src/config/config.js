@@ -284,7 +284,7 @@ export const config = {
     GITHUB_PRIMARY_LANGUAGE: 'None',
     TWITTER_FOLLOWERS: '120',
     CODESTATS_XP: '0',
-    SPOTIFY_NOW_PLAYING: 'Not currently listening to music.',
+    SPOTIFY_NOW_PLAYING: 'my coding playlist',
   },
 
   layout: {
