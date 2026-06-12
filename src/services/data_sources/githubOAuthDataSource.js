@@ -5,8 +5,9 @@
  * Returns a discriminated source result (see sourceResult.js): `ok` with live
  * values, or `fallback` carrying config defaults AND the error.
  *
- * Note: the "commits last year" value is a best-effort estimate from recent
- * public events; it is replaced by the GraphQL contributionsCollection in PR-5c.
+ * Note: the "commits last year" value is the real GraphQL contributionsCollection
+ * count; a GraphQL failure degrades to a surgical fallback that preserves the live
+ * REST stats (see fetchCommitContributions below).
  */
 import { config } from '../../config/config.js'
 import githubOAuthService from '../auth/githubOAuthService.js'
