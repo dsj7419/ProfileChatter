@@ -775,7 +775,7 @@ These cover the relaunch reliability spine, honest data, off-by-default weather,
 #### TC-REL-009 — Spotify-skip copy reads naturally
 
 - Steps: With Spotify unconfigured, inspect the rendered Spotify message.
-- Expected: Copy reads naturally (e.g. "I'm jamming to my coding playlist right now…"); no awkward "jamming to Not currently listening to music. right now".
+- Expected: Copy reads naturally (e.g. "I code to my coding playlist — it really fuels my focus!"); no awkward standalone-sentence break (e.g. "I code to Not currently listening to music. — it really fuels my focus!"). Live track still renders ("I code to Song by Artist — …").
 
 #### TC-REL-010 — README image/link check on GitHub
 
