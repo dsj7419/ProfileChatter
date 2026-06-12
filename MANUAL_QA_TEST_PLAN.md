@@ -728,6 +728,60 @@ Each test case follows this format:
 
 ---
 
+### J. Relaunch — Reliability, Honesty & Contrast (v1.1)
+
+These cover the relaunch reliability spine, honest data, off-by-default weather, skip-vs-fallback semantics, light/dark contrast (P1/P2), the fork commit-back fallback, and the README visual proof.
+
+#### TC-REL-001 — Zero-key / fresh-clone build
+
+- Steps: Fresh clone with no `.env` and no secrets, run `npm install` then `npm run build`.
+- Expected: `dist/profile-chat.svg` renders with sensible defaults; no errors; no placeholder/garbage values; unconfigured integrations are skipped cleanly.
+
+#### TC-REL-002 — Status manifest classifications
+
+- Steps: Run a build; open `dist/status-manifest.json` and the GitHub Actions step summary.
+- Expected: Each source is classified live / skip / fallback / error; counts are accurate; 401/403/429 on a *configured* source surface as high-signal.
+
+#### TC-REL-003 — Alert open/close behavior
+
+- Steps: Cause a configured source to fail across a run, then restore it.
+- Expected: Exactly one GitHub issue auto-opens while failing and updates rather than spamming; it closes on recovery; no alert state is committed to the repo.
+
+#### TC-REL-004 — Skip vs fallback
+
+- Steps: Leave Spotify and GitHub-OAuth unconfigured; run a build.
+- Expected: They are reported as intentional **skip**, never fallback/error; no false alarm; defaults render.
+
+#### TC-REL-005 — Honest GitHub commit count
+
+- Steps: With a valid `PAT_GITHUB_OAUTH`, build and inspect the commits-last-year value.
+- Expected: Value is the real GitHub GraphQL contribution count (no fabricated estimate, no leading ~).
+
+#### TC-REL-006 — Weather off by default
+
+- Steps: With no AccuWeather key, build; then set `weather.enabled: true` + a key and rebuild.
+- Expected: Off by default → weather is skipped with defaults, no error. Enabled+key → live weather renders.
+
+#### TC-REL-007 — Light/dark contrast (P1 + P2)
+
+- Steps: View the SVG in light and dark for iOS, Android, and Discord (e.g. via the Configurator Mode toggle / OS color scheme).
+- Expected: Status text (Delivered/Read) is readable in both modes; visitor bubbles/text and visitor-side chart surfaces adapt (no white-on-white status, no glaring light slab in dark, no dark blob in light). Me-side unchanged.
+
+#### TC-REL-008 — Fork commit-back token fallback
+
+- Steps: On a fork without the owner PAT, enable Actions and let the build run.
+- Expected: The build auto-commits the SVG via `github.token` (no owner PAT required); the live badge updates.
+
+#### TC-REL-009 — Spotify-skip copy reads naturally
+
+- Steps: With Spotify unconfigured, inspect the rendered Spotify message.
+- Expected: Copy reads naturally (e.g. "I'm jamming to my coding playlist right now…"); no awkward "jamming to Not currently listening to music. right now".
+
+#### TC-REL-010 — README image/link check on GitHub
+
+- Steps: Open the rendered README on GitHub.
+- Expected: Hero badge, the six-image theme gallery (light + dark rows), Configurator screenshots, and the status-manifest image all load; all links resolve.
+
 ## Test Execution Log Template
 
 | Test Case ID | Status | Actual Result | Notes/Bug ID | Tester | Date |
