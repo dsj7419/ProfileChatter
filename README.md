@@ -2,7 +2,7 @@
 
 > **Animated chat bubbles that talk for you** — a self‑updating, messaging‑style panel for your GitHub&nbsp;profile, built from live data and rendered to an SVG by GitHub Actions.
 
-![ProfileChatter Demo](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1786692126)
+![ProfileChatter Demo](https://raw.githubusercontent.com/dsj7419/ProfileChatter/main/dist/profile-chat.svg?ts=1786712564)
 
 ---
 
@@ -38,7 +38,7 @@ A basic, self‑updating profile works with **no optional API keys**. You fork t
 3. **Embed the badge** in your profile README — the special repo named after your username (`<you>/<you>`):
 
    ```markdown
-   ![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1786692126)
+   ![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1786712564)
    ```
 
    Replace `<you>` with your GitHub username.
@@ -303,7 +303,7 @@ and the build replaces it with the top five languages from your last 7 days on W
 ### 🖼️ Embedding in your profile README
 
 ```markdown
-![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1786692126)
+![My Profile Chat](https://raw.githubusercontent.com/<you>/ProfileChatter/main/dist/profile-chat.svg?ts=1786712564)
 ```
 
 Replace `<you>` with your GitHub username. The `?ts=` value is bumped automatically by CI so GitHub serves the latest render rather than a cached copy.
